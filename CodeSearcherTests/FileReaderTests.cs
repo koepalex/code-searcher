@@ -17,8 +17,8 @@ namespace CodeSearcherTests
     public class FileReaderTests
     {
         private IList<String> m_AllowedExtension = new List<String>() { ".cs", ".sln", ".csproj" };
-        private const String m_SourcePath = @"Z:\99 temp";
-        private const String m_IndexPath = @"Z:\100idx";
+        private const String m_SourcePath = @"/Volumes/Data/temp/";
+        private const String m_IndexPath = @"/Volumes/Data/temp/100idx";
 
         [Test]
         public void foo()
@@ -66,6 +66,8 @@ namespace CodeSearcherTests
             }
         }
 
+
+		// Source path need at least on file (*.cs) with the seperateName "Logger" to successfull run this test
         [Test]
         public void foo4()
         {

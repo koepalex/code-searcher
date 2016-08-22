@@ -69,7 +69,7 @@ namespace CodeSearcher.BusinessLogic.Indexer
                                Names.ContentFieldName,
                                fileContent.ToLowerInvariant()));
 
-                       m_LuceneIndexWriter.AddDocument(doc);
+					   m_LuceneIndexWriter.AddDocument(doc);
 
                        FireEventProcessFile(fileName);
 
@@ -88,6 +88,14 @@ namespace CodeSearcher.BusinessLogic.Indexer
                 m_LuceneIndexWriter.Optimize(true);
             });
         }
+
+		public Task UpdateIndex()
+		{
+			return Task.Run(() => 
+			{
+				//TODO Implement Update Index
+			});
+		}
 
         private void FireEventProcessFile(String fileName)
         {

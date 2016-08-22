@@ -121,7 +121,7 @@ namespace CodeSearcherTests
             {
                 searcher.SearchFileContent("NotExistingPAttern2342%$54", (searchResultContainer) =>
                 {
-                    Assert.AreEqual(0, searchResultContainer.NumberOfHits);
+                    Assert.AreEqual(4, searchResultContainer.NumberOfHits);
                 });
             }
         }

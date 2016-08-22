@@ -9,6 +9,7 @@ namespace CodeSearcher.Interfaces
     public interface IIndexer : IDisposable
     {
         Task CreateIndex();
+		Task UpdateIndex();
         event IndexerProcessFileDelegate IndexerProcessFile; 
     }
 }

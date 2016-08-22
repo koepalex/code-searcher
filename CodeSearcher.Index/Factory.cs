@@ -14,6 +14,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace CodeSearcher.BusinessLogic
 {
@@ -89,17 +90,18 @@ namespace CodeSearcher.BusinessLogic
             return result;
         }
 
-        internal static Directory GetLuceneDirectory(String indexPath)
+        internal static Lucene.Net.Store.Directory GetLuceneDirectory(String indexPath)
         {
             return FSDirectory.Open(indexPath);
         }
 
         internal static Analyzer GetLuceneAnalyzer()
         {
-            return new WhitespaceAnalyzer();
+			//return new WhitespaceAnalyzer();
+			return GetSourceCodeAnalyzer();
         }
 
-        internal static IndexWriter GetLuceneIndexWriter(Directory indexDirectory, Analyzer analyzer)
+        internal static IndexWriter GetLuceneIndexWriter(Lucene.Net.Store.Directory indexDirectory, Analyzer analyzer)
         {
             return new IndexWriter(indexDirectory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
         }
@@ -131,5 +133,15 @@ namespace CodeSearcher.BusinessLogic
             var query = new TermQuery(term);
             return query;
         }
+
+		internal static Tokenizer GetSourceCodeTokenizer(TextReader input)
+		{
+			return new SourceCodeTokenizer(input);
+		}
+
+		internal static Analyzer GetSourceCodeAnalyzer()
+		{
+			return new SourceCodeAnalyzer();
+		}
     }
 }

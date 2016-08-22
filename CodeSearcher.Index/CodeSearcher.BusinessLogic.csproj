@@ -78,6 +78,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SearchResults\SearchResult.cs" />
     <Compile Include="SearchResults\SearchResultContainer.cs" />
+    <Compile Include="Indexer\Tokenizer\SourceCodeTokenizer.cs" />
+    <Compile Include="Indexer\Analyzer\SourceCodeAnalyzer.cs" />
+    <Compile Include="Common\CodeSearcherExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -87,6 +90,10 @@
       <Project>{a1c21ed1-a371-49d1-be39-c0119b96b34f}</Project>
       <Name>CodeSearcher.Interfaces</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Indexer\Tokenizer\" />
+    <Folder Include="Indexer\Analyzer\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

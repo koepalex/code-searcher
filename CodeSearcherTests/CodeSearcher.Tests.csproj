@@ -63,6 +63,11 @@
   <ItemGroup>
     <Compile Include="FileReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IntegrationTests\TestData\002_FilesWithoutContent\doc1.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="IntegrationTests\NoDataTests.cs" />
+    <Compile Include="TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeSearcher.Index\CodeSearcher.BusinessLogic.csproj">
@@ -76,9 +81,70 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="IntegrationTests\TestData\001_FilesWithWrongExtension\doc1.xyz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\001_FilesWithWrongExtension\doc2.xyz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\001_FilesWithWrongExtension\doc3.xyz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\001_FilesWithWrongExtension\doc4.xyz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\001_FilesWithWrongExtension\doc5.xyz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\001_FilesWithWrongExtension\doc6.xyz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\002_FilesWithoutContent\doc2.csproj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\002_FilesWithoutContent\doc3.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\023_XML_StarWars\persons.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\030_LinuxKernel\CreateTestEnvironment.ps1" />
+    <None Include="IntegrationTests\TestData\090_Recrusive\lvl1\lvl2\lvl1.lnk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\011_FolderInFolder_%25temp%25_As_Pattern\lvl1\lvl2\doc.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\020_SimpleText_LoremIpsum_As_Pattern\doc1.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\020_SimpleText_LoremIpsum_As_Pattern\doc2.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\020_SimpleText_LoremIpsum_As_Pattern\doc3.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\020_SimpleText_LoremIpsum_As_Pattern\doc4.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\020_SimpleText_LoremIpsum_As_Pattern\doc5.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\021_SourceCode_FooClass\class.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\022_SourceCode_BarInterface\interface.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\091_NoAccessRights\todo_remove_read_rights.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="IntegrationTests\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

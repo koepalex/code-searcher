@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<WebServerConfig>
+	<Uri>http://localhost</Uri>
+	<Port>9090</Port>
+	<IndexPath>/Volumes/Data/temp/100idx</IndexPath>
+</WebServerConfig>

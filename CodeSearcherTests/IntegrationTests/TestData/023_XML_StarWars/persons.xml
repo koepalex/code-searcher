@@ -1,0 +1,14 @@
+<Persons>
+	<Person name="Luke" surname="Skywalker" sex="male" kind="human;cyborg">
+		<Jobs>
+			<Job name="Farmer" />
+			<Job name="Pilot" />
+			<Job name="Jedi">
+				<Attributes>
+					<Attribute name="Master" value="Obi-Wan Kenobi; Yoda;" />
+					<Attribute name="Padawane" value="Jacen Solo; Anakin solo; Ben Skywalker; Vestara Khai" />
+				</Attributes>
+			</Job>
+		</Jobs>
+	</Person>
+<Persons>

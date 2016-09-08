@@ -26,6 +26,8 @@ namespace CodeSearcher.BusinessLogic.Indexer
         private static Analyzer m_LuceneAnalyzer;
         private static IndexWriter m_LuceneIndexWriter;
 
+		private HashSet<string> m_KnowFiles;
+
         public event IndexerProcessFileDelegate IndexerProcessFile;
 
         public DefaultIndexer(String idxPath, String srcPath, IList<String> fileExtensions)
@@ -42,6 +44,8 @@ namespace CodeSearcher.BusinessLogic.Indexer
             m_LuceneDirectoy = Factory.GetLuceneDirectory(m_IndexPath);
             m_LuceneAnalyzer =  Factory.GetLuceneAnalyzer();
             m_LuceneIndexWriter = Factory.GetLuceneIndexWriter(m_LuceneDirectoy, m_LuceneAnalyzer);
+
+			m_KnowFiles = new HashSet<string>();
         }
 
         public Task CreateIndex()
@@ -56,23 +60,32 @@ namespace CodeSearcher.BusinessLogic.Indexer
                    foreach (var fileStructure in fileStructures)
                    {
                        var doc = Factory.GetLuceneDocument();
-                       var fileName = fileStructure.FilePath;
-                       var fileContent = fileStructure.Text;
 
-                       doc.Add(
-							//files should be saved case variant to support unix filesystems
-                           Factory.GetLuceneStoredAndIndexedField(
-                               Names.FileNameFieldName,
-                               fileName));
+					   var fileName = fileStructure.FilePath;
+					   if (m_KnowFiles.Contains(fileName))
+					   {
+							
+					   }
+					   else
+					   {
+						   m_KnowFiles.Add(fileName);
+						   var fileContent = fileStructure.Text;
 
-                       doc.Add(
-                           Factory.GetLuceneNotStoredButIndexedField(
-                               Names.ContentFieldName,
-                               fileContent.ToLowerInvariant()));
+						   doc.Add(
+							   //files should be saved case variant to support unix filesystems
+							   Factory.GetLuceneStoredAndIndexedField(
+								   Names.FileNameFieldName,
+								   fileName));
 
-					   m_LuceneIndexWriter.AddDocument(doc);
+						   doc.Add(
+							   Factory.GetLuceneNotStoredButIndexedField(
+								   Names.ContentFieldName,
+								   fileContent.ToLowerInvariant()));
 
-                       FireEventProcessFile(fileName);
+						   m_LuceneIndexWriter.AddDocument(doc);
+
+						   FireEventProcessFile(fileName);
+					   }
 
                        //Interlocked.Increment(ref counter);
                    }
@@ -87,6 +100,8 @@ namespace CodeSearcher.BusinessLogic.Indexer
                task.Wait();
 
                 m_LuceneIndexWriter.Optimize(true);
+
+				m_KnowFiles.Clear();
             });
         }
 

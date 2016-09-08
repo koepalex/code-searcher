@@ -16,6 +16,8 @@ namespace CodeSearcher.WebServer
 			{
 				searcher.SearchFileContent(resultModel.SearchPattern, resultContainer => 
 				{
+					resultModel.NumberOfHits = resultContainer.NumberOfHits;
+
 					foreach (var item in resultContainer)
 					{
 						results.Add(ReadFileWithHit(item.FileName, resultModel.SearchPattern));

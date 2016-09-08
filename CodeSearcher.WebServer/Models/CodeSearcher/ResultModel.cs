@@ -5,6 +5,7 @@ namespace CodeSearcher.WebServer
 {
 	public class ResultModel
 	{
+		public int NumberOfHits { get; set; }
 		public string SearchPattern { get; set; }
 		//public int NumberOfHits { get; set; }
 		public IEnumerable<ResultItems> Results { get; set; }

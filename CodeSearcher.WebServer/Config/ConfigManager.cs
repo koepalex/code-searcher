@@ -44,18 +44,22 @@ namespace CodeSearcher.WebServer
 				{
 					if (CheckConsistency())
 					{
-						Log.Get.Info("[Info] Config successfully loaded");
+						if (Log.Get.IsInfoEnabled)
+							Log.Get.Info("[Info] Config successfully loaded");
+						
 						return true;
 					}
 				}
 				else
 				{
-					Log.Get.Error("could not deserialize CodeSearcher.WebServer config file");
+					if (Log.Get.IsErrorEnabled)
+						Log.Get.Error("could not deserialize CodeSearcher.WebServer config file");
 				}
 			}
 			else
 			{
-				Log.Get.Error("could not find CodeSearcher.WebServer config file");
+				if (Log.Get.IsErrorEnabled)
+					Log.Get.Error("could not find CodeSearcher.WebServer config file");
 			}
 			return false;
 		}
@@ -87,21 +91,24 @@ namespace CodeSearcher.WebServer
 			_isConsistent = true;
 			if (_config.Port <= 0)
 			{
-				Log.Get.Error("Config: port number is invalid");
+				if (Log.Get.IsErrorEnabled)
+					Log.Get.Error("Config: port number is invalid");
 				_isConsistent = false;
 			}
 
 
 			if (!Uri.TryCreate(_config.Uri + ":" + _config.Port, UriKind.Absolute, out _uri))
 			{
-				Log.Get.Error("Config: uri is not consistent");
+				if (Log.Get.IsErrorEnabled)
+					Log.Get.Error("Config: uri is not consistent");
 				_isConsistent = false;
 			}
 
 			if (string.IsNullOrWhiteSpace(_config.IndexPath)
 				|| !Directory.Exists(_config.IndexPath))
 			{
-				Log.Get.Error("Config: index path doesn't exist");
+				if (Log.Get.IsErrorEnabled)
+					Log.Get.Error("Config: index path doesn't exist");
 				_isConsistent = false;
 			}
 

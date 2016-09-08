@@ -1,15 +1,27 @@
 ﻿using System;
 using Nancy;
+using Nancy.Bootstrapper;
 using Nancy.Conventions;
+using Nancy.TinyIoc;
 
 namespace CodeSearcher.WebServer.Bootstrap
 {
 	public class NancyBootstrapper : DefaultNancyBootstrapper
 	{
-		protected override void ApplicationStartup(Nancy.TinyIoc.TinyIoCContainer container, Nancy.Bootstrapper.IPipelines pipelines)
+		protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
 		{
 			//activate that errors are shown on webpage
 			StaticConfiguration.DisableErrorTraces = false;
+
+			//log all requests which can't handled 
+			pipelines.OnError.AddItemToEndOfPipeline((ctx, ex) =>
+			{
+				if (Log.Get.IsErrorEnabled)
+				{
+					Log.Get.Error(ex, "Unhandled error on request: " + ctx.Request.Url + " : " + ex.Message);
+				}
+				return ex;
+			});
 
 			base.ApplicationStartup(container, pipelines);
 		}	

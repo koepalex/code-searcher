@@ -60,9 +60,10 @@ namespace CodeSearcher.BusinessLogic.Indexer
                        var fileContent = fileStructure.Text;
 
                        doc.Add(
+							//files should be saved case variant to support unix filesystems
                            Factory.GetLuceneStoredAndIndexedField(
                                Names.FileNameFieldName,
-                               fileName.ToLowerInvariant()));
+                               fileName));
 
                        doc.Add(
                            Factory.GetLuceneNotStoredButIndexedField(

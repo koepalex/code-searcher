@@ -11,11 +11,11 @@ namespace CodeSearcher.BusinessLogic.Io
 {
     internal class FileReader : IFileReader
     {
-        private IList<String> m_FileExtensions;
+		private HashSet<String> m_FileExtensions;
 
         public  FileReader(IList<String> fileExtensions)
         {
-            m_FileExtensions = fileExtensions;
+			m_FileExtensions = new HashSet<String>(fileExtensions);
         }
 
         public Task ReadFilesAsync(String srcPath, Action<IList<FileStructure>> action)

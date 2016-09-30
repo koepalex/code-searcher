@@ -7,7 +7,7 @@ namespace CodeSearcher.WebServer
 	{
 		public int NumberOfHits { get; set; }
 		public string SearchPattern { get; set; }
-		//public int NumberOfHits { get; set; }
+		public int MaximumNumberOfHits { get; set; }
 		public IEnumerable<ResultItems> Results { get; set; }
 	}
 

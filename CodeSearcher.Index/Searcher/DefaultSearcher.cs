@@ -27,14 +27,14 @@ namespace CodeSearcher.BusinessLogic.Searcher
             m_Searcher = new IndexSearcher(m_IndexDirectory);
         }
 
-        public void SearchFileContent(String pattern, Action<ISearchResultContainer> action)
+        public void SearchFileContent(String pattern, int maxNumberOfHits, Action<ISearchResultContainer> action)
         {
             if (String.IsNullOrWhiteSpace(pattern)) throw new ArgumentNullException("pattern");
             if (action == null) throw new ArgumentNullException("action");
 
             var query = Factory.GetLuceneSearchQuery("content", pattern.ToLowerInvariant());
 
-            var topDocs = m_Searcher.Search(query, 100);
+            var topDocs = m_Searcher.Search(query, maxNumberOfHits);
 
             var listOfFindings = ExtractDataOfTopDocs(topDocs);
 

@@ -4,6 +4,7 @@
 
 function onSearchBtn () {
 	var pattern = $('#searchInput').val();
+	var numberOfHits = $('#searchHits').val();
 
 	$.ajax({
 		method 		: 'GET',
@@ -11,7 +12,8 @@ function onSearchBtn () {
 		cache		: false,
 		dataType	: 'html',
 		data 	: {
-			SearchPattern : pattern
+			SearchPattern : pattern,
+			MaximumNumberOfHits : numberOfHits
 		}
 	})
 	.done(function(data) {

@@ -14,7 +14,7 @@ namespace CodeSearcher.WebServer
 
 			using (var searcher = Factory.GetSearcher(idxPath))
 			{
-				searcher.SearchFileContent(resultModel.SearchPattern, resultContainer => 
+				searcher.SearchFileContent(resultModel.SearchPattern, resultModel.MaximumNumberOfHits, resultContainer => 
 				{
 					resultModel.NumberOfHits = resultContainer.NumberOfHits;
 

@@ -290,7 +290,7 @@ namespace CodeSearcher
 
                     var timeSpan = RunActionWithTimings("Search For " + word, () =>
                     {
-                        searcher.SearchFileContent(word, (searchResultContainer) =>
+                        searcher.SearchFileContent(word, 1000, (searchResultContainer) =>
                         {
                             Console.WriteLine("Found {0} hits", searchResultContainer.NumberOfHits);
                             foreach(var result in searchResultContainer)

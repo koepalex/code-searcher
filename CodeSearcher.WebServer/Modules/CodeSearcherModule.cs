@@ -19,7 +19,7 @@ namespace CodeSearcher.WebServer
 					//TODO redirect to error page
 				}
 
-				return View[new SearchModel { IndexPath = cfgManager.IndexPath }];
+				return View[new SearchModel { IndexPath = cfgManager.IndexPath, MaximumNumberOfHits = Int32.MaxValue }];
 			};
 
 			Get["/results"] = param =>

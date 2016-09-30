@@ -8,6 +8,6 @@ namespace CodeSearcher.Interfaces
 {
     public interface ISearcher : IDisposable
     {
-        void SearchFileContent(String pattern, Action<ISearchResultContainer> action);
+        void SearchFileContent(String pattern, int maximumNumberOfHits, Action<ISearchResultContainer> action);
     }
 }

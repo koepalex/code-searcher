@@ -17,7 +17,9 @@ function onSearchBtn () {
 		}
 	})
 	.done(function(data) {
-		$("html").html(data);
+		//$("html").html(data);
+		window.open();
+		document.write(data);
 	})
 	.fail(function() {
     	alert( "error - while loading the result view" );

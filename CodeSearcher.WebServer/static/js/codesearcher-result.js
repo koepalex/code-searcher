@@ -9,4 +9,17 @@
 		$this.removeClass('panel-collapsed');
 		$this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
 	}
-})
+});
+
+$('#filterPattern').on('keypress', function(e) {
+	if (e.keyCode == 13) {
+		e.preventDefault();
+		var $panels = $('.result-group');
+	    var val = $(this).val().toLowerCase();
+
+	    $panels.show().filter(function() {
+	        var panelTitleText = $(this).find('.panel-title').text().toLowerCase();
+	        return panelTitleText.indexOf(val) < 0;
+	    }).hide();
+    }
+});

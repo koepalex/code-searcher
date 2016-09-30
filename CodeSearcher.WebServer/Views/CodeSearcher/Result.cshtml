@@ -23,7 +23,9 @@
 		</button>
 		<br /> <br />
 
-		<h3><span class="label label-primary"># Files with Hits<span class="badge">@Model.NumberOfHits</span></span></h3>
+		<h3><span class="label label-primary"># Files with Hits<span class="badge">@Model.NumberOfHits</span></span></h3><br />
+
+		<input id="filterPattern" type="text" class="form-control" placeholder="Filter file names..."> <br />
 		
 		<div class="panel panel-success">
 			@foreach (var item in @Model.Results)

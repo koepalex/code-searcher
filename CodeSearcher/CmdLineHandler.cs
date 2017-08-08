@@ -17,6 +17,7 @@ namespace CodeSearcher
         public const String FileExtensions = "FileExtensions";
         public const String SearchedWord = "SearchedWord";
         public const String ProgramMode = "ProgramMode";
+		public const String NumberOfHits = "NumberOfHits";
 
         public String this [String name]
         {
@@ -71,6 +72,7 @@ namespace CodeSearcher
             var srcPath = os.AddVariable<String>("sp|sourcePath", "Location of files, which should be indexed (mandatory in case of 'mode=index')");
 			var fileExtensions = os.AddVariable<String>("fe|fileExtensions", "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')");
 			var searchedWord = os.AddVariable<String>("sw|searchedWord", "word to look for into index (mandatory in case of 'mode=search')");
+			var numberOfHitsToShow = os.AddVariable<Int32>("hits|numerOfHits", "Amount of findings to show (optional, default is 1000)");
 
             try
             {
@@ -86,7 +88,7 @@ namespace CodeSearcher
             {
                 PrintUsage(os);
             }
-            else
+			else if(argumentsOk)
             {
                 if (String.IsNullOrWhiteSpace(mode))
                 {
@@ -96,73 +98,97 @@ namespace CodeSearcher
                 else
                 {
                     if (mode == "index" || mode == "i")
-                    {
-                        m_Arguments[ProgramMode] = "index";
-                        if (!String.IsNullOrWhiteSpace(idxPath))
-                        {
-                            m_Arguments[IndexPath] = idxPath;
+					{
+						argumentsOk = SetArgumentsForIndexing(os, idxPath, srcPath, fileExtensions);
+					}
+					else if (mode == "search" || mode == "s")
+					{
+						argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow);
+					}
+					else
+					{
+						PrintUsage(os);
+						argumentsOk = false;
+					}
+				}
+			}
 
-                            if (!String.IsNullOrWhiteSpace(srcPath))
-                            {
-                                m_Arguments[SourcePath] = srcPath;
+			return argumentsOk;
 
-                                if (!String.IsNullOrWhiteSpace(fileExtensions))
-                                {
-                                    m_Arguments[FileExtensions] = fileExtensions;
-                                }
-                                else
-                                {
-                                    m_Arguments[FileExtensions] = ".cs,.xml,.csproj";
-                                }
-                            }
-                            else
-                            {
-                                PrintUsage(os);
-                                argumentsOk = false;
-                            }
-                        }
-                        else
-                        {
-                            PrintUsage(os);
-                            argumentsOk = false;
-                        }
-                    }
-                    else if (mode == "search" || mode == "s")
-                    {
-                        m_Arguments[ProgramMode] = "search";
+		}
 
-                        if (!String.IsNullOrWhiteSpace(idxPath))
-                        {
-                            m_Arguments[IndexPath] = idxPath;
-                            if (!String.IsNullOrWhiteSpace(searchedWord))
-                            {
-                                m_Arguments[SearchedWord] = searchedWord;
-                            }
-                            else
-                            {
-                                PrintUsage(os);
-                                argumentsOk = false;
-                            }
-                        }
-                        else
-                        {
-                            PrintUsage(os);
-                            argumentsOk = false;
-                        }
-                    }
-                    else
-                    {
-                        PrintUsage(os);
-                        argumentsOk = false;
-                    }
-                }
-            }
+		bool SetArgumentsForIndexing(OptionSet os, Variable<string> idxPath, Variable<string> srcPath, Variable<string> fileExtensions)
+		{
+			bool argumentsOk = true;
+			m_Arguments[ProgramMode] = "index";
+			if (!String.IsNullOrWhiteSpace(idxPath))
+			{
+				m_Arguments[IndexPath] = idxPath;
 
-            return argumentsOk;
+				if (!String.IsNullOrWhiteSpace(srcPath))
+				{
+					m_Arguments[SourcePath] = srcPath;
 
-        }
+					if (!String.IsNullOrWhiteSpace(fileExtensions))
+					{
+						m_Arguments[FileExtensions] = fileExtensions;
+					}
+					else
+					{
+						m_Arguments[FileExtensions] = ".cs,.xml,.csproj";
+					}
+				}
+				else
+				{
+					PrintUsage(os);
+					argumentsOk = false;
+				}
+			}
+			else
+			{
+				PrintUsage(os);
+				argumentsOk = false;
+			}
 
-        private void PrintUsage(OptionSet os)
+			return argumentsOk;
+		}
+
+		bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow)
+		{
+			bool argumentsOk = true;
+			m_Arguments[ProgramMode] = "search";
+
+			if (!String.IsNullOrWhiteSpace(idxPath))
+			{
+				m_Arguments[IndexPath] = idxPath;
+				if (!String.IsNullOrWhiteSpace(searchedWord))
+				{
+					m_Arguments[SearchedWord] = searchedWord;
+				}
+				else
+				{
+					PrintUsage(os);
+					argumentsOk = false;
+				}
+				if (numberOfHitsToShow > 0)
+				{
+					m_Arguments[NumberOfHits] = numberOfHitsToShow.Value.ToString();
+				}
+				else
+				{
+					m_Arguments[NumberOfHits] = 1000.ToString();
+				}
+			}
+			else
+			{
+				PrintUsage(os);
+				argumentsOk = false;
+			}
+
+			return argumentsOk;
+		}
+
+		private void PrintUsage(OptionSet os)
         {
             Console.WriteLine("CodeSearcher - Usage");
             os.WriteOptionDescriptions(Console.Out);

@@ -6,4 +6,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <StartArguments>-m=i -sp="D:\WS\src" -ip="G:\Temp\Idx"</StartArguments>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <StartAction>Project</StartAction>
+    <StartArguments>-m=s --ip="/Volumes/Data/temp/100idx" --sw="class" --hits=42</StartArguments>
+  </PropertyGroup>
 </Project>

@@ -288,9 +288,16 @@ namespace CodeSearcher
                         if (exit) break;
                     }
 
+					int numberOfHits;
+
+					if (!int.TryParse(m_CmdHandler[CmdLineHandler.NumberOfHits], out numberOfHits))
+					{
+						Console.WriteLine("Error while reading number of hits");
+						break;
+					}
                     var timeSpan = RunActionWithTimings("Search For " + word, () =>
                     {
-                        searcher.SearchFileContent(word, 1000, (searchResultContainer) =>
+                        searcher.SearchFileContent(word, numberOfHits, (searchResultContainer) =>
                         {
                             Console.WriteLine("Found {0} hits", searchResultContainer.NumberOfHits);
                             foreach(var result in searchResultContainer)

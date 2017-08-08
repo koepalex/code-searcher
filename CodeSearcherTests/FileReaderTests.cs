@@ -73,7 +73,7 @@ namespace CodeSearcherTests
         {
             using (var searcher = new DefaultSearcher(m_IndexPath))
             {
-                searcher.SearchFileContent("Logger", (searchResultContainer) =>
+                searcher.SearchFileContent("Logger", 250, (searchResultContainer) =>
                 {
                     Assert.AreNotEqual(0, searchResultContainer.NumberOfHits);
                 });
@@ -103,7 +103,7 @@ namespace CodeSearcherTests
         {
             using(var searcher = Factory.GetSearcher(m_IndexPath))
             {
-                searcher.SearchFileContent("Logger", (searchResultContainer) =>
+                searcher.SearchFileContent("Logger", 250, (searchResultContainer) =>
                 {
                     foreach(var result in searchResultContainer)
                     {
@@ -119,7 +119,7 @@ namespace CodeSearcherTests
         {
             using (var searcher = Factory.GetSearcher(m_IndexPath))
             {
-                searcher.SearchFileContent("NotExistingPAttern2342%$54", (searchResultContainer) =>
+                searcher.SearchFileContent("NotExistingPAttern2342%$54", 250, (searchResultContainer) =>
                 {
                     Assert.AreEqual(4, searchResultContainer.NumberOfHits);
                 });

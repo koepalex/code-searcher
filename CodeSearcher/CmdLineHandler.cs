@@ -30,6 +30,11 @@ namespace CodeSearcher
             }
         }
 
+		public CmdLineHandler()
+		{
+			m_Arguments = new Dictionary<String, String>();   
+		}
+
         public int GetProgramModeAsInt()
         {
             if (m_Arguments.ContainsKey(ProgramMode))
@@ -54,10 +59,7 @@ namespace CodeSearcher
             return extensions;
         }
 
-        public CmdLineHandler()
-        {
-            m_Arguments = new Dictionary<String, String>();
-        }
+
 
         public bool Parse(string[] cmdArgs)
         {
@@ -67,8 +69,8 @@ namespace CodeSearcher
             var mode = os.AddVariable<String>("m|mode", "Select the mode of the tool. \n 'index' to index directory \n 'search' to search within already indexed directory");
             var idxPath = os.AddVariable<String>("ip|indexPath", "Location where the index is or should be stored (mandatory)");
             var srcPath = os.AddVariable<String>("sp|sourcePath", "Location of files, which should be indexed (mandatory in case of 'mode=index')");
-            var fileExtensions = os.AddVariable<String>("fe|fileExtensions", "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj'");
-            var searchedWord = os.AddVariable<String>("sw|searchedWord", "word to look for into index (mandatory in case of 'mode=search'");
+			var fileExtensions = os.AddVariable<String>("fe|fileExtensions", "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')");
+			var searchedWord = os.AddVariable<String>("sw|searchedWord", "word to look for into index (mandatory in case of 'mode=search')");
 
             try
             {

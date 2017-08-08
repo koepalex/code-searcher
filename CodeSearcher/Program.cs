@@ -234,8 +234,8 @@ namespace CodeSearcher
 
         private static IList<String> CollectedUserEnteredFileExtensions()
         {
-            throw new NotImplementedException();
-        }
+			return m_CmdHandler.GetFileExtensionsAsList();
+		}
 
         private static TimeSpan RunActionWithTimings(String name, Action action)
         {

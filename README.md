@@ -1,2 +1,14 @@
 # code-searcher
+-------
 A tool to index source code, for faster searches
+
+## Why ?
+In my daily work I deal with a lot of different artifacts (source code, meta file, domain specific languages) and almost every week I've to search something over all artifacts. With the fastes search tools it took me around **45min** on an average search. So I was looking for a tool to speed up.
+There are some tools available but all have some disadvantages / nogo's, like:
+* only work language dependend like csearch, ctags
+* only work on linux/mac (codesearch)
+* don't work on local machine
+* can't handle huge code basis
+* indexing of the code, take days
+
+Not finding any tool, which solves my use case, was the reason ssto start this project. 

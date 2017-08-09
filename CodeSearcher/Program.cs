@@ -295,6 +295,13 @@ namespace CodeSearcher
 						Console.WriteLine("Error while reading number of hits");
 						break;
 					}
+
+					int hitsPerPage;
+					if (!int.TryParse(m_CmdHandler[CmdLineHandler.HitsPerPage], out hitsPerPage))
+					{
+						Console.WriteLine("Error while reading numer of hits to show at once");
+					}
+
                     var timeSpan = RunActionWithTimings("Search For " + word, () =>
                     {
                         searcher.SearchFileContent(word, numberOfHits, (searchResultContainer) =>
@@ -303,6 +310,11 @@ namespace CodeSearcher
                             foreach(var result in searchResultContainer)
                             {
                                 var resultPrinter = new ResultPrinter(word, result.FileName);
+
+								resultPrinter.NumbersToShow = numberOfHits == -1
+									? int.MaxValue
+									: numberOfHits;
+								
                                 resultPrinter.PrintFileInformation();
                             }
                         });

@@ -18,6 +18,7 @@ namespace CodeSearcher
         public const String SearchedWord = "SearchedWord";
         public const String ProgramMode = "ProgramMode";
 		public const String NumberOfHits = "NumberOfHits";
+		public const String HitsPerPage = "HitsPerPage";
 
         public String this [String name]
         {
@@ -73,6 +74,7 @@ namespace CodeSearcher
 			var fileExtensions = os.AddVariable<String>("fe|fileExtensions", "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')");
 			var searchedWord = os.AddVariable<String>("sw|searchedWord", "word to look for into index (mandatory in case of 'mode=search')");
 			var numberOfHitsToShow = os.AddVariable<Int32>("hits|numerOfHits", "Amount of findings to show (optional, default is 1000)");
+			var hitsPerPage = os.AddVariable<Int32>("hpp|hitsPerPage", "Amount of findings to show at once (optional, default = 40; -1 means all)");
 
             try
             {
@@ -103,7 +105,7 @@ namespace CodeSearcher
 					}
 					else if (mode == "search" || mode == "s")
 					{
-						argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow);
+						argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage);
 					}
 					else
 					{
@@ -153,7 +155,7 @@ namespace CodeSearcher
 			return argumentsOk;
 		}
 
-		bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow)
+		bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow, Variable<int> hitsPerPage)
 		{
 			bool argumentsOk = true;
 			m_Arguments[ProgramMode] = "search";
@@ -177,6 +179,15 @@ namespace CodeSearcher
 				else
 				{
 					m_Arguments[NumberOfHits] = 1000.ToString();
+				}
+
+				if (hitsPerPage == -1 || hitsPerPage > 0)
+				{
+					m_Arguments[HitsPerPage] = hitsPerPage.Value.ToString();
+				}
+				else
+				{
+					m_Arguments[HitsPerPage] = 40.ToString();
 				}
 			}
 			else

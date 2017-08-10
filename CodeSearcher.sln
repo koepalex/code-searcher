@@ -19,8 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeSearcher.Interfaces", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeSearcher.WebServer", "CodeSearcher.WebServer\CodeSearcher.WebServer.csproj", "{33977E82-8D96-4B04-A92C-A32C6F7329D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeSearcher.Gui", "CodeSearcher.Gui\CodeSearcher.Gui.csproj", "{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,14 +67,6 @@ Global
 		{33977E82-8D96-4B04-A92C-A32C6F7329D9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{33977E82-8D96-4B04-A92C-A32C6F7329D9}.Release|x64.ActiveCfg = Release|Any CPU
 		{33977E82-8D96-4B04-A92C-A32C6F7329D9}.Release|x64.Build.0 = Release|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Debug|x64.Build.0 = Debug|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Release|x64.ActiveCfg = Release|Any CPU
-		{F5EA4EBB-1893-4E23-B8BF-A6AB73304E7B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

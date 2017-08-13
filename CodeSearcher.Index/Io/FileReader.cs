@@ -23,32 +23,33 @@ namespace CodeSearcher.BusinessLogic.Io
             return ReadFilesAsync(srcPath, action, 0);
         }
 
-		public Task ReadFilesAsync(IEnumerable<string> files, Action<IList<FileStructure>> action)
-		{
-			return Task.Run(() =>
-			{
-				files.Batch(10).AsParallel().WithDegreeOfParallelism(8).ForAll(filePaths =>
-				{
-					var fileList = new List<FileStructure>(10);
-					foreach (string path in filePaths)
-					{
-						var fileStruct = ReadText(path);
-						fileList.Add(fileStruct);
-					}
+		//public Task ReadFilesAsync(IEnumerable<string> files, Action<IList<FileStructure>> action)
+		//{
+		//	return Task.Run(() =>
+		//	{
+		//		files.Batch(10).AsParallel().WithDegreeOfParallelism(8).ForAll(filePaths =>
+		//		{
+		//			var fileList = new List<FileStructure>(10);
+		//			foreach (string path in filePaths)
+		//			{
+		//				var fileStruct = ReadText(path);
+		//				fileList.Add(fileStruct);
+		//			}
 
-					action(fileList);
-				});
-			});
-		}
+		//			action(fileList);
+		//		});
+		//	});
+		//}
 
         private Task ReadFilesAsync(String srcPath, Action<IList<FileStructure>> action, int depth)
         {
             return Task.Run(() =>
             {
-                if (depth >= 1)
+                if (depth >= 3)
                 {
                     ReadFilesInSync(srcPath, action);
                 }
+				else
                 {
                     var currentDirectory = new DirectoryInfo(srcPath);
                     if (!currentDirectory.Exists) throw new ArgumentException("Source Folder dosn't exist!");
@@ -75,7 +76,6 @@ namespace CodeSearcher.BusinessLogic.Io
 
             var data = ReadFolderContent(currentDirectory);
             action(data);
-
 
             foreach (var innerDirectory in currentDirectory.EnumerateDirectories())
             {

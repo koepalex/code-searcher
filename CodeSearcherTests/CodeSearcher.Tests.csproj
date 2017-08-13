@@ -63,9 +63,6 @@
   <ItemGroup>
     <Compile Include="FileReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IntegrationTests\TestData\002_FilesWithoutContent\doc1.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
     <Compile Include="IntegrationTests\NoDataTests.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
@@ -112,7 +109,7 @@
     <None Include="IntegrationTests\TestData\090_Recrusive\lvl1\lvl2\lvl1.lnk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="IntegrationTests\TestData\011_FolderInFolder_%25temp%25_As_Pattern\lvl1\lvl2\doc.cs">
+    <None Include="IntegrationTests\TestData\011_FolderInFolder\lvl1\lvl2\doc.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="IntegrationTests\TestData\020_SimpleText_LoremIpsum_As_Pattern\doc1.cs">
@@ -139,12 +136,19 @@
     <None Include="IntegrationTests\TestData\091_NoAccessRights\todo_remove_read_rights.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="IntegrationTests\TestData\002_FilesWithoutContent\doc1.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IntegrationTests\TestData\011_FolderInFolder\lvl1\lvl2\lvl3\itf.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IntegrationTests\" />
+    <Folder Include="IntegrationTests\TestData\011_FolderInFolder\lvl1\lvl2\lvl3\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

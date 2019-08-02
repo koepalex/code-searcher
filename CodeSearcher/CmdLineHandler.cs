@@ -2,9 +2,6 @@
 using NDesk.Options.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeSearcher
 {
@@ -73,7 +70,7 @@ namespace CodeSearcher
             var srcPath = os.AddVariable<String>("sp|sourcePath", "Location of files, which should be indexed (mandatory in case of 'mode=index')");
 			var fileExtensions = os.AddVariable<String>("fe|fileExtensions", "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')");
 			var searchedWord = os.AddVariable<String>("sw|searchedWord", "word to look for into index (mandatory in case of 'mode=search')");
-			var numberOfHitsToShow = os.AddVariable<Int32>("hits|numerOfHits", "Amount of findings to show (optional, default is 1000)");
+			var numberOfHitsToShow = os.AddVariable<Int32>("hits|numerOfHits", "Amount of files with findings (optional, default is 1000)");
 			var hitsPerPage = os.AddVariable<Int32>("hpp|hitsPerPage", "Amount of findings to show at once (optional, default = 40; -1 means all)");
 
             try

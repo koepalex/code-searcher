@@ -1,15 +1,10 @@
 ﻿using CodeSearcher.BusinessLogic;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
 using System.Diagnostics;
-using System.Net;
-using System.Security.Cryptography;
 using System.Threading;
 using CodeSearcher.BusinessLogic.Common;
 

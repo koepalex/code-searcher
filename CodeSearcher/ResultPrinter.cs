@@ -33,7 +33,8 @@ namespace CodeSearcher
 
             for (int i = 0, numbersToShow = 0; i < lines.Length; i++)
             {
-                if (lines[i].Contains(m_SearchedWord))
+                var lineToLower = lines[i].ToLowerInvariant().Trim();
+                if (lineToLower.Contains(m_SearchedWord))
                 {
                     var line = lines[i].Trim();
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -41,7 +42,7 @@ namespace CodeSearcher
                     Console.ResetColor();
 
                     //TODO handle multiple hits in one line
-                    var indexOfWord = line.IndexOf(m_SearchedWord);
+                    var indexOfWord = lineToLower.IndexOf(m_SearchedWord);
                     Console.Write(line.Substring(0, indexOfWord));
 
                     Console.BackgroundColor = ConsoleColor.DarkRed;

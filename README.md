@@ -12,3 +12,15 @@ There are some tools available but all have some disadvantages / nogo's, like:
 * indexing of the code, take days
 
 Not finding any tool, which solves my use case, was the reason ssto start this project. 
+
+## Command Line Version (CodeSearcher)
+This chapter describes how to use the command line version of the tool.
+### Index a new source code folder
+First we have to analyse all the files we want to have searchable. To create a lucene index out of the files you can use the following commands: 
+```batchfile
+REM CodeSearcher.exe -m=index --ip=<PathToStoreIndex> --sp=<PathOfSourceCode>
+REM Index files of type (cs, csproj, xml) of folder "D:\repository\project" and store resulting index in folder "D:\Index"
+CodeSearcher.exe -m=index --ip=D:\Index --sp=D:\repository\project
+REM Index files of Type (json and xml) of folder "D:\repository\project" and store resulting index in folder "D:\IndexJsonOnly"
+CodeSearcher.exe -m=index --ip=D:\IndexJsonXmlOnly --sp=D:\repository\project --fe=".json,.xml"
+```

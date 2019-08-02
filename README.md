@@ -19,6 +19,7 @@ This chapter describes how to use the command line version of the tool.
 First we have to analyse all the files we want to have searchable. To create a lucene index out of the files you can use the following commands: 
 ```batchfile
 REM CodeSearcher.exe -m=index --ip=PathToStoreIndex --sp=PathOfSourceCode
+
 REM Index files of type (cs, csproj, xml) of folder "D:\repository\project" 
 REM and store resulting index in folder "D:\Index"
 CodeSearcher.exe -m=index --ip=D:\Index --sp=D:\repository\project
@@ -31,8 +32,30 @@ CodeSearcher.exe -m=index --ip=D:\IndexJsonXmlOnly --sp=D:\repository\project --
 After indexing we can use the index to find the files and linenumbers containing the searched word, very fast.
 ```batchfile
 REM CodeSearcher.exe -m==search --ip=PathToStoreIndex --sw=WordToSearch
+
 REM search word "class" in index stored under "D:\Index"
 CodeSearcher.exe -m=search --ip=D:\Index --sw="class"
 REM search word "port" in index stored under "D:\IndexJsonXmlOnly" show first 100 hits
 CodeSearcher.exe -m=search --ip="C:\IndexXmlOnly" --sw="port" --hits=100
 ```
+
+## WebServer
+This chapter describes how to use the webserver to look for results.
+
+Before starting the webserver you need to edit the config file [CodeSearcher.WebServer.xml](./CodeSearcher.WebServer/Config/CodeSearcher.WebServer.xml").
+```xml
+<WebServerConfig>
+	<Uri>http://localhost</Uri> <!--URL run the website-->
+	<Port>9090</Port> <!--Port address to be used by webserver-->
+	<IndexPath>D:\Index</IndexPath> <!--Path to the index, used for searching-->
+</WebServerConfig>
+```
+When you are using windows, it is maybe necessary to create an access control list (ACL) for the website, this can be done via consoles started with Administration rights:
+```batchfile
+netsh http add urlacl url="http://+:9090/" user="Everybody"
+```
+You can now start the Webserver
+```
+CodeSearcher.WebServer.exe
+```
+

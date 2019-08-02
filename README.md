@@ -42,7 +42,7 @@ CodeSearcher.exe -m=search --ip="C:\IndexXmlOnly" --sw="port" --hits=100
 ## WebServer
 This chapter describes how to use the webserver to look for results.
 
-Before starting the webserver you need to edit the config file [CodeSearcher.WebServer.xml](./CodeSearcher.WebServer/Config/CodeSearcher.WebServer.xml").
+Before starting the webserver you need to edit the config file [CodeSearcher.WebServer.xml](./CodeSearcher.WebServer/Config/CodeSearcher.WebServer.xml).
 ```xml
 <WebServerConfig>
 	<Uri>http://localhost</Uri> <!--URL run the website-->

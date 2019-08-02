@@ -1,0 +1,9 @@
+[bB]in/
+[oO]bj/
+
+# IDE files
+.vs/
+*csproj.user
+
+# Packages
+packages/

@@ -306,9 +306,9 @@ namespace CodeSearcher
                             {
                                 var resultPrinter = new ResultPrinter(word, result.FileName);
 
-								resultPrinter.NumbersToShow = numberOfHits == -1
+								resultPrinter.NumbersToShow = hitsPerPage == -1
 									? int.MaxValue
-									: numberOfHits;
+									: hitsPerPage;
 								
                                 resultPrinter.PrintFileInformation();
                             }

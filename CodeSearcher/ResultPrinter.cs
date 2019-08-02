@@ -11,6 +11,7 @@ namespace CodeSearcher
     {
         private String m_SearchedWord;
         private String m_FileName;
+        private static int m_NumbersToShow = 0;
 
         public int NumbersToShow  { get; set; }
 
@@ -31,7 +32,7 @@ namespace CodeSearcher
 
             var lines = File.ReadAllLines(m_FileName, Encoding.Default);
 
-            for (int i = 0, numbersToShow = 0; i < lines.Length; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
                 var lineToLower = lines[i].ToLowerInvariant().Trim();
                 if (lineToLower.Contains(m_SearchedWord))
@@ -61,13 +62,13 @@ namespace CodeSearcher
                         Console.WriteLine();
                     }
 
-                    if (numbersToShow == NumbersToShow)
+                    if (NumbersToShow != -1 && (m_NumbersToShow + 1) == NumbersToShow)
                     {
                         Console.WriteLine("... press any key to show more results ...");
                         Console.ReadKey();
-                        numbersToShow = -1;
+                        m_NumbersToShow = -1;
                     }
-                    numbersToShow++;
+                    m_NumbersToShow++;
                 }
             }
         }

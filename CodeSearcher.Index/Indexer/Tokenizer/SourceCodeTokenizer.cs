@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Lucene.Net.Analysis;
 using Lucene.Net.Util;
 
-namespace CodeSearcher.BusinessLogic
+namespace CodeSearcher.BusinessLogic.OwnTokenizer
 {
-	public class SourceCodeTokenizer : CharTokenizer
+    public class SourceCodeTokenizer : CharTokenizer
 	{
 		private static HashSet<char> s_CharList;
 		#region c'tors
@@ -16,7 +15,8 @@ namespace CodeSearcher.BusinessLogic
 			s_CharList = new HashSet<char>();
 			//white space for simple word splitting
 			s_CharList.Add(' ');
-			s_CharList.Add('\\');
+            s_CharList.Add('\0');
+            s_CharList.Add('\\');
 			s_CharList.Add('\n');
 			s_CharList.Add('\t');
 			//math operators
@@ -38,8 +38,11 @@ namespace CodeSearcher.BusinessLogic
 			s_CharList.Add('!');
 			s_CharList.Add('?'); //also for ?? or .?
 			s_CharList.Add(':');
-			//bit operators
-			s_CharList.Add('&'); //also for &&
+			s_CharList.Add('~');
+			s_CharList.Add('#');
+			s_CharList.Add('%');
+            //bit operators
+            s_CharList.Add('&'); //also for &&
 			s_CharList.Add('|'); //also for ||
 			s_CharList.Add('^');
 			// strings
@@ -51,9 +54,12 @@ namespace CodeSearcher.BusinessLogic
 			s_CharList.Add(',');
 			s_CharList.Add('@');
 			s_CharList.Add('_');
-		}
+            //currency
+            s_CharList.Add('$');
 
-		public SourceCodeTokenizer(TextReader input) : base(input)
+        }
+
+        public SourceCodeTokenizer(TextReader input) : base(input)
 		{
 		}
 

@@ -1,4 +1,6 @@
-﻿# Script to create Test Environment, this needs only to be done once for the repository
+﻿# Hint: you may need to execute 'set-executionpolicy Unrestricted -scope CurrentUser' from powershell
+
+# Script to create Test Environment, this needs only to be done once for the repository
 # Don't run this script multiple times, this could end in IP ban from archive.org
 
 # We use books from project gutenberg, via archive.org as test Data
@@ -18,7 +20,7 @@ Write-Host "Create Test Environment started ..."
 $Path = $PSScriptRoot
 
 $books.Keys | % { 
-    $folder = [IO.Path]::combine($Path, "TestData", $_)
+    $folder = [IO.Path]::combine($Path, "IntegrationTests", "DownloadedTestData", $_)
     
 	# Create Folder for Test Data
 	try {

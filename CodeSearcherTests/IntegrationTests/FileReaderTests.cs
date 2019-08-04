@@ -42,13 +42,13 @@ namespace CodeSearcher.Tests.IntegrationTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            string pathToSearch = TestHelper.GetPathToTestData("014_BigBinaryFile");
+            string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_BigBinaryFile");
             var fullPath = Path.Combine(pathToSearch, TestHelper.BigFileName);
 
             if (!File.Exists(fullPath))
             {
                 Directory.CreateDirectory(pathToSearch);
-                TestHelper.CreateDummyFile(fullPath);
+                TestHelper.CreateBigDummyFile(fullPath);
             }
         }
         #endregion
@@ -59,7 +59,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Test]
 		public void Test_NoFileWithCorrectExtension_Expect_Nothing()
 		{
-			string pathToSearch = TestHelper.GetPathToTestData("001_FilesWithWrongExtension");
+			string pathToSearch = TestHelper.GetPathToIntegrationTestData("001_FilesWithWrongExtension");
 
 			var fileReader = new FileReader(new List<string> { ".txt" });
 			Assert.NotNull(fileReader, "can't create FileReader");
@@ -80,7 +80,7 @@ namespace CodeSearcher.Tests.IntegrationTests
 		[Test]
 		public void Test_FilesWithoutContent_Expect_AllFilesFound()
 		{
-			string pathToSearch = TestHelper.GetPathToTestData("002_FilesWithoutContent");
+			string pathToSearch = TestHelper.GetPathToIntegrationTestData("002_FilesWithoutContent");
 
 			var fileReader = new FileReader(new List<string> { ".cs", ".csproj", ".xml" });
 			Assert.NotNull(fileReader, "can't create FileReader");
@@ -101,7 +101,7 @@ namespace CodeSearcher.Tests.IntegrationTests
 		[Test]
 		public void Test_FolderInFolder_Expect_AllFilesFound()
 		{
-			string pathToSearch = TestHelper.GetPathToTestData("011_FolderInFolder");
+			string pathToSearch = TestHelper.GetPathToIntegrationTestData("011_FolderInFolder");
 
 			var fileReader = new FileReader(new List<string> { ".cs", ".csproj", ".xml" });
 			Assert.NotNull(fileReader, "can't create FileReader");
@@ -123,7 +123,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Test]
         public void Test_LoremIpsumText_Expect_All_Files_When_FilePattern_Is_Tribled()
         {
-            string pathToSearch = TestHelper.GetPathToTestData("012_SimpleText_LoremIpsum_As_Pattern");
+            string pathToSearch = TestHelper.GetPathToIntegrationTestData("012_SimpleText_LoremIpsum_As_Pattern");
 
             var fileReader = new FileReader(new List<string> { ".cs", ".cs", ".cs" });
             Assert.NotNull(fileReader, "can't create FileReader");
@@ -145,7 +145,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Test]
         public void Test_Recrusion_Expect_Not_Endless_Loop()
         {
-            string pathToSearch = TestHelper.GetPathToTestData("013_Recrusive");
+            string pathToSearch = TestHelper.GetPathToIntegrationTestData("013_Recrusive");
 
             var fileReader = new FileReader(new List<string> { ".lnk"});
             Assert.NotNull(fileReader, "can't create FileReader");
@@ -168,7 +168,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Test]
         public void Test_BigBinaryFiles_Expect_Text_Interpretation()
         {
-            string pathToSearch = TestHelper.GetPathToTestData("014_BigBinaryFile");
+            string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_BigBinaryFile");
 
             var fileReader = new FileReader(new List<string> { ".bin" });
             Assert.NotNull(fileReader, "can't create FileReader");
@@ -192,7 +192,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Test]
         public void Test_Xml_Expect_Not_Problem()
         {
-            string pathToSearch = TestHelper.GetPathToTestData("014_XML_StarWars");
+            string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_XML_StarWars");
 
             var fileReader = new FileReader(new List<string> { ".xml" });
             Assert.NotNull(fileReader, "can't create FileReader");
@@ -211,7 +211,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Test]
         public void Test_AccessFilesWithoutAccessRights_Expect_No_Crash()
         {
-            var pathToSearch = TestHelper.GetPathToTestData("015_NoAccessRights");
+            var pathToSearch = TestHelper.GetPathToIntegrationTestData("015_NoAccessRights");
             var dirInfo = new DirectoryInfo(pathToSearch);
             using (var rightsManager = new RightsManager(dirInfo))
             {

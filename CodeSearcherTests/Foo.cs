@@ -10,7 +10,6 @@ using System.IO;
 
 namespace CodeSearcher.Tests
 {
-
     public class Foo
     {
         private IList<string> m_AllowedExtension = new List<string>() { ".cs", ".sln", ".csproj" };

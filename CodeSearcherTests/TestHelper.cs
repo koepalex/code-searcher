@@ -17,12 +17,17 @@ namespace CodeSearcher.Tests
 			}
 		}
 
-        internal static string GetPathToTestData(string folder)
+        internal static string GetPathToIntegrationTestData(string folder)
         {
             return Path.Combine(GetTestEnvironmentPath, "IntegrationTests", "TestData", folder);
         }
 
-        internal static void CreateDummyFile(string fullPath)
+        internal static string GetPathToSystemTestData(string folder)
+        {
+            return Path.Combine(GetTestEnvironmentPath, "SystemTests", "DownloadedTestData", folder);
+        }
+
+        internal static void CreateBigDummyFile(string fullPath)
         {
             using (var fs = new FileStream(fullPath, FileMode.CreateNew))
             {
@@ -31,6 +36,15 @@ namespace CodeSearcher.Tests
                     fs.WriteByte((byte)(m_Random.Next() % 255));
                 }
                 fs.Close();
+            }
+        }
+
+        internal static void CreateSmallDummyFile(string fullPath)
+        {
+            using (var fs = new FileStream(fullPath, FileMode.OpenOrCreate))
+            {
+                fs.Seek(42, SeekOrigin.Begin);
+                fs.WriteByte(42);
             }
         }
     }

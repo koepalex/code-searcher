@@ -20,7 +20,7 @@ Write-Host "Create Test Environment started ..."
 $Path = $PSScriptRoot
 
 $books.Keys | % { 
-    $folder = [IO.Path]::combine($Path, "IntegrationTests", "DownloadedTestData", $_)
+    $folder = [IO.Path]::combine($Path, "SystemTests", "DownloadedTestData", $_)
     
 	# Create Folder for Test Data
 	try {

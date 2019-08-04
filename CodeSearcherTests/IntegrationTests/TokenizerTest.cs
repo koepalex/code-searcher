@@ -52,13 +52,13 @@ namespace CodeSearcher.Tests.IntegrationTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            string pathToSearch = TestHelper.GetPathToTestData("014_BigBinaryFile");
+            string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_BigBinaryFile");
             var fullPath = Path.Combine(pathToSearch, TestHelper.BigFileName);
 
             if (!File.Exists(fullPath))
             {
                 Directory.CreateDirectory(pathToSearch);
-                TestHelper.CreateDummyFile(fullPath);
+                TestHelper.CreateBigDummyFile(fullPath);
             }
         }
         #endregion
@@ -378,7 +378,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         #region Private Implementation
         private void LoadFileAndTokenizer(string path, string fileName, Action<TokenizerForTesting> action)
         {
-            string pathToSearch = TestHelper.GetPathToTestData(path);
+            string pathToSearch = TestHelper.GetPathToIntegrationTestData(path);
             string fullPath = Path.Combine(pathToSearch, fileName);
 
             using (StreamReader reader = File.OpenText(fullPath))

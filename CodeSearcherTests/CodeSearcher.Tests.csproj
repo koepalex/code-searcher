@@ -73,6 +73,7 @@
     <Compile Include="IntegrationTests\TokenizerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IntegrationTests\FileReaderTests.cs" />
+    <Compile Include="SystemTests\BookAliceTests.cs" />
     <Compile Include="TestExtensionMethods.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>
@@ -163,6 +164,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.12.0\build\NUnit.props'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>start XCOPY /Y /s /d $(ProjectDir)SystemTests\DownloadedTestData $(TargetDir)SystemTests\DownloadedTestData\</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

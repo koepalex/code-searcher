@@ -52,26 +52,9 @@ namespace CodeSearcher.Tests.SystemTests
         #region Tests
 
         [Test]
-        public void Test_CreateIndex_Of_Alice(bool throwAssert = true)
+        public void Test_CreateIndex_Of_Alice()
         {
-            var sourcePath = TestHelper.GetPathToSystemTestData(m_BookFolderName);
-            var allowedExtensions = new List<string> { ".htm" };
-            using (var indexer = new DefaultIndexer(m_IndexFolder, sourcePath, allowedExtensions))
-            {
-                int numberOfFiles = 0;
-                indexer.IndexerProcessFile += (sender, args) => {
-                    Debug.WriteLine("Processed file: {0}", args.FileName);
-                    numberOfFiles++;
-                };
-
-                var task = indexer.CreateIndex();
-                task.Wait();
-
-                if (throwAssert)
-                {
-                    Assert.That(numberOfFiles, Is.EqualTo(1));
-                }
-            }
+            Assert.That(CreateIndexOfAlice(), Is.EqualTo(2049));
         }
 
         [Test]
@@ -79,7 +62,7 @@ namespace CodeSearcher.Tests.SystemTests
         {
             if (!Directory.EnumerateFiles(m_IndexFolder).Any())
             {
-                Test_CreateIndex_Of_Alice(false);
+                CreateIndexOfAlice();
             }
 
             var searcher = new DefaultSearcher(m_IndexFolder);
@@ -90,5 +73,26 @@ namespace CodeSearcher.Tests.SystemTests
             });
         }
         #endregion
+
+        private int CreateIndexOfAlice()
+        {
+            var sourcePath = TestHelper.GetPathToSystemTestData(m_BookFolderName);
+            var allowedExtensions = new List<string> { ".htm" };
+            int numberOfFiles = 0;
+            using (var indexer = new DefaultIndexer(m_IndexFolder, sourcePath, allowedExtensions))
+            {
+                
+                indexer.IndexerProcessFile += (sender, args) =>
+                {
+                    Debug.WriteLine("Processed file: {0}", args.FileName);
+                    numberOfFiles++;
+                };
+
+                var task = indexer.CreateIndex();
+                task.Wait();
+            }
+
+            return numberOfFiles;
+        }
     }
 }

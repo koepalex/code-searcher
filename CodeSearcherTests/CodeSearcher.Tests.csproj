@@ -139,7 +139,7 @@
     <None Include="IntegrationTests\TestData\020_SourceCode_FooClass\class.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="IntegrationTests\TestData\091_NoAccessRights\todo_remove_read_rights.cs">
+    <None Include="IntegrationTests\TestData\015_NoAccessRights\todo_remove_read_rights.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="IntegrationTests\TestData\002_FilesWithoutContent\doc1.cs">

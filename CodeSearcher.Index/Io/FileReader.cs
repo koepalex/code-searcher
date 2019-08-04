@@ -23,24 +23,6 @@ namespace CodeSearcher.BusinessLogic.Io
             return ReadFilesAsync(srcPath, action, 0);
         }
 
-		//public Task ReadFilesAsync(IEnumerable<string> files, Action<IList<FileStructure>> action)
-		//{
-		//	return Task.Run(() =>
-		//	{
-		//		files.Batch(10).AsParallel().WithDegreeOfParallelism(8).ForAll(filePaths =>
-		//		{
-		//			var fileList = new List<FileStructure>(10);
-		//			foreach (string path in filePaths)
-		//			{
-		//				var fileStruct = ReadText(path);
-		//				fileList.Add(fileStruct);
-		//			}
-
-		//			action(fileList);
-		//		});
-		//	});
-		//}
-
         private Task ReadFilesAsync(String srcPath, Action<IList<FileStructure>> action, int depth)
         {
             return Task.Run(() =>
@@ -107,24 +89,46 @@ namespace CodeSearcher.BusinessLogic.Io
 
         private FileStructure ReadText(string filePath)
         {
-            using (FileStream sourceStream = new FileStream(filePath,
-                FileMode.Open, FileAccess.Read, FileShare.Read,
-                bufferSize: 4096, useAsync: false))
+            try
             {
-                var sb = new StringBuilder();
-                
-                byte[] buffer = new byte[0x1000];
-                int numRead;
-                while ((numRead = sourceStream.Read(buffer, 0, buffer.Length)) != 0)
+                using (FileStream sourceStream = new FileStream(filePath,
+                    FileMode.Open, FileAccess.Read, FileShare.Read,
+                    bufferSize: 4096, useAsync: false))
                 {
-                    string text = Encoding.Default.GetString(buffer, 0, numRead);
-                    sb.Append(text);
+                    var sb = new StringBuilder();
+
+                    byte[] buffer = new byte[0x1000];
+                    int numRead;
+                    while ((numRead = sourceStream.Read(buffer, 0, buffer.Length)) != 0)
+                    {
+                        string text = Encoding.Default.GetString(buffer, 0, numRead);
+                        sb.Append(text);
+                    }
+
+                    return new FileStructure
+                    {
+                        FilePath = filePath,
+                        Text = sb.ToString(),
+                        ErrorOccurred = false
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                var exp = e;
+                while (exp != null)
+                {
+                    Console.Error.WriteLine(e.Message);
+                    Console.Error.WriteLine(e.StackTrace);
+                    Console.Error.WriteLine("~~~~~~~~~~~~~~~");
+                    exp = exp.InnerException;
                 }
 
                 return new FileStructure
                 {
                     FilePath = filePath,
-                    Text = sb.ToString()
+                    Text = string.Empty,
+                    ErrorOccurred = true,
                 };
             }
         }

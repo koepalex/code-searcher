@@ -57,7 +57,7 @@ namespace CodeSearcher.BusinessLogic.Indexer
 
                var task = m_FileReader.ReadFilesAsync(m_SourcePath, (fileStructures) =>
                {
-                   foreach (var fileStructure in fileStructures)
+                   foreach (var fileStructure in fileStructures.Where(f => !f.ErrorOccurred))
                    {
                        var doc = Factory.GetLuceneDocument();
 

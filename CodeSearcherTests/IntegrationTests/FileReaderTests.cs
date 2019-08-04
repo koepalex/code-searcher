@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using CodeSearcher.BusinessLogic.Io;
 using NUnit.Framework;
 
@@ -9,6 +11,33 @@ namespace CodeSearcher.Tests.IntegrationTests
     [TestFixture]
 	public class FileReaderTests
 	{
+        #region Test Classes
+        private class RightsManager : IDisposable
+        {
+            private readonly DirectoryInfo m_DirectoryInfo;
+            private readonly IList<FileStream> m_Files;
+
+            internal RightsManager(DirectoryInfo directoryInfo)
+            {
+                m_DirectoryInfo = directoryInfo;
+                m_Files = new List<FileStream>(10);
+                foreach(var file in m_DirectoryInfo.GetFiles())
+                {
+                    var fs = File.Open(file.FullName, FileMode.Open, FileAccess.ReadWrite);
+                    m_Files.Add(fs);
+                }
+            }
+
+            public void Dispose()
+            {
+                foreach(var file in m_Files)
+                {
+                    file.Close();
+                }
+            }
+        }
+        #endregion
+
         #region Setup & TearDown
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -23,6 +52,7 @@ namespace CodeSearcher.Tests.IntegrationTests
             }
         }
         #endregion
+
         #region Tests
 
         #region 001_FilesWithWrongExtension
@@ -176,8 +206,32 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
         #endregion
 
+        #region 015_NoAccessRights
+
+        [Test]
+        public void Test_AccessFilesWithoutAccessRights_Expect_No_Crash()
+        {
+            var pathToSearch = TestHelper.GetPathToTestData("015_NoAccessRights");
+            var dirInfo = new DirectoryInfo(pathToSearch);
+            using (var rightsManager = new RightsManager(dirInfo))
+            {
+                var fileReader = new FileReader(new List<string> { ".cs" });
+                int numberOfFiles = 0;
+                var task = fileReader.ReadFilesAsync(pathToSearch, files =>
+                {
+                    numberOfFiles = files.Where(f => !f.ErrorOccurred).Count();
+                });
+
+                task.Wait();
+
+                Assert.That(numberOfFiles, Is.EqualTo(0));
+            }
+        }
+        #endregion
 
         #endregion
+
+
 
     }
 }

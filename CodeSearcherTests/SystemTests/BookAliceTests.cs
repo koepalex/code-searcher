@@ -72,12 +72,14 @@ namespace CodeSearcher.Tests.SystemTests
                 CreateIndexOfAlice();
             }
 
-            var searcher = new DefaultSearcher(m_IndexFolder);
-            searcher.SearchFileContent("span", 500, (resultContainer) =>
+            using (var searcher = new DefaultSearcher(m_IndexFolder))
             {
-                
-                Assert.That(resultContainer.Count(), Is.EqualTo(1));
-            });
+                searcher.SearchFileContent("span", 500, (resultContainer) =>
+                {
+
+                    Assert.That(resultContainer.Count(), Is.EqualTo(1));
+                });
+            }
         }
         #endregion
 

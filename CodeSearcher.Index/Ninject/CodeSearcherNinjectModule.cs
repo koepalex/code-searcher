@@ -3,13 +3,9 @@ using CodeSearcher.BusinessLogic.InternalInterfaces;
 using CodeSearcher.BusinessLogic.Io;
 using CodeSearcher.BusinessLogic.Searcher;
 using CodeSearcher.BusinessLogic.SearchResults;
+using CodeSearcher.BusinessLogic.Exporter;
 using CodeSearcher.Interfaces;
 using Ninject.Modules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeSearcher.BusinessLogic.Ninject
 {
@@ -22,6 +18,7 @@ namespace CodeSearcher.BusinessLogic.Ninject
             Bind<IIndexer>().To(typeof(DefaultIndexer));
             Bind<ISearcher>().To(typeof(DefaultSearcher));
             Bind<IFileReader>().To(typeof(FileReader));
+            Bind<IResultExporter>().To<ResultFileExporter>();
         }
     }
 }

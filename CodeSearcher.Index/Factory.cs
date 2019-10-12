@@ -87,6 +87,11 @@ namespace CodeSearcher.BusinessLogic
             return result;
         }
 
+        internal static IResultExporter GetResultExporter()
+        {
+            return Ioc.Get<IResultExporter>();
+        }
+
         internal static Lucene.Net.Store.Directory GetLuceneDirectory(String indexPath)
         {
             return FSDirectory.Open(indexPath);

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CodeSearcher.Interfaces</RootNamespace>
     <AssemblyName>CodeSearcher.Interfaces</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -59,10 +59,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventsAndDelegates.cs" />
+    <Compile Include="ICmdLineHandler.cs" />
+    <Compile Include="ICodeSearcherLogger.cs" />
     <Compile Include="IIndexer.cs" />
+    <Compile Include="IResultExporter.cs" />
     <Compile Include="ISearcher.cs" />
     <Compile Include="ISearchResult.cs" />
     <Compile Include="ISearchResultContainer.cs" />
+    <Compile Include="ISingleResultPrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IChangeSet.cs" />
   </ItemGroup>

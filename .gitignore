@@ -8,3 +8,4 @@ DownloadedTestData/
 
 # Packages
 packages/
+/CodeSearcher.Interfaces/IResultExporter.cs

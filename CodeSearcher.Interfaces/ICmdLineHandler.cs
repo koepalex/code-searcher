@@ -1,0 +1,22 @@
+﻿using System.Collections.Generic;
+
+namespace CodeSearcher.Interfaces
+{
+    public interface ICmdLineHandler
+    {
+        string this[string name] { get; }
+
+        string ExportToFile { get; }
+        string FileExtensions { get; }
+        string HitsPerPage { get; }
+        string IndexPath { get; }
+        string NumberOfHits { get; }
+        string ProgramMode { get; }
+        string SearchedWord { get; }
+        string SourcePath { get; }
+
+        IList<string> GetFileExtensionsAsList();
+        int GetProgramModeAsInt();
+        bool Parse(string[] cmdArgs);
+    }
+}

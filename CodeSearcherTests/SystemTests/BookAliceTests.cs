@@ -15,6 +15,7 @@ namespace CodeSearcher.Tests.SystemTests
     public class BookAliceTests
     {
         private string m_IndexFolder;
+        private IList<string> m_Files = new List<string>(2048);
         private const string m_BookFolderName = "Alice Adventure in Wonderland";
 
         [OneTimeSetUp]
@@ -36,6 +37,7 @@ namespace CodeSearcher.Tests.SystemTests
             for (int i = 0; i < 2048; i++)
             {
                 var fullPath = Path.Combine(sourcePath, $"{i.ToString()}.htm");
+                m_Files.Add(fullPath);
                 TestHelper.CreateSmallDummyFile(fullPath);
             }
         }
@@ -46,6 +48,11 @@ namespace CodeSearcher.Tests.SystemTests
             if (Directory.Exists(m_IndexFolder))
             {
                 Directory.Delete(m_IndexFolder, true);
+            }
+
+            foreach (var file in m_Files)
+            {
+                File.Delete(file);
             }
         }
 

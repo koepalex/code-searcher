@@ -32,7 +32,7 @@ namespace CodeSearcher
                 {
                     var line = lines[i].Trim();
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("line {0}: ", i);
+                    Console.Write("line {0}: ", i+1);
                     Console.ResetColor();
 
                     //TODO handle multiple hits in one line

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.BusinessLogic.Common;
+using CodeSearcher.Interfaces;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -10,7 +12,7 @@ namespace CodeSearcher
 {
     class Program
     {
-        private static CmdLineHandler m_CmdHandler;
+        private static ICmdLineHandler m_CmdHandler;
         private static ILogger m_Logger;
 
         static void Main(string[] args)
@@ -27,24 +29,23 @@ namespace CodeSearcher
                 ? m_CmdHandler.GetProgramModeAsInt()
                 : ReadProgramMode();
 
-            var logic = new CodeSearcherLogic(
-                m_CmdHandler, 
+            var logic = Factory.GetCodeSearcherLogic(
                 new LoggerAdapter(m_Logger),
-                () =>
+                getIndexPath: () =>
                 {
                     var idxPath = m_CmdHandler[m_CmdHandler.IndexPath] != null
                         ? m_CmdHandler[m_CmdHandler.IndexPath]
                         : ReadIndexPath();
                     return idxPath;
                 },
-                () =>
+                getSourcePath: () =>
                 {
                     var srcPath = m_CmdHandler[m_CmdHandler.SourcePath] != null
                         ? m_CmdHandler[m_CmdHandler.SourcePath]
                         : ReadSourcePath();
                     return srcPath;
                 },
-                () =>
+                getFileExtension: () =>
                 {
                     var fileExtensions = m_CmdHandler[m_CmdHandler.FileExtensions] != null
                         ? m_CmdHandler.GetFileExtensionsAsList()
@@ -79,11 +80,15 @@ namespace CodeSearcher
             }
             else
             {
-                logic.SearchWithinExistingIndex(() =>
+                string exportFileName = string.Empty;
+                IResultExporter exporter = null;
+
+                logic.SearchWithinExistingIndex(
+                startCallback: () =>
                 {
                     ShowSearchWithinIndexHeader();
                 },
-                () =>
+                getSearchWord: () =>
                 {
                     string word;
                     bool exit;
@@ -101,8 +106,50 @@ namespace CodeSearcher
 
                     return (word, exit);
                 },
-                new ConsoleResultPrinter(),
-                (timeSpan) => 
+                getMaximumNumberOfHits: () =>
+                {
+                    int numberOfHits;
+                    if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out numberOfHits))
+                    {
+                        m_Logger.Info("Maximum hits to show will be 1000");
+                        numberOfHits = 1000;
+                    }
+                    return numberOfHits;
+                },
+                getHitsPerPage: () =>
+                {
+                    int hitsPerPage;
+                    if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out hitsPerPage))
+                    {
+                        m_Logger.Info("Maximum hits per page will be shown");
+                        hitsPerPage = -1;
+                    }
+
+                    return hitsPerPage;
+                },
+                getExporter: () =>
+                {
+                    bool export;
+                    if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out export))
+                    {
+                        m_Logger.Info("Results will not be exported");
+                        export = false;
+                    }
+                    
+                    if (export)
+                    {
+                        exportFileName = Path.GetTempFileName();
+                        var exportStreamWriter = File.CreateText(exportFileName);
+                        exporter = Factory.GetResultExporter(exportStreamWriter);
+                    }
+
+                    return (export, exporter);
+                }, 
+                getSingleResultPrinter: () =>
+                {
+                    return new ConsoleResultPrinter();
+                },
+                finishedCallback: (timeSpan) => 
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine(">> searching completed!");
@@ -114,14 +161,15 @@ namespace CodeSearcher
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine();
                 },
-                () =>
+                endOfSearchCallback: () =>
                 {
                     Console.WriteLine("Press any key to continue...");
                     Console.ReadKey();
                 },
-                (exportFile) =>
+                exportFinishedCallback: () =>
                 {
-                    Console.WriteLine($"Export file written: {exportFile}");
+                    exporter?.Dispose();
+                    Console.WriteLine($"Export file written: {exportFileName}");
                 });
             }
 
@@ -152,8 +200,6 @@ namespace CodeSearcher
 
             var rule2 = new LoggingRule("*", LogLevel.Warn, fileTarget);
             config.LoggingRules.Add(rule2);
-
-
 
             // Step 5. Activate the configuration
             LogManager.Configuration = config;

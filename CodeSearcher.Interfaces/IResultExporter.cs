@@ -1,7 +1,10 @@
-﻿namespace CodeSearcher.Interfaces
+﻿using System;
+using System.IO;
+
+namespace CodeSearcher.Interfaces
 {
-    public interface IResultExporter
+    public interface IResultExporter : IDisposable
     {
-        void Export(ISearchResultContainer searchResultContainer, string fileName, string searchedWord);
+        void Export(ISearchResultContainer searchResultContainer, string searchedWord);
     } 
 }

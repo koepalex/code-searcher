@@ -59,8 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventsAndDelegates.cs" />
-    <Compile Include="ICmdLineHandler.cs" />
     <Compile Include="ICodeSearcherLogger.cs" />
+    <Compile Include="ICodeSearcherLogic.cs" />
     <Compile Include="IIndexer.cs" />
     <Compile Include="IResultExporter.cs" />
     <Compile Include="ISearcher.cs" />

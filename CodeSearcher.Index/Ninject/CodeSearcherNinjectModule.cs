@@ -19,6 +19,7 @@ namespace CodeSearcher.BusinessLogic.Ninject
             Bind<ISearcher>().To(typeof(DefaultSearcher));
             Bind<IFileReader>().To(typeof(FileReader));
             Bind<IResultExporter>().To<ResultFileExporter>();
+            Bind<ICodeSearcherLogic>().To<CodeSearcherLogic>();
         }
     }
 }

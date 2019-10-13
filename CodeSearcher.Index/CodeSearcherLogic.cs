@@ -7,9 +7,8 @@ using CodeSearcher.Interfaces;
 
 namespace CodeSearcher.BusinessLogic
 {
-    public class CodeSearcherLogic
+    internal class CodeSearcherLogic : ICodeSearcherLogic
     {
-        private readonly ICmdLineHandler m_CmdHandler;
         private readonly ICodeSearcherLogger m_Logger;
         private static long m_FileCounter;
         private readonly Func<string> m_GetIndexPath;
@@ -17,13 +16,11 @@ namespace CodeSearcher.BusinessLogic
         private readonly Func<IList<string>> m_GetFileExtension;
 
         public CodeSearcherLogic(
-            ICmdLineHandler cmdHandler,
             ICodeSearcherLogger logger,
             Func<string> getIndexPath,
             Func<string> getSourcePath,
             Func<IList<string>> getFileExtension)
         {
-            m_CmdHandler = cmdHandler;
             m_Logger = logger;
             m_GetIndexPath = getIndexPath;
             m_GetSourcePath = getSourcePath;
@@ -31,8 +28,8 @@ namespace CodeSearcher.BusinessLogic
         }
 
         public void CreateNewIndex(
-            Action startCallback, 
-            Action<string> fileProccessedCallback, 
+            Action startCallback,
+            Action<string> fileProccessedCallback,
             Action<long, TimeSpan> finishedCallback)
         {
             startCallback();
@@ -63,7 +60,7 @@ namespace CodeSearcher.BusinessLogic
         {
             var sw = new Stopwatch();
             m_Logger.Debug("> start running action: {0}", name);
-            
+
             sw.Start();
             action();
             sw.Stop();
@@ -85,67 +82,52 @@ namespace CodeSearcher.BusinessLogic
         }
 
         public void SearchWithinExistingIndex(
-            Action startCallback, 
+            Action startCallback,
             Func<(string, bool)> getSearchWord,
-            ISingleResultPrinter printer,
+            Func<int> getMaximumNumberOfHits,
+            Func<int> getHitsPerPage,
+            Func<(bool, IResultExporter)> getExporter,
+            Func<ISingleResultPrinter> getSingleResultPrinter,
             Action<TimeSpan> finishedCallback,
             Action endOfSearchCallback,
-            Action<string> exportFinishedCallback = null)
+            Action exportFinishedCallback = null)
         {
             startCallback();
-            
+
             var idxPath = m_GetIndexPath();
 
-            using(var searcher = Factory.GetSearcher(idxPath))
+            using (var searcher = Factory.GetSearcher(idxPath))
             {
+                int numberOfHits = getMaximumNumberOfHits();
+                int hitsPerPage = getHitsPerPage();
+                (bool export, IResultExporter resultExporter) = getExporter();
+                var printer = getSingleResultPrinter();
+
                 do
                 {
                     (string searchedWord, bool shouldExit) = getSearchWord();
                     if (string.IsNullOrWhiteSpace(searchedWord) && shouldExit) break;
-
-					int numberOfHits;
-
-					if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out numberOfHits))
-					{
-						m_Logger.Info("Maximum hits to show will be 1000");
-						numberOfHits = 1000;
-					}
-
-					int hitsPerPage;
-					if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out hitsPerPage))
-					{
-                        m_Logger.Info("Maximum hits per page will be shown");
-                        hitsPerPage = -1;
-                    }
-
-                    bool export;
-                    if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out export))
-                    {
-                        m_Logger.Info("Results will not be exported");
-                        export = false;
-                    }
 
                     var timeSpan = RunActionWithTimings("Search For " + searchedWord, () =>
                     {
                         searcher.SearchFileContent(searchedWord, numberOfHits, (searchResultContainer) =>
                         {
                             m_Logger.Info("Found {0} hits", searchResultContainer.NumberOfHits);
-                            foreach(var result in searchResultContainer)
+                            foreach (var result in searchResultContainer)
                             {
                                 printer.NumbersToShow = hitsPerPage == -1
-									? int.MaxValue
-									: hitsPerPage;
+                                    ? int.MaxValue
+                                    : hitsPerPage;
 
                                 printer.Print(result.FileName, searchedWord);
                             }
 
                             if (export)
                             {
-                                var exportFile = Path.GetTempFileName();
-                                var exporter = Factory.GetResultExporter();
-                                exporter.Export(searchResultContainer, exportFile, searchedWord);
+                                
+                                resultExporter.Export(searchResultContainer, searchedWord);
 
-                                if (exportFinishedCallback != null) exportFinishedCallback(exportFile);
+                                exportFinishedCallback?.Invoke();
                             }
                         });
                     });
@@ -156,7 +138,7 @@ namespace CodeSearcher.BusinessLogic
 
                     endOfSearchCallback();
 
-                } while(true);
+                } while (true);
             }
         }
     }

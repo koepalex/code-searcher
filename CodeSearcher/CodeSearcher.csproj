@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdLineHandler.cs" />
+    <Compile Include="ICmdLineHandler.cs" />
     <Compile Include="LoggerAdapter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

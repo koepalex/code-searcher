@@ -64,7 +64,7 @@ build_script:
 test:
   assemblies:
     only:
-      - **\*.Tests.dll
+      - CodeSearcher.Tests.dll
   categories:
     only:
       - SafeForCI

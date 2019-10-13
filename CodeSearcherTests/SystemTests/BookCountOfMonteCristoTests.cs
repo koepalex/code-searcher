@@ -63,7 +63,7 @@ namespace CodeSearcher.Tests.SystemTests
         [Test]
         [Order(2)]
         [NonParallelizable]
-        public void Test_Search_Word_The()
+        public void Test_Search_Word_Large()
         {
             var logic = GetCodeSearchLogic();
             string searchWord = "large";
@@ -89,14 +89,44 @@ namespace CodeSearcher.Tests.SystemTests
 
             printerStub.VerifyAll();
         }
+
+        [Test]
+        [Order(3)]
+        [NonParallelizable]
+        public void Test_SearchAndExport_Word_The()
+        {
+            var logic = GetCodeSearchLogic();
+            string searchWord = "the";
+
+            var printerStub = new Mock<ISingleResultPrinter>();
+            printerStub.SetupAllProperties();
+
+            var exporterStub = new Mock<IResultExporter>();
+            exporterStub.Setup(x => x.Export(
+                It.IsAny<ISearchResultContainer>(),
+                It.Is<string>(
+                    s => s.Equals("the"))));
+
+            logic.SearchWithinExistingIndex(
+                startCallback: () => { },
+                getSearchWord: () => { return (searchWord, true); },
+                getMaximumNumberOfHits: () => { return 1000; },
+                getHitsPerPage: () => { return -1; },
+                getExporter: () => { return (true, exporterStub.Object); },
+                getSingleResultPrinter: () => { return printerStub.Object; },
+                finishedCallback: (timeSpan) => { },
+                endOfSearchCallback: () => { });
+
+            exporterStub.VerifyAll();
+        }
         #endregion
 
         #region Private Implementation
-        private CodeSearcherLogic GetCodeSearchLogic()
+        private ICodeSearcherLogic GetCodeSearchLogic()
         {
             var loggerStub = new Mock<ICodeSearcherLogger>();
 
-            return new CodeSearcherLogic(
+            return Factory.GetCodeSearcherLogic(
                 loggerStub.Object,
                 () => m_IndexFolder,
                 () => m_SourcePath,

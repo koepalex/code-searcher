@@ -47,6 +47,40 @@ namespace CodeSearcher.BusinessLogic
             return indexer;
         }
 
+        public static ICodeSearcherLogic GetCodeSearcherLogic(
+            ICodeSearcherLogger logger,
+            Func<string> getIndexPath,
+            Func<string> getSourcePath,
+            Func<IList<string>> getFileExtension)
+        {
+            if (logger is null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
+            if (getIndexPath is null)
+            {
+                throw new ArgumentNullException(nameof(getIndexPath));
+            }
+
+            if (getSourcePath is null)
+            {
+                throw new ArgumentNullException(nameof(getSourcePath));
+            }
+
+            if (getFileExtension is null)
+            {
+                throw new ArgumentNullException(nameof(getFileExtension));
+            }
+
+            return Ioc.Get<ICodeSearcherLogic>(
+                new ConstructorArgument("logger", logger),
+                new ConstructorArgument("getIndexPath", getIndexPath),
+                new ConstructorArgument("getSourcePath", getSourcePath),
+                new ConstructorArgument("getFileExtension", getFileExtension)
+                );
+        }
+
         public static ISearcher GetSearcher(String pathToIndexFiles)
         {
             if (String.IsNullOrWhiteSpace(pathToIndexFiles)) throw new ArgumentNullException("pathToIndexFiles");
@@ -87,9 +121,15 @@ namespace CodeSearcher.BusinessLogic
             return result;
         }
 
-        internal static IResultExporter GetResultExporter()
+        public static IResultExporter GetResultExporter(StreamWriter exportWriter)
         {
-            return Ioc.Get<IResultExporter>();
+            if (exportWriter is null)
+            {
+                throw new ArgumentNullException(nameof(exportWriter));
+            }
+
+            return Ioc.Get<IResultExporter>(
+                new ConstructorArgument("exportWriter", exportWriter));
         }
 
         internal static Lucene.Net.Store.Directory GetLuceneDirectory(String indexPath)

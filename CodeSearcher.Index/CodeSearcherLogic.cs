@@ -7,7 +7,7 @@ using CodeSearcher.Interfaces;
 
 namespace CodeSearcher.BusinessLogic
 {
-    public class CodeSearcherLogic : ICodeSearcherLogic
+    internal class CodeSearcherLogic : ICodeSearcherLogic
     {
         private readonly ICodeSearcherLogger m_Logger;
         private static long m_FileCounter;
@@ -86,7 +86,7 @@ namespace CodeSearcher.BusinessLogic
             Func<(string, bool)> getSearchWord,
             Func<int> getMaximumNumberOfHits,
             Func<int> getHitsPerPage,
-            Func<(bool, StreamWriter)> getExporter,
+            Func<(bool, IResultExporter)> getExporter,
             Func<ISingleResultPrinter> getSingleResultPrinter,
             Action<TimeSpan> finishedCallback,
             Action endOfSearchCallback,
@@ -100,7 +100,7 @@ namespace CodeSearcher.BusinessLogic
             {
                 int numberOfHits = getMaximumNumberOfHits();
                 int hitsPerPage = getHitsPerPage();
-                (bool export, StreamWriter exportWriter) = getExporter();
+                (bool export, IResultExporter resultExporter) = getExporter();
                 var printer = getSingleResultPrinter();
 
                 do
@@ -124,8 +124,8 @@ namespace CodeSearcher.BusinessLogic
 
                             if (export)
                             {
-                                var exporter = Factory.GetResultExporter();
-                                exporter.Export(searchResultContainer, searchedWord, exportWriter);
+                                
+                                resultExporter.Export(searchResultContainer, searchedWord);
 
                                 exportFinishedCallback?.Invoke();
                             }

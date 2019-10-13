@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.BusinessLogic.Common;
+using CodeSearcher.Interfaces;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -28,23 +29,23 @@ namespace CodeSearcher
                 ? m_CmdHandler.GetProgramModeAsInt()
                 : ReadProgramMode();
 
-            var logic = new CodeSearcherLogic(
+            var logic = Factory.GetCodeSearcherLogic(
                 new LoggerAdapter(m_Logger),
-                () =>
+                getIndexPath: () =>
                 {
                     var idxPath = m_CmdHandler[m_CmdHandler.IndexPath] != null
                         ? m_CmdHandler[m_CmdHandler.IndexPath]
                         : ReadIndexPath();
                     return idxPath;
                 },
-                () =>
+                getSourcePath: () =>
                 {
                     var srcPath = m_CmdHandler[m_CmdHandler.SourcePath] != null
                         ? m_CmdHandler[m_CmdHandler.SourcePath]
                         : ReadSourcePath();
                     return srcPath;
                 },
-                () =>
+                getFileExtension: () =>
                 {
                     var fileExtensions = m_CmdHandler[m_CmdHandler.FileExtensions] != null
                         ? m_CmdHandler.GetFileExtensionsAsList()
@@ -79,6 +80,9 @@ namespace CodeSearcher
             }
             else
             {
+                string exportFileName = string.Empty;
+                IResultExporter exporter = null;
+
                 logic.SearchWithinExistingIndex(
                 startCallback: () =>
                 {
@@ -102,7 +106,7 @@ namespace CodeSearcher
 
                     return (word, exit);
                 },
-                getMaximumNumberOfHits: () => 
+                getMaximumNumberOfHits: () =>
                 {
                     int numberOfHits;
                     if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out numberOfHits))
@@ -131,17 +135,15 @@ namespace CodeSearcher
                         m_Logger.Info("Results will not be exported");
                         export = false;
                     }
-
+                    
                     if (export)
                     {
-                        var exportFileName = Path.GetTempFileName();
-                        using (var writer = File.CreateText(exportFileName))
-                        {
-                            return (export, writer);
-                        }
+                        exportFileName = Path.GetTempFileName();
+                        var exportStreamWriter = File.CreateText(exportFileName);
+                        exporter = Factory.GetResultExporter(exportStreamWriter);
                     }
 
-                    return (export, null);
+                    return (export, exporter);
                 }, 
                 getSingleResultPrinter: () =>
                 {
@@ -166,7 +168,8 @@ namespace CodeSearcher
                 },
                 exportFinishedCallback: () =>
                 {
-                    Console.WriteLine($"Export file written");
+                    exporter?.Dispose();
+                    Console.WriteLine($"Export file written: {exportFileName}");
                 });
             }
 
@@ -197,8 +200,6 @@ namespace CodeSearcher
 
             var rule2 = new LoggingRule("*", LogLevel.Warn, fileTarget);
             config.LoggingRules.Add(rule2);
-
-
 
             // Step 5. Activate the configuration
             LogManager.Configuration = config;

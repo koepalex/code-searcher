@@ -78,6 +78,10 @@ namespace CodeSearcher
 
             try
             {
+                for(int i = 0; i < cmdArgs.Length; i++)
+                {
+                    cmdArgs[i] = cmdArgs[i].Trim();
+                }
                 os.Parse(cmdArgs);
             }
             catch (OptionException)
@@ -105,7 +109,7 @@ namespace CodeSearcher
                     }
                     else if (mode == "search" || mode == "s")
                     {
-                        argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage);
+                        argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage, export);
                     }
                     else
                     {
@@ -155,7 +159,7 @@ namespace CodeSearcher
             return argumentsOk;
         }
 
-        private bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow, Variable<int> hitsPerPage)
+        private bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow, Variable<int> hitsPerPage, Switch export)
         {
             bool argumentsOk = true;
             m_Arguments[ProgramMode] = "search";
@@ -188,6 +192,11 @@ namespace CodeSearcher
                 else
                 {
                     m_Arguments[HitsPerPage] = "-1";
+                }
+
+                if (export.Enabled)
+                {
+                    m_Arguments[ExportToFile] = true.ToString();
                 }
             }
             else

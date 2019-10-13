@@ -3,23 +3,35 @@ using CodeSearcher.Interfaces;
 
 namespace CodeSearcher.BusinessLogic.Exporter
 {
-    internal class ResultFileExporter : IResultExporter
+    internal sealed class ResultFileExporter : IResultExporter
     {
-        public void Export(ISearchResultContainer searchResultContainer, string searchedWord, StreamWriter exportWriter)
+        private readonly StreamWriter m_ExportWriter;
+
+        public ResultFileExporter(StreamWriter exportWriter)
+        {
+            m_ExportWriter = exportWriter;
+        }
+
+        public void Export(ISearchResultContainer searchResultContainer, string searchedWord)
         {
             foreach (var result in searchResultContainer)
             {
-                exportWriter.WriteLine(result.FileName);
+                m_ExportWriter.WriteLine(result.FileName);
                 var lines = File.ReadAllLines(result.FileName);
 
                 for (int i = 0; i < lines.Length; i++)
                 {
                     if (lines[i].Contains(searchedWord))
                     {
-                        exportWriter.Write($"{i + 1};{lines[i]}");
+                        m_ExportWriter.WriteLine($"{i + 1};{lines[i]}");
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            m_ExportWriter?.Close();
         }
     }
 }

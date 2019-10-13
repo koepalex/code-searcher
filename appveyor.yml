@@ -62,10 +62,9 @@ build_script:
 
 # to run tests again only selected assemblies and/or categories
 test:
-#  assemblies:
-#    only:
-#      - asm1.dll
-#      - asm2.dll
+  assemblies:
+    only:
+      - **\*.Tests.dll
   categories:
     only:
       - SafeForCI

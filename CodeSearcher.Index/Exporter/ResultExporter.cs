@@ -18,14 +18,15 @@ namespace CodeSearcher.BusinessLogic.Exporter
             {
                 m_ExportWriter.WriteLine(result.FileName);
                 var lines = File.ReadAllLines(result.FileName);
-
+                var searchWordLower = searchedWord.ToLowerInvariant();
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    if (lines[i].Contains(searchedWord))
+                    if (lines[i].ToLowerInvariant().Contains(searchWordLower))
                     {
                         m_ExportWriter.WriteLine($"{i + 1};{lines[i]}");
                     }
                 }
+                m_ExportWriter.Flush();
             }
         }
 

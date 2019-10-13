@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace CodeSearcher.Interfaces
+namespace CodeSearcher
 {
-    public interface ICmdLineHandler
+    internal interface ICmdLineHandler
     {
         string this[string name] { get; }
 

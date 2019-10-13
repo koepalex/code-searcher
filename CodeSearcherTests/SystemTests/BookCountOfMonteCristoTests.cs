@@ -47,7 +47,7 @@ namespace CodeSearcher.Tests.SystemTests
         [NonParallelizable]
         public void Test_CreateIndexOfTheCountOfMonteCristo()
         {
-            var logic = GetCodeSearchLogicForIndexing();
+            var logic = GetCodeSearchLogic();
             logic.CreateNewIndex(
                 () => { },
                 (fileName) =>
@@ -65,7 +65,7 @@ namespace CodeSearcher.Tests.SystemTests
         [NonParallelizable]
         public void Test_Search_Word_The()
         {
-            var logic = GetCodeSearchLogicForLookup();
+            var logic = GetCodeSearchLogic();
             string searchWord = "large";
 
             var printerStub = new Mock<ISingleResultPrinter>();
@@ -78,67 +78,29 @@ namespace CodeSearcher.Tests.SystemTests
             );
 
             logic.SearchWithinExistingIndex(
-                () => { },
-                () => { return (searchWord, true); },
-                printerStub.Object,
-                (timeSpan) => { },
-                () => { });
+                startCallback: () => { },
+                getSearchWord: () => { return (searchWord, true); },
+                getMaximumNumberOfHits: () => { return 1000; },
+                getHitsPerPage: () => { return -1; },
+                getExporter: () => { return (false, null); },
+                getSingleResultPrinter: () => { return printerStub.Object; },
+                finishedCallback: (timeSpan) => { },
+                endOfSearchCallback: () => { });
 
             printerStub.VerifyAll();
         }
         #endregion
 
         #region Private Implementation
-        private CodeSearcherLogic GetCodeSearchLogicForLookup()
+        private CodeSearcherLogic GetCodeSearchLogic()
         {
-            Mock<ICmdLineHandler> cmdHandlerStub = GetDefaultCmdLineHandlerStub();
-            cmdHandlerStub.SetupGet(x => x[It.Is<string>(s => s.Equals("ProgramMode"))]).Returns("s");
-
             var loggerStub = new Mock<ICodeSearcherLogger>();
 
             return new CodeSearcherLogic(
-                cmdHandlerStub.Object,
                 loggerStub.Object,
-                () => cmdHandlerStub.Object["IndexPath"],
-                () => cmdHandlerStub.Object["SourcePath"],
+                () => m_IndexFolder,
+                () => m_SourcePath,
                 () => new List<string> { ".txt" });
-        }
-
-        private CodeSearcherLogic GetCodeSearchLogicForIndexing()
-        {
-            Mock<ICmdLineHandler> cmdHandlerStub = GetDefaultCmdLineHandlerStub();
-            cmdHandlerStub.SetupGet(x => x[It.Is<string>(s => s.Equals("ProgramMode"))]).Returns("i");
-            cmdHandlerStub.SetupGet(x => x[It.Is<string>(s => s.Equals("SourcePath"))]).Returns(m_SourcePath);
-
-            var loggerStub = new Mock<ICodeSearcherLogger>();
-
-            return new CodeSearcherLogic(
-                cmdHandlerStub.Object,
-                loggerStub.Object,
-                () => cmdHandlerStub.Object["IndexPath"],
-                () => cmdHandlerStub.Object["SourcePath"],
-                () => new List<string> { ".txt" });
-        }
-
-        private Mock<ICmdLineHandler> GetDefaultCmdLineHandlerStub()
-        {
-            var cmdHandlerStub = new Mock<ICmdLineHandler>();
-            cmdHandlerStub.SetupGet(x => x.ExportToFile).Returns("ExportToFile");
-            cmdHandlerStub.SetupGet(x => x.FileExtensions).Returns("FileExtensions");
-            cmdHandlerStub.SetupGet(x => x.HitsPerPage).Returns("HitsPerPage");
-            cmdHandlerStub.SetupGet(x => x.IndexPath).Returns("IndexPath");
-            cmdHandlerStub.SetupGet(x => x.NumberOfHits).Returns("NumberOfHits");
-            cmdHandlerStub.SetupGet(x => x.ProgramMode).Returns("ProgramMode");
-            cmdHandlerStub.SetupGet(x => x.SearchedWord).Returns("SearchedWord");
-            cmdHandlerStub.SetupGet(x => x.SourcePath).Returns("SourcePath");
-
-            cmdHandlerStub.SetupGet(x => x[It.Is<string>(s => s.Equals("NumberOfHits"))]).Returns("1000");
-            cmdHandlerStub.SetupGet(x => x[It.Is<string>(s => s.Equals("IndexPath"))]).Returns(m_IndexFolder);
-            //cmdHandlerStub.SetupGet(x => x[It.Is<string>(s => s.Equals("IndexPath"))]).Returns(@"C:\test\index");
-            cmdHandlerStub.SetupGet(x => x[It.Is<string>(s => s.Equals("FileExtensions"))]).Returns(".txt");
-
-
-            return cmdHandlerStub;
         }
         #endregion
     }

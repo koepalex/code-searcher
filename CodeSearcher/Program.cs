@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.BusinessLogic.Common;
 using NLog;
@@ -10,7 +11,7 @@ namespace CodeSearcher
 {
     class Program
     {
-        private static CmdLineHandler m_CmdHandler;
+        private static ICmdLineHandler m_CmdHandler;
         private static ILogger m_Logger;
 
         static void Main(string[] args)
@@ -28,7 +29,6 @@ namespace CodeSearcher
                 : ReadProgramMode();
 
             var logic = new CodeSearcherLogic(
-                m_CmdHandler, 
                 new LoggerAdapter(m_Logger),
                 () =>
                 {
@@ -79,11 +79,12 @@ namespace CodeSearcher
             }
             else
             {
-                logic.SearchWithinExistingIndex(() =>
+                logic.SearchWithinExistingIndex(
+                startCallback: () =>
                 {
                     ShowSearchWithinIndexHeader();
                 },
-                () =>
+                getSearchWord: () =>
                 {
                     string word;
                     bool exit;
@@ -101,8 +102,52 @@ namespace CodeSearcher
 
                     return (word, exit);
                 },
-                new ConsoleResultPrinter(),
-                (timeSpan) => 
+                getMaximumNumberOfHits: () => 
+                {
+                    int numberOfHits;
+                    if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out numberOfHits))
+                    {
+                        m_Logger.Info("Maximum hits to show will be 1000");
+                        numberOfHits = 1000;
+                    }
+                    return numberOfHits;
+                },
+                getHitsPerPage: () =>
+                {
+                    int hitsPerPage;
+                    if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out hitsPerPage))
+                    {
+                        m_Logger.Info("Maximum hits per page will be shown");
+                        hitsPerPage = -1;
+                    }
+
+                    return hitsPerPage;
+                },
+                getExporter: () =>
+                {
+                    bool export;
+                    if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out export))
+                    {
+                        m_Logger.Info("Results will not be exported");
+                        export = false;
+                    }
+
+                    if (export)
+                    {
+                        var exportFileName = Path.GetTempFileName();
+                        using (var writer = File.CreateText(exportFileName))
+                        {
+                            return (export, writer);
+                        }
+                    }
+
+                    return (export, null);
+                }, 
+                getSingleResultPrinter: () =>
+                {
+                    return new ConsoleResultPrinter();
+                },
+                finishedCallback: (timeSpan) => 
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine(">> searching completed!");
@@ -114,14 +159,14 @@ namespace CodeSearcher
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine();
                 },
-                () =>
+                endOfSearchCallback: () =>
                 {
                     Console.WriteLine("Press any key to continue...");
                     Console.ReadKey();
                 },
-                (exportFile) =>
+                exportFinishedCallback: () =>
                 {
-                    Console.WriteLine($"Export file written: {exportFile}");
+                    Console.WriteLine($"Export file written");
                 });
             }
 

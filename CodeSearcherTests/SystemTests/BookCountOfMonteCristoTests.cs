@@ -9,6 +9,7 @@ using System.IO;
 namespace CodeSearcher.Tests.SystemTests
 {
     [TestFixture]
+    [Category("NotSafeForCI")]
     public class BookCountOfMonteCristoTests
     {
         private string m_IndexFolder;

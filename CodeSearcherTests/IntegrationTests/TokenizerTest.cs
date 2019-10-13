@@ -8,6 +8,7 @@ using NUnit.Framework;
 namespace CodeSearcher.Tests.IntegrationTests
 {
     [TestFixture]
+    [Category("SafeForCI")]
     public class TokenizerTest
     {
         #region Constants and Enums

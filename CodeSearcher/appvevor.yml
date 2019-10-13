@@ -68,8 +68,7 @@ test:
 #      - asm2.dll
   categories:
     only:
-      - UI
-      - E2E
+      - SafeForCI
 
 # scripts to run before tests
 before_test:

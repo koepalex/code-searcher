@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CodeSearcher.BusinessLogic.Indexer;
 using CodeSearcher.BusinessLogic.Searcher;
 using NUnit.Framework;
@@ -12,6 +10,7 @@ using NUnit.Framework;
 namespace CodeSearcher.Tests.SystemTests
 {
     [TestFixture]
+    [Category("NotSafeForCI")]
     public class BookAliceTests
     {
         private string m_IndexFolder;

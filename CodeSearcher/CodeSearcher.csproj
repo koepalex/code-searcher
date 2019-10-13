@@ -88,6 +88,9 @@
     <None Include="..\.gitignore">
       <Link>.gitignore</Link>
     </None>
+    <None Include="..\appveyor.yml">
+      <Link>appveyor.yml</Link>
+    </None>
     <None Include="..\README.md">
       <Link>README.md</Link>
     </None>

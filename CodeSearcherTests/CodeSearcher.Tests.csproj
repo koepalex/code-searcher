@@ -171,6 +171,9 @@
   <ItemGroup>
     <Folder Include="IntegrationTests\TestData\014_BigBinaryFile\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="AddThisToPostBuildEvent.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -179,7 +182,8 @@
     <Error Condition="!Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.12.0\build\NUnit.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>start XCOPY /Y /s /d $(ProjectDir)SystemTests\DownloadedTestData $(TargetDir)SystemTests\DownloadedTestData\</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

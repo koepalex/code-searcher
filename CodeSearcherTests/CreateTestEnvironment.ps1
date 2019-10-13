@@ -45,7 +45,7 @@ $books.Keys | % {
 	$ext = [System.IO.Path]::GetExtension($bookUri)
     $fileName = [String]::Format("{0}{1}", $_, $ext)
     $fullPath = [IO.Path]::Combine($folder, $fileName)
-    $Stream = [IO.StreamWriter]::new($fullPath, $false, [Text.Encoding]::)
+    $Stream = [IO.StreamWriter]::new($fullPath, $false, [Text.Encoding]::Default)
     try {
         $Stream.Write($book.Content)
     } catch {

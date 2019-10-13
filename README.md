@@ -1,3 +1,7 @@
+[![License](https://img.shields.io/github/license/koepalex/code-searcher?style=flat-square)](https://github.com/koepalex/code-searcher/blob/master/LICENSE)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/koepalex/code-searcher)
+![AppVeyor](https://img.shields.io/appveyor/ci/koepalex/code-searcher?style=flat-square)
+
 # code-searcher
 -------
 A tool to index source code, for faster searches

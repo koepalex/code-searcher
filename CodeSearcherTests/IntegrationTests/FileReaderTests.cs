@@ -9,7 +9,8 @@ using NUnit.Framework;
 namespace CodeSearcher.Tests.IntegrationTests
 {
     [TestFixture]
-	public class FileReaderTests
+    [Category("SafeForCI")]
+    public class FileReaderTests
 	{
         #region Test Classes
         private class RightsManager : IDisposable
@@ -166,6 +167,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         #region 014_BigBinaryFile
 
         [Test]
+        [Category("NotSafeForCI")]
         public void Test_BigBinaryFiles_Expect_Text_Interpretation()
         {
             string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_BigBinaryFile");
@@ -190,6 +192,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         #region 014_XML_StarWars
 
         [Test]
+        [Category("NotSafeForCI")]
         public void Test_Xml_Expect_Not_Problem()
         {
             string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_XML_StarWars");

@@ -8,6 +8,7 @@ using NUnit.Framework;
 namespace CodeSearcher.Tests.IntegrationTests
 {
     [TestFixture]
+    [Category("SafeForCI")]
     public class TokenizerTest
     {
         #region Constants and Enums
@@ -365,6 +366,7 @@ namespace CodeSearcher.Tests.IntegrationTests
 
         #region 014_BigBinaryFile
         [Test]
+        [Category("NotSafeForCI")]
         public void Test_BinaryFile_Expect_NoCrash()
         {
             LoadFileAndTokenizer("014_BigBinaryFile", TestHelper.BigFileName, (tok) => {

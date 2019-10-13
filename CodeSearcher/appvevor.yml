@@ -1,0 +1,104 @@
+﻿#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+
+# Maximum number of concurrent jobs for the project
+max_jobs: 1
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Build worker image (VM template)
+image: Visual Studio 2019
+
+# build cache to preserve files/folders between builds
+cache:
+  - packages -> **\packages.config  # preserve "packages" directory in the root of build folder but will reset it if packages.config is modified
+  - '%LocalAppData%\NuGet\Cache'    # NuGet < v3
+  - '%LocalAppData%\NuGet\v3-cache' # NuGet v3
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+# build platform, i.e. x86, x64, Any CPU. This setting is optional.
+platform: Any CPU
+
+# build Configuration, i.e. Debug, Release, etc.
+configuration: Release
+
+build:
+  parallel: true                 # enable MSBuild parallel builds
+  project: CodeSearcher.sln      # path to Visual Studio solution or project
+  # MSBuild verbosity level - quiet|minimal|normal|detailed
+  verbosity: normal
+
+# scripts to run before build
+before_build:
+  - nuget restore
+
+# scripts to run *after* solution is built and *before* automatic packaging occurs (web apps, NuGet packages, Azure Cloud Services)
+before_package:
+
+# scripts to run after build
+after_build:
+
+# to run your custom scripts instead of automatic MSBuild
+build_script:
+
+# to disable automatic builds
+#build: off
+
+#---------------------------------#
+#       tests configuration       #
+#---------------------------------#
+
+# to run tests again only selected assemblies and/or categories
+test:
+#  assemblies:
+#    only:
+#      - asm1.dll
+#      - asm2.dll
+  categories:
+    only:
+      - UI
+      - E2E
+
+# scripts to run before tests
+before_test:
+
+# scripts to run after tests
+after_test:
+
+# to run your custom scripts instead of automatic tests
+#test_script:
+
+# to disable automatic tests
+#test: off
+
+#---------------------------------#
+#         notifications           #
+#---------------------------------#
+
+#notifications:
+
+  # Email
+#  - provider: Email
+#    to:
+#      - user1@email.com
+#      - user2@email.com
+#    subject: 'Build {{status}}'                  # optional
+#    message: "{{message}}, {{commitId}}, ..."    # optional
+#    on_build_status_changed: true
+
+
+  # Slack
+#  - provider: Slack
+#    incoming_webhook: http://incoming-webhook-url

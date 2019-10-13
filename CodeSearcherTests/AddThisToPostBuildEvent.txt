@@ -1,0 +1,1 @@
+﻿start XCOPY /Y /s /d $(ProjectDir)SystemTests\DownloadedTestData $(TargetDir)SystemTests\DownloadedTestData\

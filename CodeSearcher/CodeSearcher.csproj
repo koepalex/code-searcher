@@ -92,6 +92,7 @@
       <Link>README.md</Link>
     </None>
     <None Include="App.config" />
+    <None Include="appvevor.yml" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

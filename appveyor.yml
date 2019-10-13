@@ -7,7 +7,7 @@ branches:
   # whitelist
   only:
     - master
-    - Add-CI-build-for-code-searcher
+    - dev-
 
 # Maximum number of concurrent jobs for the project
 max_jobs: 1

@@ -167,6 +167,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         #region 014_BigBinaryFile
 
         [Test]
+        [Category("NotSafeForCI")]
         public void Test_BigBinaryFiles_Expect_Text_Interpretation()
         {
             string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_BigBinaryFile");

@@ -63,3 +63,6 @@ You can now start the Webserver
 CodeSearcher.WebServer.exe
 ```
 
+## Development
+### Testing
+See [Test documentation](./_docs/tests.md).

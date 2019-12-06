@@ -92,7 +92,6 @@ namespace CodeSearcher.Tests.SystemTests
                     }
                 }
                 Assert.That(counter, Is.EqualTo(1957));
-                Assert.That(_stream.Length, Is.EqualTo(121472));
             }
         }
         #endregion

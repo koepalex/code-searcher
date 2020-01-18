@@ -1,6 +1,7 @@
 ﻿using System;
 using Nancy;
 using Nancy.Bootstrapper;
+using Nancy.Configuration;
 using Nancy.Conventions;
 using Nancy.TinyIoc;
 
@@ -10,9 +11,6 @@ namespace CodeSearcher.WebServer.Bootstrap
 	{
 		protected override void ApplicationStartup(TinyIoCContainer container, IPipelines pipelines)
 		{
-			//activate that errors are shown on webpage
-			StaticConfiguration.DisableErrorTraces = false;
-
 			//log all requests which can't handled 
 			pipelines.OnError.AddItemToEndOfPipeline((ctx, ex) =>
 			{
@@ -33,6 +31,16 @@ namespace CodeSearcher.WebServer.Bootstrap
 				StaticContentConventionBuilder.AddDirectory("static", "static"));
 
 			base.ConfigureConventions(nancyConventions);
+		}
+
+		public override void Configure(INancyEnvironment environment)
+		{
+			base.Configure(environment);
+
+			//activate that errors are shown on webpage
+			environment.Tracing(
+		enabled: true,
+				displayErrorTraces: true);
 		}
 	}
 }

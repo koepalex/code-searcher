@@ -12,7 +12,7 @@ namespace CodeSearcher.WebServer
 		{
 			var cfgManager = ConfigManager.Get();
 
-			Get["/"] = _ =>
+			Get("/", _ =>
 			{
 				if (cfgManager.TryLoadConfig())
 				{
@@ -20,9 +20,9 @@ namespace CodeSearcher.WebServer
 				}
 
 				return View[new SearchModel { IndexPath = cfgManager.IndexPath, MaximumNumberOfHits = Int32.MaxValue }];
-			};
+			});
 
-			Get["/results"] = param =>
+			Get("/results", param =>
 			{
 				if (cfgManager.TryLoadConfig())
 				{
@@ -35,7 +35,7 @@ namespace CodeSearcher.WebServer
 				searchManager.LookupSearchResults(cfgManager.IndexPath, resultModel);
 
 				return View[resultModel];
-			};
+			});
 		}
 	}
 }

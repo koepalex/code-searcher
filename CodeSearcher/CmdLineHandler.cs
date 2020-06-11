@@ -18,6 +18,7 @@ namespace CodeSearcher
         public String NumberOfHits => "NumberOfHits";
         public String HitsPerPage => "HitsPerPage";
         public String ExportToFile => "ExportToFile";
+        public String WildcardSearch => "WildcardSearch";
 
         public String this[String name]
         {
@@ -75,6 +76,7 @@ namespace CodeSearcher
             var numberOfHitsToShow = os.AddVariable<Int32>("hits|numerOfHits", "Amount of files with findings (optional, default is 1000)");
             var hitsPerPage = os.AddVariable<Int32>("hpp|hitsPerPage", "Amount of findings to show at once (optional, default = -1; -1 means all)");
             var export = os.AddSwitch("e|export", "Indicates wheater results should be exported to temp file (optional, default = false)");
+            var wildcardSearch = os.AddSwitch("wc|wildcard", "Use wildcard search query, which is possible slower (optional, default = false)");
 
             try
             {
@@ -109,7 +111,7 @@ namespace CodeSearcher
                     }
                     else if (mode == "search" || mode == "s")
                     {
-                        argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage, export);
+                        argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage, export, wildcardSearch);
                     }
                     else
                     {
@@ -159,7 +161,7 @@ namespace CodeSearcher
             return argumentsOk;
         }
 
-        private bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow, Variable<int> hitsPerPage, Switch export)
+        private bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow, Variable<int> hitsPerPage, Switch export, Switch wildcardSearch)
         {
             bool argumentsOk = true;
             m_Arguments[ProgramMode] = "search";
@@ -197,6 +199,11 @@ namespace CodeSearcher
                 if (export.Enabled)
                 {
                     m_Arguments[ExportToFile] = true.ToString();
+                }
+
+                if (wildcardSearch.Enabled)
+                {
+                    m_Arguments[WildcardSearch] = true.ToString();
                 }
             }
             else

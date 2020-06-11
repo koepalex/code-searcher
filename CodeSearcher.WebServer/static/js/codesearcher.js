@@ -18,7 +18,6 @@ function onSearchBtn () {
 	})
 	.done(function(data) {
 		//$("html").html(data);
-		window.open();
 		document.write(data);
 	})
 	.fail(function() {

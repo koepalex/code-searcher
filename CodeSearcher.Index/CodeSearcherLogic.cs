@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.IO;
 using CodeSearcher.Interfaces;
 
 namespace CodeSearcher.BusinessLogic
@@ -32,6 +31,7 @@ namespace CodeSearcher.BusinessLogic
             Action<string> fileProccessedCallback,
             Action<long, TimeSpan> finishedCallback)
         {
+            Interlocked.Exchange(ref m_FileCounter, 0);
             startCallback();
 
             var idxPath = m_GetIndexPath();
@@ -90,13 +90,14 @@ namespace CodeSearcher.BusinessLogic
             Func<ISingleResultPrinter> getSingleResultPrinter,
             Action<TimeSpan> finishedCallback,
             Action endOfSearchCallback,
-            Action exportFinishedCallback = null)
+            Action exportFinishedCallback = null,
+            bool useWildcardSearch = false)
         {
             startCallback();
 
             var idxPath = m_GetIndexPath();
 
-            using (var searcher = Factory.GetSearcher(idxPath))
+            using (var searcher = useWildcardSearch ? Factory.GetWildcardSearcher(idxPath) : Factory.GetSearcher(idxPath))
             {
                 int numberOfHits = getMaximumNumberOfHits();
                 int hitsPerPage = getHitsPerPage();
@@ -136,9 +137,9 @@ namespace CodeSearcher.BusinessLogic
 
                     if (shouldExit) break;
 
-                    endOfSearchCallback();
-
                 } while (true);
+
+                endOfSearchCallback();
             }
         }
     }

@@ -14,6 +14,7 @@ namespace CodeSearcher
         string ProgramMode { get; }
         string SearchedWord { get; }
         string SourcePath { get; }
+        string WildcardSearch { get; }
 
         IList<string> GetFileExtensionsAsList();
         int GetProgramModeAsInt();

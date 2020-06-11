@@ -82,6 +82,17 @@ namespace CodeSearcher
             {
                 string exportFileName = string.Empty;
                 IResultExporter exporter = null;
+                bool wildcardSearch;
+                if (!bool.TryParse(m_CmdHandler[m_CmdHandler.WildcardSearch], out wildcardSearch))
+                {
+                    m_Logger.Info("Using Default Searcher");
+                    wildcardSearch = false;
+                }
+                else
+                {
+                    m_Logger.Info("Using Wildcard Searcher");
+                    wildcardSearch = true;
+                }
 
                 logic.SearchWithinExistingIndex(
                 startCallback: () =>
@@ -140,13 +151,19 @@ namespace CodeSearcher
                     {
                         exportFileName = Path.GetTempFileName();
                         var exportStreamWriter = File.CreateText(exportFileName);
-                        exporter = Factory.GetResultExporter(exportStreamWriter);
+                        exporter = wildcardSearch
+                            ? Factory.GetWildcardResultExporter(exportStreamWriter)
+                            : Factory.GetResultExporter(exportStreamWriter);
                     }
 
                     return (export, exporter);
                 }, 
                 getSingleResultPrinter: () =>
                 {
+                    if (wildcardSearch)
+                    {
+                        return new WildcardResultPrinter();
+                    }
                     return new ConsoleResultPrinter();
                 },
                 finishedCallback: (timeSpan) => 
@@ -170,7 +187,8 @@ namespace CodeSearcher
                 {
                     exporter?.Dispose();
                     Console.WriteLine($"Export file written: {exportFileName}");
-                });
+                },
+                wildcardSearch);
             }
 
             Console.WriteLine("Programm finished");

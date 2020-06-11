@@ -139,6 +139,19 @@ namespace CodeSearcher.BusinessLogic
             }
 
             return Ioc.Get<IResultExporter>(
+                "Default",
+                new ConstructorArgument("exportWriter", exportWriter));
+        }
+
+        public static IResultExporter GetWildcardResultExporter(StreamWriter exportWriter)
+        {
+            if (exportWriter is null)
+            {
+                throw new ArgumentNullException(nameof(exportWriter));
+            }
+
+            return Ioc.Get<IResultExporter>(
+                "Wildcard",
                 new ConstructorArgument("exportWriter", exportWriter));
         }
 

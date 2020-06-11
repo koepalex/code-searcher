@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using CodeSearcher.Interfaces;
 
 namespace CodeSearcher.BusinessLogic

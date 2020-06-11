@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.IO;
 using CodeSearcher.Interfaces;
 
 namespace CodeSearcher.BusinessLogic
@@ -137,9 +136,9 @@ namespace CodeSearcher.BusinessLogic
 
                     if (shouldExit) break;
 
-                    endOfSearchCallback();
-
                 } while (true);
+
+                endOfSearchCallback();
             }
         }
     }

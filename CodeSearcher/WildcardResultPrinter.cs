@@ -1,4 +1,5 @@
-﻿using CodeSearcher.Interfaces;
+﻿using CodeSearcher.BusinessLogic.Common;
+using CodeSearcher.Interfaces;
 using System;
 using System.IO;
 using System.Text;
@@ -27,11 +28,11 @@ namespace CodeSearcher
 
             for (int i = 0; i < lines.Length; i++)
             {
-                
-                if (Regex.IsMatch(lines[i], WildcardResolver(wildcardPattern)))
+                var resolvedPattern = Helper.WildcardResolver(wildcardPattern);
+                if (Regex.IsMatch(lines[i], resolvedPattern))
                 {
                     //TODO handle multiple hits in one line
-                    var match = Regex.Match(lines[i], WildcardResolver(wildcardPattern));
+                    var match = Regex.Match(lines[i], resolvedPattern);
                     
                     var line = lines[i].Trim();
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -67,11 +68,6 @@ namespace CodeSearcher
                     m_NumbersToShow++;
                 }
             }
-        }
-
-        private static String WildcardResolver(String value)
-        {
-            return Regex.Escape(value).Replace("\\?", ".").Replace("\\*", ".*");
         }
     }
 

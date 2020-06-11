@@ -19,7 +19,8 @@ namespace CodeSearcher.BusinessLogic.Ninject
             Bind<ISearcher>().To(typeof(DefaultSearcher)).Named("Default");
             Bind<ISearcher>().To(typeof(WildcardSearcher)).Named("Wildcard");
             Bind<IFileReader>().To(typeof(FileReader));
-            Bind<IResultExporter>().To<ResultFileExporter>();
+            Bind<IResultExporter>().To<ResultFileExporter>().Named("Default");
+            Bind<IResultExporter>().To<WildcardResultExporter>().Named("Wildcard");
             Bind<ICodeSearcherLogic>().To<CodeSearcherLogic>();
         }
     }

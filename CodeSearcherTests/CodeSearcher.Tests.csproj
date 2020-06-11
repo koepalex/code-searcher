@@ -89,6 +89,7 @@
     <Compile Include="IntegrationTests\FileReaderTests.cs" />
     <Compile Include="SystemTests\BookAliceTests.cs" />
     <Compile Include="SystemTests\BookCountOfMonteCristoTests.cs" />
+    <Compile Include="SystemTests\RomeoAndJuliaTests.cs" />
     <Compile Include="TestExtensionMethods.cs" />
     <Compile Include="TestHelper.cs" />
   </ItemGroup>

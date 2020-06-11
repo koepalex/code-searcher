@@ -151,7 +151,9 @@ namespace CodeSearcher
                     {
                         exportFileName = Path.GetTempFileName();
                         var exportStreamWriter = File.CreateText(exportFileName);
-                        exporter = Factory.GetResultExporter(exportStreamWriter);
+                        exporter = wildcardSearch
+                            ? Factory.GetWildcardResultExporter(exportStreamWriter)
+                            : Factory.GetResultExporter(exportStreamWriter);
                     }
 
                     return (export, exporter);

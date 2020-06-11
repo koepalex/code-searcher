@@ -85,7 +85,17 @@ namespace CodeSearcher.BusinessLogic
         {
             if (String.IsNullOrWhiteSpace(pathToIndexFiles)) throw new ArgumentNullException("pathToIndexFiles");
 
-            var searcher = Ioc.Get<ISearcher>(
+            var searcher = Ioc.Get<ISearcher>("Default",
+                new ConstructorArgument("idxPath", pathToIndexFiles));
+
+            return searcher;
+        }
+
+        public static ISearcher GetWildcardSearcher(String pathToIndexFiles)
+        {
+            if (String.IsNullOrWhiteSpace(pathToIndexFiles)) throw new ArgumentNullException("pathToIndexFiles");
+
+            var searcher = Ioc.Get<ISearcher>("Wildcard",
                 new ConstructorArgument("idxPath", pathToIndexFiles));
 
             return searcher;
@@ -173,6 +183,13 @@ namespace CodeSearcher.BusinessLogic
         {
             var term = new Term(fieldName, searchPattern);
             var query = new TermQuery(term);
+            return query;
+        }
+
+        internal static WildcardQuery GetLuceneWildcardSearchQuery(String fieldName, String searchPattern)
+        {
+            var term = new Term(fieldName, searchPattern);
+            var query = new WildcardQuery(term);
             return query;
         }
 

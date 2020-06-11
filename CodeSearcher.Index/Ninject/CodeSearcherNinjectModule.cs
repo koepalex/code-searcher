@@ -16,7 +16,8 @@ namespace CodeSearcher.BusinessLogic.Ninject
             Bind<ISearchResultContainer>().To(typeof(SearchResultContainer));
             Bind<ISearchResult>().To(typeof(SearchResult));
             Bind<IIndexer>().To(typeof(DefaultIndexer));
-            Bind<ISearcher>().To(typeof(DefaultSearcher));
+            Bind<ISearcher>().To(typeof(DefaultSearcher)).Named("Default");
+            Bind<ISearcher>().To(typeof(WildcardSearcher)).Named("Wildcard");
             Bind<IFileReader>().To(typeof(FileReader));
             Bind<IResultExporter>().To<ResultFileExporter>();
             Bind<ICodeSearcherLogic>().To<CodeSearcherLogic>();

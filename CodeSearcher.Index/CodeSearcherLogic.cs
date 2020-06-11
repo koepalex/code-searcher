@@ -90,13 +90,14 @@ namespace CodeSearcher.BusinessLogic
             Func<ISingleResultPrinter> getSingleResultPrinter,
             Action<TimeSpan> finishedCallback,
             Action endOfSearchCallback,
-            Action exportFinishedCallback = null)
+            Action exportFinishedCallback = null,
+            bool useWildcardSearch = false)
         {
             startCallback();
 
             var idxPath = m_GetIndexPath();
 
-            using (var searcher = Factory.GetSearcher(idxPath))
+            using (var searcher = useWildcardSearch ? Factory.GetWildcardSearcher(idxPath) : Factory.GetSearcher(idxPath))
             {
                 int numberOfHits = getMaximumNumberOfHits();
                 int hitsPerPage = getHitsPerPage();

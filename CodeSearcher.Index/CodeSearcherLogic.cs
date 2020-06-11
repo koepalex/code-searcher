@@ -31,6 +31,7 @@ namespace CodeSearcher.BusinessLogic
             Action<string> fileProccessedCallback,
             Action<long, TimeSpan> finishedCallback)
         {
+            Interlocked.Exchange(ref m_FileCounter, 0);
             startCallback();
 
             var idxPath = m_GetIndexPath();

@@ -164,51 +164,6 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
         #endregion
 
-        #region 014_BigBinaryFile
-
-        [Test]
-        [Category("NotSafeForCI")]
-        public void Test_BigBinaryFiles_Expect_Text_Interpretation()
-        {
-            string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_BigBinaryFile");
-
-            var fileReader = new FileReader(new List<string> { ".bin" });
-            Assert.NotNull(fileReader, "can't create FileReader");
-
-            int numberOfFiles = 0;
-
-            var task = fileReader.ReadFilesAsync(pathToSearch, files =>
-            {
-                numberOfFiles += files.Count;
-                Debug.Write(files[0].Text);
-            });
-
-            task.Wait();
-
-            Assert.That(numberOfFiles, Is.EqualTo(1));
-        }
-        #endregion
-
-        #region 014_XML_StarWars
-
-        [Test]
-        [Category("NotSafeForCI")]
-        public void Test_Xml_Expect_Not_Problem()
-        {
-            string pathToSearch = TestHelper.GetPathToIntegrationTestData("014_XML_StarWars");
-
-            var fileReader = new FileReader(new List<string> { ".xml" });
-            Assert.NotNull(fileReader, "can't create FileReader");
-
-            var task = fileReader.ReadFilesAsync(pathToSearch, files =>
-            {
-                Assert.That(files[0].Text.Length, Is.EqualTo(410));
-            });
-
-            task.Wait();
-        }
-        #endregion
-
         #region 015_NoAccessRights
 
         [Test]

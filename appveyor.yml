@@ -69,8 +69,6 @@ test:
   categories:
     only:
       - SafeForCI
-    except:
-      - NotSafeForCI
 
 # scripts to run before tests
 before_test:

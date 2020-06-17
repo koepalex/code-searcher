@@ -37,16 +37,18 @@ namespace CodeSearcher
             m_Arguments = new Dictionary<String, String>();
         }
 
-        public int GetProgramModeAsInt()
+        public ProgramModes GetProgramMode()
         {
             if (m_Arguments.ContainsKey(ProgramMode))
             {
                 if (m_Arguments[ProgramMode] == "index" || m_Arguments[ProgramMode] == "i")
-                    return 1;
+                    return ProgramModes.Index;
                 if (m_Arguments[ProgramMode] == "search" || m_Arguments[ProgramMode] == "s")
-                    return 2;
+                    return ProgramModes.Search;
+                if (m_Arguments[ProgramMode] == "auto" || m_Arguments[ProgramMode] == "a")
+                    return ProgramModes.Auto;
             }
-            return -1;
+            return ProgramModes.None;
         }
 
         public IList<String> GetFileExtensionsAsList()
@@ -68,7 +70,7 @@ namespace CodeSearcher
             bool argumentsOk = true;
             var os = new OptionSet();
             var showHelp = os.AddSwitch("h|?|help", "Shows the help");
-            var mode = os.AddVariable<String>("m|mode", "Select the mode of the tool. \n 'index' to index directory \n 'search' to search within already indexed directory");
+            var mode = os.AddVariable<String>("m|mode", "Select the mode of the tool. \n 'index' to index directory \n 'search' to search within already indexed directory \n 'auto' to use CLI");
             var idxPath = os.AddVariable<String>("ip|indexPath", "Location where the index is or should be stored (mandatory)");
             var srcPath = os.AddVariable<String>("sp|sourcePath", "Location of files, which should be indexed (mandatory in case of 'mode=index')");
             var fileExtensions = os.AddVariable<String>("fe|fileExtensions", "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')");
@@ -112,6 +114,11 @@ namespace CodeSearcher
                     else if (mode == "search" || mode == "s")
                     {
                         argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage, export, wildcardSearch);
+                    }
+                    else if(mode == "auto" || mode == "a")
+                    {
+                        m_Arguments[ProgramMode] = mode;
+                        argumentsOk = true;
                     }
                     else
                     {

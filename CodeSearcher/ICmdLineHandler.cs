@@ -17,7 +17,30 @@ namespace CodeSearcher
         string WildcardSearch { get; }
 
         IList<string> GetFileExtensionsAsList();
-        int GetProgramModeAsInt();
+        ProgramModes GetProgramMode();
         bool Parse(string[] cmdArgs);
+    }
+
+    /// <summary>
+    /// Defines the possible modes of command line program
+    /// </summary>
+    internal enum ProgramModes
+    {
+        /// <summary>
+        /// Invalid, default value
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Create new Index
+        /// </summary>
+        Index = 1,
+        /// <summary>
+        /// Search in Existing Index
+        /// </summary>
+        Search = 2,
+        /// <summary>
+        /// CLI Menu
+        /// </summary>
+        Auto = 3,
     }
 }

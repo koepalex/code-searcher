@@ -6,6 +6,7 @@ using CodeSearcher.BusinessLogic.SearchResults;
 using CodeSearcher.BusinessLogic.Exporter;
 using CodeSearcher.Interfaces;
 using Ninject.Modules;
+using CodeSearcher.BusinessLogic.Management;
 
 namespace CodeSearcher.BusinessLogic.Ninject
 {
@@ -22,6 +23,7 @@ namespace CodeSearcher.BusinessLogic.Ninject
             Bind<IResultExporter>().To<ResultFileExporter>().Named("Default");
             Bind<IResultExporter>().To<WildcardResultExporter>().Named("Wildcard");
             Bind<ICodeSearcherLogic>().To<CodeSearcherLogic>();
+            Bind<ICodeSearcherManager>().To<CodeSearcherManager>();
         }
     }
 }

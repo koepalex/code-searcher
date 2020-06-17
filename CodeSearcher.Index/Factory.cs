@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using CodeSearcher.BusinessLogic.OwnTokenizer;
+using System.Net;
+using CodeSearcher.BusinessLogic.Management;
 
 namespace CodeSearcher.BusinessLogic
 {
@@ -31,6 +33,17 @@ namespace CodeSearcher.BusinessLogic
 
                 return m_Kernel;
             }
+        }
+
+        public static ICodeSearcherManager GetCodeSearcherManager(ICodeSearcherLogger logger)
+        {
+            if (logger is null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
+            var mgr = Ioc.Get<ICodeSearcherManager>(new ConstructorArgument("logger", logger));
+            return mgr;
         }
 
         public static IIndexer GetIndexer(String pathToStoreTheIndexFiles, String sourceCodePath, IList<String> fileExtensionsToLookFor)
@@ -215,5 +228,10 @@ namespace CodeSearcher.BusinessLogic
 		{
 			return new SourceCodeAnalyzer();
 		}
+
+        internal static ICodeSearcherIndex GetCodeSearcherIndex(string sourcePath, string indexPath, IList<string> fileExtensions)
+        {
+            return new CodeSearcherIndex(sourcePath, indexPath, fileExtensions);
+        }
     }
 }

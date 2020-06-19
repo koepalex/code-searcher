@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using CodeSearcher.BusinessLogic;
@@ -11,7 +12,7 @@ using NLog.Targets;
 
 namespace CodeSearcher
 {
-    class Program
+    internal class Program
     {
         private static ICmdLineHandler m_CmdHandler;
         private static ILogger m_Logger;
@@ -31,15 +32,19 @@ namespace CodeSearcher
                 : ReadProgramMode();
 
             ICodeSearcherLogic logic = GetCodeSearcherLogic();
-
-            switch(mode)
+            var manager = Factory.GetCodeSearcherManager(new LoggerAdapter(m_Logger));
+            
+            switch (mode)
             {
                 case ProgramModes.Index:
                     CreateIndex(logic); break;
                 case ProgramModes.Search:
                     SearchInExistingIndex(logic); break;
                 case ProgramModes.Auto:
-                    ShowConsoleMainMenu(logic); break;
+                    var tui = new TextBasedUserInterface();
+                    var nav = new MenuNavigator();
+                    ShowConsoleMainMenu(logic, manager, tui, nav); 
+                    break;
             }
 
             Console.WriteLine("Programm finished");
@@ -213,9 +218,8 @@ namespace CodeSearcher
             wildcardSearch);
         }
 
-        private static void ShowConsoleMainMenu(ICodeSearcherLogic logic)
+        internal static void ShowConsoleMainMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
-            var manager = Factory.GetCodeSearcherManager(new LoggerAdapter(m_Logger));
             do
             {
                 Console.Clear();
@@ -229,7 +233,7 @@ namespace CodeSearcher
                 {
                     if (1.Equals(selection)) //Create New Index
                     {
-                        ShowCreateNewIndexMenu(logic, manager);
+                        ShowCreateNewIndexMenu(logic, manager, tui, nav);
 
                     }
                     else if (2.Equals(selection)) //Show All Indexes
@@ -244,29 +248,30 @@ namespace CodeSearcher
             } while (true);
         }
 
-        private static void ShowCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager)
+        internal static void ShowCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
             int selection;
             // Source path
-            string sourcePath;
+            string sourcePath = null;
             do
             {
-                Console.WriteLine("Please enter Path with Sources to Index:");
-                answer = Console.ReadLine();
+                tui.WriteLine("Please enter Path with Sources to Index:");
+                answer = tui.ReadLine();
                 if (Directory.Exists(answer))
                 {
                     sourcePath = answer;
+                    tui.WriteLine($"Path with files to Index: {sourcePath}");
                     break;
                 }
-                Console.WriteLine("Path do not exist!");
-            } while (true);
+                tui.WriteLine("Path do not exist!");
+            } while (tui.ShouldLoop());
 
             // file extensions
             var extensions = new List<String>();
-            Console.WriteLine("Please select file extension to index (form .ext1,.ext2)");
-            Console.WriteLine("Leave empty to use (.cs,.xml,.csproj) ");
-            answer = Console.ReadLine();
+            tui.WriteLine("Please select file extension to index (form .ext1,.ext2)");
+            tui.WriteLine("Leave empty to use (.cs,.xml,.csproj) ");
+            answer = tui.ReadLine();
             if (string.IsNullOrWhiteSpace(answer))
             {
                 extensions.Add(".cs");
@@ -281,28 +286,33 @@ namespace CodeSearcher
                 }
             }
 
-            var id = manager.CreateIndex(sourcePath, extensions);
-            Console.WriteLine($"New Index created with ID {id}...");
-            do
+            tui.WriteLine("Looking for files with extensions: ");
+            extensions.ForEach((ext) => tui.WriteLine($"File Extension: {ext}"));
+
+            if (!string.IsNullOrWhiteSpace(sourcePath) && extensions.Count > 0)
             {
-                Console.WriteLine("[1] Search in new created index");
-                Console.WriteLine("[2] Back to main menu");
-                Console.WriteLine("Please choose: ");
-                answer = Console.ReadLine();
-                if (int.TryParse(answer, out selection))
+                var id = manager.CreateIndex(sourcePath, extensions);
+                tui.WriteLine($"New Index created with ID: {id}");
+                do
                 {
-                    if (1.Equals(selection))
+                    tui.WriteLine("[1] Search in new created index");
+                    tui.WriteLine("[2] Back to main menu");
+                    tui.WriteLine("Please choose: ");
+                    answer = tui.ReadLine();
+                    if (int.TryParse(answer, out selection))
                     {
-                        var selectedIndex = manager.GetIndexById(id);
-                        ShowSelectedIndexMenu(logic, manager, selectedIndex);
-                        break;
+                        if (1.Equals(selection))
+                        {
+                            var selectedIndex = manager.GetIndexById(id);
+                            nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                        }
+                        else if (2.Equals(selection))
+                        {
+                            nav.GoToMainMenu(tui);
+                        }
                     }
-                    else if (2.Equals(selection))
-                    {
-                        break;
-                    }
-                }
-            } while (true);
+                } while (tui.ShouldLoop());
+            }
         }
 
         private static void ShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager)
@@ -329,7 +339,7 @@ namespace CodeSearcher
             }
         }
 
-        private static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex)
+        internal static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex)
         {
             string answer;
             int selection;

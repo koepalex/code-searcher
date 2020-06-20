@@ -24,6 +24,12 @@ namespace CodeSearcher
         }
 
         /// <inheritdoc />
+        public void Clear()
+        {
+            Console.Clear();
+        }
+
+        /// <inheritdoc />
         public bool ShouldLoop()
         {
             return m_ShouldLoop;

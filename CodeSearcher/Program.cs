@@ -238,7 +238,7 @@ namespace CodeSearcher
                     }
                     else if (2.Equals(selection)) //Show All Indexes
                     {
-                        ShowAllIndexesMenu(logic, manager);
+                        ShowAllIndexesMenu(logic, manager, tui, nav);
                     }
                     else if(3.Equals(selection)) //Exit
                     {
@@ -315,28 +315,41 @@ namespace CodeSearcher
             }
         }
 
-        private static void ShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager)
+        internal static void ShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
             int selection;
-            Console.Clear();
-            var indexes = manager.GetAllIndexes().ToList();
-            int count = 1;
-            foreach (var index in indexes)
+            do
             {
-                Console.WriteLine($"[{count++}] - ID {index.ID} - SourcePath {index.SourcePath}");
-            }
-            Console.WriteLine($"[{count++}] Return to main menu");
-            Console.WriteLine("Please choose: ");
-            answer = Console.ReadLine();
-            if (int.TryParse(answer, out selection))
-            {
-                if (selection >= 1 && selection < count)
+                tui.Clear();
+                var indexes = manager.GetAllIndexes().ToList();
+                int count = 0;
+                foreach (var index in indexes)
                 {
-                    var selectedIndex = indexes[selection - 1];
-                    ShowSelectedIndexMenu(logic, manager, selectedIndex);
+                    tui.WriteLine($"[{++count}] - ID {index.ID} - SourcePath {index.SourcePath}");
                 }
-            }
+
+                if (indexes.Count == 0)
+                {
+                    tui.WriteLine("There are currently no folders indexed!");
+                }
+
+                tui.WriteLine($"[{++count}] Return to main menu");
+                tui.WriteLine("Please choose: ");
+                answer = tui.ReadLine();
+                if (int.TryParse(answer, out selection))
+                {
+                    if (indexes.Count > 0 && selection < count)
+                    {
+                        var selectedIndex = indexes[selection - 1];
+                        nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                    }
+                    else
+                    {
+                        nav.GoToMainMenu(tui);
+                    }
+                }
+            } while (tui.ShouldLoop());
         }
 
         internal static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex)

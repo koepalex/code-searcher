@@ -25,6 +25,10 @@
         /// </returns>
         string ReadLine();
         /// <summary>
+        /// Clears the text buffer and corresponding console window of display information.
+        /// </summary>
+        void Clear();
+        /// <summary>
         /// Indicates if implementation should loop until correct answer was given
         /// </summary>
         /// <returns>true if should wait otherwise false</returns>

@@ -19,6 +19,14 @@ Not finding any tool, which solves my use case, was the reason to start this pro
 
 ## Command Line Version (CodeSearcher)
 This chapter describes how to use the command line version of the tool.
+
+### Use Command Line Menu
+To improve the usability code-searcher provides an interactive menu within console. You should Start with this option if you are a new user.
+
+```powershell
+CodeSearcher.exe -m=auto
+```
+
 ### Index a new source code folder
 First we have to analyse all the files we want to have searchable. To create a lucene index out of the files you can use the following commands: 
 ```batchfile

@@ -426,5 +426,106 @@ namespace CodeSearcher.Tests.IntegrationTests
 
             navMock.Verify(nav => nav.GoToMainMenu(It.IsAny<ITextBasedUserInterface>()));
         }
+
+        [Test]
+        public void Test_MainMenu_Expect_Exit()
+        {
+            var logicStub = new Mock<ICodeSearcherLogic>();
+            var managerMock = new Mock<ICodeSearcherManager>();
+
+            var tuiStub = new Mock<ITextBasedUserInterface>();
+            tuiStub.Setup(tui => tui.ReadLine())
+                .Returns(3.ToString());
+            tuiStub.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navMock = new Mock<IMenuNavigator>();
+
+            Program.ShowConsoleMainMenu(logicStub.Object, managerMock.Object, tuiStub.Object, navMock.Object);
+
+            navMock.Verify(nav => nav.ExitMenu(), Times.Once);
+            navMock.Verify(nav => nav.GoToShowAllIndexesMenu(
+                It.IsAny<ICodeSearcherLogic>(),
+                It.IsAny<ICodeSearcherManager>(),
+                It.IsAny<ITextBasedUserInterface>()),
+                Times.Never);
+            navMock.Verify(nav => nav.GoToCreateNewIndexMenu(
+                It.IsAny<ICodeSearcherLogic>(),
+                It.IsAny<ICodeSearcherManager>(),
+                It.IsAny<ITextBasedUserInterface>()),
+                Times.Never);
+        }
+
+        [Test]
+        public void Test_MainMenu_Expect_GotoAllIndexMenu()
+        {
+            var logicStub = new Mock<ICodeSearcherLogic>();
+            var managerMock = new Mock<ICodeSearcherManager>();
+
+            var tuiStub = new Mock<ITextBasedUserInterface>();
+            tuiStub.Setup(tui => tui.ReadLine())
+                .Returns(2.ToString());
+            tuiStub.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navMock = new Mock<IMenuNavigator>();
+
+            Program.ShowConsoleMainMenu(logicStub.Object, managerMock.Object, tuiStub.Object, navMock.Object);
+
+            navMock.Verify(nav => nav.GoToShowAllIndexesMenu(
+                It.IsAny<ICodeSearcherLogic>(), 
+                It.IsAny<ICodeSearcherManager>(), 
+                It.IsAny<ITextBasedUserInterface>()), 
+                Times.Once);
+            navMock.Verify(nav => nav.GoToCreateNewIndexMenu(
+                It.IsAny<ICodeSearcherLogic>(),
+                It.IsAny<ICodeSearcherManager>(),
+                It.IsAny<ITextBasedUserInterface>()),
+                Times.Never);
+            navMock.Verify(nav => nav.ExitMenu(), Times.Never);
+        }
+
+        [Test]
+        public void Test_MainMenu_Expect_GotoCreateNewIndexMenu()
+        {
+            var logicStub = new Mock<ICodeSearcherLogic>();
+            var managerMock = new Mock<ICodeSearcherManager>();
+
+            var tuiStub = new Mock<ITextBasedUserInterface>();
+            tuiStub.Setup(tui => tui.ReadLine())
+                .Returns(1.ToString());
+            tuiStub.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navMock = new Mock<IMenuNavigator>();
+
+            Program.ShowConsoleMainMenu(logicStub.Object, managerMock.Object, tuiStub.Object, navMock.Object);
+
+            navMock.Verify(nav => nav.GoToCreateNewIndexMenu(
+                It.IsAny<ICodeSearcherLogic>(),
+                It.IsAny<ICodeSearcherManager>(),
+                It.IsAny<ITextBasedUserInterface>()),
+                Times.Once);
+            navMock.Verify(nav => nav.GoToShowAllIndexesMenu(
+                It.IsAny<ICodeSearcherLogic>(),
+                It.IsAny<ICodeSearcherManager>(),
+                It.IsAny<ITextBasedUserInterface>()),
+                Times.Never);
+            navMock.Verify(nav => nav.ExitMenu(), Times.Never);
+        }
+
+        [Test]
+        public void Test_MainMenu_Expect_MenuItems()
+        {
+            var logicStub = new Mock<ICodeSearcherLogic>();
+            var managerMock = new Mock<ICodeSearcherManager>();
+
+            var tuiStub = new Mock<ITextBasedUserInterface>();
+            tuiStub.Setup(tui => tui.ReadLine())
+                .Returns(3.ToString());
+            tuiStub.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navStub = new Mock<IMenuNavigator>();
+
+            Program.ShowConsoleMainMenu(logicStub.Object, managerMock.Object, tuiStub.Object, navStub.Object);
+
+            tuiStub.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg == "[1] Create New Index")), Times.Once);
+            tuiStub.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg == "[2] Show all Indexes")), Times.Once);
+            tuiStub.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg == "[3] Exit")), Times.Once);
+            tuiStub.Verify(tui => tui.Clear(), Times.Once);
+        }
     }
 }

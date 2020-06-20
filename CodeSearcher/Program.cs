@@ -222,30 +222,29 @@ namespace CodeSearcher
         {
             do
             {
-                Console.Clear();
-                Console.WriteLine("[1] Create New Index");
-                Console.WriteLine("[2] Show all Indexes");
-                Console.WriteLine("[3] Exit");
-                Console.WriteLine("Please choose: ");
-                var answer = Console.ReadLine();
+                tui.Clear();
+                tui.WriteLine("[1] Create New Index");
+                tui.WriteLine("[2] Show all Indexes");
+                tui.WriteLine("[3] Exit");
+                tui.WriteLine("Please choose: ");
+                var answer = tui.ReadLine();
                 int selection;
                 if (int.TryParse(answer, out selection))
                 {
                     if (1.Equals(selection)) //Create New Index
                     {
-                        ShowCreateNewIndexMenu(logic, manager, tui, nav);
-
+                        nav.GoToCreateNewIndexMenu(logic, manager, tui);
                     }
                     else if (2.Equals(selection)) //Show All Indexes
                     {
-                        ShowAllIndexesMenu(logic, manager, tui, nav);
+                        nav.GoToShowAllIndexesMenu(logic, manager, tui);
                     }
                     else if(3.Equals(selection)) //Exit
                     {
-                        break;
+                        nav.ExitMenu();
                     }
                 }
-            } while (true);
+            } while (nav.MenuLoopActive());
         }
 
         internal static void ShowCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)

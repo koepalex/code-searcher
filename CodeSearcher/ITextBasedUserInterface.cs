@@ -17,6 +17,10 @@
         /// <param name="message">value to write </param>
         void WriteLine(string message);
         /// <summary>
+        /// Writes the current line terminator,to the standard output stream.
+        /// </summary>
+        void WriteLine();
+        /// <summary>
         /// Reads the next line of characters from the standard input stream.
         /// </summary>
         /// <returns>

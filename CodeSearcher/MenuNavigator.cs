@@ -8,7 +8,7 @@ namespace CodeSearcher
         /// <inheritdoc />
         public void GoToSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui)
         {
-            Program.ShowSelectedIndexMenu(logic, manager, selectedIndex);
+            Program.ShowSelectedIndexMenu(logic, manager, selectedIndex, tui, this);
             tui.SetShouldLoop(false);
         }
 

@@ -16,7 +16,7 @@ namespace CodeSearcher.BusinessLogic.Management
             SourcePath = sourcePath;
             IndexPath = indexPath;
             FileExtensions = fileExtensions;
-            LastUpdate = DateTime.UtcNow;
+            CreatedTime = DateTime.UtcNow;
             ID = BuildIdForIndex();
         }
         
@@ -30,7 +30,7 @@ namespace CodeSearcher.BusinessLogic.Management
         public string IndexPath { get; set; }
         
         /// <inheritdoc/>
-        public DateTime LastUpdate { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         /// <inheritdoc/>
         public IList<string> FileExtensions { get; set; }

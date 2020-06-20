@@ -352,26 +352,27 @@ namespace CodeSearcher
             } while (tui.ShouldLoop());
         }
 
-        internal static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex)
+        internal static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
             int selection;
 
             do
             {
-                Console.WriteLine($"ID:\t\t{selectedIndex.ID}");
-                Console.WriteLine($"Source:\t\t{selectedIndex.SourcePath}");
-                Console.Write($"File Extensions:\t\t");
+                tui.WriteLine($"ID:\t\t{selectedIndex.ID}");
+                tui.WriteLine($"Source:\t\t{selectedIndex.SourcePath}");
+                tui.Write($"File Extensions:\t\t");
                 foreach (var extension in selectedIndex.FileExtensions)
                 {
-                    Console.Write($"{extension}, ");
+                    tui.Write($"{extension}, ");
                 }
-                Console.WriteLine();
-                Console.WriteLine("[1] Search in Index");
-                Console.WriteLine("[2] Delete Index");
-                Console.WriteLine("[3] Return to main menu");
-                Console.WriteLine("Please choose: ");
-                answer = Console.ReadLine();
+                tui.WriteLine();
+                tui.WriteLine($"Created on: {selectedIndex.CreatedTime.ToString("yyyy-MM-dd H:mm:ss")}");
+                tui.WriteLine("[1] Search in Index");
+                tui.WriteLine("[2] Delete Index");
+                tui.WriteLine("[3] Return to main menu");
+                tui.WriteLine("Please choose: ");
+                answer = tui.ReadLine();
                 if (int.TryParse(answer, out selection))
                 {
                     if (1.Equals(selection))
@@ -397,13 +398,14 @@ namespace CodeSearcher
                     else if (2.Equals(selection))
                     {
                         manager.DeleteIndex(selectedIndex.ID);
+                        tui.WriteLine($"Index with ID {selectedIndex.ID} deleted!");
                     }
                     else if (3.Equals(selection))
                     {
-                        break;
+                        nav.GoToMainMenu(tui);
                     }
                 }
-            } while (true);
+            } while (tui.ShouldLoop());
         }
 
         private static void SetUpLogger()

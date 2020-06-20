@@ -24,6 +24,12 @@ namespace CodeSearcher
         }
 
         /// <inheritdoc />
+        public void WriteLine()
+        {
+            Console.WriteLine();
+        }
+
+        /// <inheritdoc />
         public void Clear()
         {
             Console.Clear();

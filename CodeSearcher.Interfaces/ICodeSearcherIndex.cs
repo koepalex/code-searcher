@@ -24,9 +24,9 @@ namespace CodeSearcher.Interfaces
         string IndexPath { get; set; }
 
         /// <summary>
-        /// time when the index was last created or updated
+        /// time when the index was last created
         /// </summary>
-        DateTime LastUpdate { get; set; }
+        DateTime CreatedTime { get; set; }
 
         /// <summary>
         /// Extensions of files that need to be used while indexing

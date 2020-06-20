@@ -291,5 +291,140 @@ namespace CodeSearcher.Tests.IntegrationTests
                 It.IsAny<ITextBasedUserInterface>()), 
                 Times.Once);
         }
+
+        [Test]
+        public void Test_SelectedIndex_Expect_ShowDetails()
+        {
+            const int id = 1127001;
+            const string sourcePath = @"C:\Users\test\documents\sources";
+            const string css = ".css";
+            const string html = ".html";
+            const string js = ".js";
+
+            var logicStub = new Mock<ICodeSearcherLogic>();
+            var indexStub1 = new Mock<ICodeSearcherIndex>();
+            indexStub1.SetupGet(i => i.ID).Returns(id).Verifiable();
+            indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath).Verifiable();
+            indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js }).Verifiable();
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59")).Verifiable();
+            
+            var managerStub = new Mock<ICodeSearcherManager>();
+            var tuiMock = new Mock<ITextBasedUserInterface>();
+            tuiMock.Setup(tui => tui.ReadLine())
+                .Returns(3.ToString());
+            tuiMock.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navStub = new Mock<IMenuNavigator>();
+
+            Program.ShowSelectedIndexMenu(logicStub.Object, managerStub.Object, indexStub1.Object, tuiMock.Object, navStub.Object);
+
+            indexStub1.Verify();
+            tuiMock.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg.EndsWith(id.ToString()))), Times.Once);
+            tuiMock.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg.EndsWith(sourcePath))), Times.Once);
+            tuiMock.Verify(tui => tui.Write(It.Is<string>(msg => msg.StartsWith(css))), Times.Once);
+            tuiMock.Verify(tui => tui.Write(It.Is<string>(msg => msg.StartsWith(html))), Times.Once);
+            tuiMock.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg.EndsWith(sourcePath))), Times.Once);
+            tuiMock.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg.EndsWith("1999-12-31 23:59:59"))), Times.Once);
+        }
+
+        [Test]
+        public void Test_SelectedIndex_Expect_DeleteIndex()
+        {
+            const int id = 1127001;
+            const string sourcePath = @"C:\Users\test\documents\sources";
+            const string css = ".css";
+            const string html = ".html";
+            const string js = ".js";
+
+            var logicStub = new Mock<ICodeSearcherLogic>();
+            var indexStub1 = new Mock<ICodeSearcherIndex>();
+            indexStub1.SetupGet(i => i.ID).Returns(id);
+            indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath);
+            indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js });
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59"));
+
+            var managerMock = new Mock<ICodeSearcherManager>();
+
+            var tuiMock = new Mock<ITextBasedUserInterface>();
+            tuiMock.Setup(tui => tui.ReadLine())
+                .Returns(2.ToString());
+            tuiMock.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navStub = new Mock<IMenuNavigator>();
+
+            Program.ShowSelectedIndexMenu(logicStub.Object, managerMock.Object, indexStub1.Object, tuiMock.Object, navStub.Object);
+
+            managerMock.Verify(manager => manager.DeleteIndex(It.Is<int>(idToDelete => idToDelete == id)));
+            tuiMock.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg == "Index with ID 1127001 deleted!")));
+        }
+
+        [Test]
+        public void Test_SelectedIndex_Expect_SearchInIndex()
+        {
+            const int id = 1127001;
+            const string sourcePath = @"C:\Users\test\documents\sources";
+            const string css = ".css";
+            const string html = ".html";
+            const string js = ".js";
+
+            var logicMock = new Mock<ICodeSearcherLogic>();
+            var indexStub1 = new Mock<ICodeSearcherIndex>();
+            indexStub1.SetupGet(i => i.ID).Returns(id);
+            indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath);
+            indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js });
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59"));
+
+            var managerMock = new Mock<ICodeSearcherManager>();
+
+            var tuiMock = new Mock<ITextBasedUserInterface>();
+            tuiMock.Setup(tui => tui.ReadLine())
+                .Returns(1.ToString());
+            tuiMock.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navStub = new Mock<IMenuNavigator>();
+
+            Program.ShowSelectedIndexMenu(logicMock.Object, managerMock.Object, indexStub1.Object, tuiMock.Object, navStub.Object);
+
+            logicMock.Verify(logic => logic.SearchWithinExistingIndex(
+                It.IsAny<Action>(),
+                It.IsAny<Func<(string, bool)>>(),
+                It.IsAny<Func<int>>(),
+                It.IsAny<Func<int>>(),
+                It.IsAny<Func<(bool, IResultExporter)>>(),
+                It.IsAny<Func<ISingleResultPrinter>>(),
+                It.IsAny<Action<TimeSpan>>(),
+                It.IsAny<Action>(),
+                It.IsAny<Action>(),
+                It.IsAny<bool>()
+                ), Times.Once);
+            tuiMock.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg == "ID:\t\t1127001")));
+        }
+
+
+        [Test]
+        public void Test_SelectedIndex_Expect_GotoMainMenu()
+        {
+            const int id = 1127001;
+            const string sourcePath = @"C:\Users\test\documents\sources";
+            const string css = ".css";
+            const string html = ".html";
+            const string js = ".js";
+
+            var logicStub = new Mock<ICodeSearcherLogic>();
+            var indexStub1 = new Mock<ICodeSearcherIndex>();
+            indexStub1.SetupGet(i => i.ID).Returns(id);
+            indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath);
+            indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js });
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59"));
+
+            var managerMock = new Mock<ICodeSearcherManager>();
+
+            var tuiStub = new Mock<ITextBasedUserInterface>();
+            tuiStub.Setup(tui => tui.ReadLine())
+                .Returns(3.ToString());
+            tuiStub.Setup(tui => tui.ShouldLoop()).Returns(false);
+            var navMock = new Mock<IMenuNavigator>();
+
+            Program.ShowSelectedIndexMenu(logicStub.Object, managerMock.Object, indexStub1.Object, tuiStub.Object, navMock.Object);
+
+            navMock.Verify(nav => nav.GoToMainMenu(It.IsAny<ITextBasedUserInterface>()));
+        }
     }
 }

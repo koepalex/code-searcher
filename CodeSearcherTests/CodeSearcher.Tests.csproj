@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper\TestLogger.cs" />
+    <Compile Include="IntegrationTests\CodeSearcherLogicTests.cs" />
     <Compile Include="IntegrationTests\CodeSearcherManagerTests.cs" />
     <Compile Include="IntegrationTests\TextBasedUITests.cs" />
     <Compile Include="IntegrationTests\TokenizerTest.cs" />
@@ -173,6 +174,9 @@
     <None Include="IntegrationTests\TestData\011_FolderInFolder\lvl1\lvl2\lvl3\itf.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="IntegrationTests\TestData\040_CodeSearcherLogic\FolderWithIndex\.code-searcher\Test.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +185,7 @@
   <ItemGroup>
     <Folder Include="IntegrationTests\TestData\014_BigBinaryFile\" />
     <Folder Include="IntegrationTests\TestData\030_CodeSearcherManager\Meta\" />
+    <Folder Include="IntegrationTests\TestData\040_CodeSearcherLogic\Meta\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AddThisToPostBuildEvent.txt" />
@@ -191,6 +196,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="IntegrationTests\TestData\030_CodeSearcherManager\Folder3\42.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IntegrationTests\TestData\040_CodeSearcherLogic\FolderWithIndex\Stylesheet.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

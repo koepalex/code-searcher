@@ -1,4 +1,5 @@
-﻿using CodeSearcher.BusinessLogic.Serialization;
+﻿using CodeSearcher.BusinessLogic.Common;
+using CodeSearcher.BusinessLogic.Serialization;
 using CodeSearcher.Interfaces;
 using Newtonsoft.Json;
 using System;
@@ -13,13 +14,13 @@ namespace CodeSearcher.BusinessLogic.Management
         private readonly ICodeSearcherLogger m_Logger;
         private IList<ICodeSearcherIndex> m_Indexes;
         private string m_MetaInformationPath;
-        private const string s_MetaFolder = ".code-searcher";
-        private const string s_OverviewFile = "IndexOverview.json";
+        private const string s_LuceneFolder = FolderNames.DefaultLuceneIndexName;
+        private const string s_OverviewFile = FileNames.IndexOverview;
 
         public CodeSearcherManager(ICodeSearcherLogger logger)
         {
             m_Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            ManagementInformationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "code-searcher");
+            ManagementInformationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), FolderNames.ManagementFolder);
             ReadMetaFilesFromDisk();
         }
 
@@ -101,7 +102,7 @@ namespace CodeSearcher.BusinessLogic.Management
         {
             return Factory.GetCodeSearcherIndex(
                 sourcePath,
-                Path.Combine(sourcePath, s_MetaFolder),
+                Path.Combine(sourcePath, s_LuceneFolder),
                 fileExtensions);
         }
 

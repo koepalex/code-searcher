@@ -5,6 +5,7 @@ using CodeSearcher.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Net.Configuration;
+using System.Globalization;
 
 namespace CodeSearcher.Tests.IntegrationTests
 {
@@ -306,7 +307,7 @@ namespace CodeSearcher.Tests.IntegrationTests
             indexStub1.SetupGet(i => i.ID).Returns(id).Verifiable();
             indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath).Verifiable();
             indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js }).Verifiable();
-            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59")).Verifiable();
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.ParseExact("31.12.1999 23:59:59", "dd.MM.yyyy H:mm:ss", null)).Verifiable();
             
             var managerStub = new Mock<ICodeSearcherManager>();
             var tuiMock = new Mock<ITextBasedUserInterface>();
@@ -340,7 +341,7 @@ namespace CodeSearcher.Tests.IntegrationTests
             indexStub1.SetupGet(i => i.ID).Returns(id);
             indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath);
             indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js });
-            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59"));
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.ParseExact("31.12.1999 23:59:59", "dd.MM.yyyy H:mm:ss", null)).Verifiable();
 
             var managerMock = new Mock<ICodeSearcherManager>();
 
@@ -370,7 +371,7 @@ namespace CodeSearcher.Tests.IntegrationTests
             indexStub1.SetupGet(i => i.ID).Returns(id);
             indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath);
             indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js });
-            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59"));
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.ParseExact("31.12.1999 23:59:59", "dd.MM.yyyy H:mm:ss", null)).Verifiable();
 
             var managerMock = new Mock<ICodeSearcherManager>();
 
@@ -412,7 +413,7 @@ namespace CodeSearcher.Tests.IntegrationTests
             indexStub1.SetupGet(i => i.ID).Returns(id);
             indexStub1.SetupGet(i => i.SourcePath).Returns(sourcePath);
             indexStub1.SetupGet(i => i.FileExtensions).Returns(new List<string>() { css, html, js });
-            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.Parse("31.12.1999 23:59:59"));
+            indexStub1.SetupGet(i => i.CreatedTime).Returns(DateTime.ParseExact("31.12.1999 23:59:59", "dd.MM.yyyy H:mm:ss", null)).Verifiable();
 
             var managerMock = new Mock<ICodeSearcherManager>();
 

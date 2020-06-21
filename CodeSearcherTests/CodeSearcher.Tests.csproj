@@ -84,6 +84,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helper\TestLogger.cs" />
+    <Compile Include="IntegrationTests\CodeSearcherLogicTests.cs" />
+    <Compile Include="IntegrationTests\CodeSearcherManagerTests.cs" />
+    <Compile Include="IntegrationTests\TextBasedUITests.cs" />
     <Compile Include="IntegrationTests\TokenizerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IntegrationTests\FileReaderTests.cs" />
@@ -101,6 +105,10 @@
     <ProjectReference Include="..\CodeSearcher.Interfaces\CodeSearcher.Interfaces.csproj">
       <Project>{a1c21ed1-a371-49d1-be39-c0119b96b34f}</Project>
       <Name>CodeSearcher.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CodeSearcher\CodeSearcher.csproj">
+      <Project>{cdbdcaaa-5fbc-40dc-b85a-6660e0bbd009}</Project>
+      <Name>CodeSearcher</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +174,9 @@
     <None Include="IntegrationTests\TestData\011_FolderInFolder\lvl1\lvl2\lvl3\itf.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="IntegrationTests\TestData\040_CodeSearcherLogic\FolderWithIndex\.code-searcher\Test.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -173,9 +184,23 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IntegrationTests\TestData\014_BigBinaryFile\" />
+    <Folder Include="IntegrationTests\TestData\030_CodeSearcherManager\Meta\" />
+    <Folder Include="IntegrationTests\TestData\040_CodeSearcherLogic\Meta\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AddThisToPostBuildEvent.txt" />
+    <Content Include="IntegrationTests\TestData\030_CodeSearcherManager\Folder1\42.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IntegrationTests\TestData\030_CodeSearcherManager\Folder2\42.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IntegrationTests\TestData\030_CodeSearcherManager\Folder3\42.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IntegrationTests\TestData\040_CodeSearcherLogic\FolderWithIndex\Stylesheet.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

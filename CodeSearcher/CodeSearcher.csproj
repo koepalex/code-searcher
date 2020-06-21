@@ -83,10 +83,14 @@
   <ItemGroup>
     <Compile Include="CmdLineHandler.cs" />
     <Compile Include="ICmdLineHandler.cs" />
+    <Compile Include="IMenuNavigator.cs" />
+    <Compile Include="ITextBasedUserInterface.cs" />
     <Compile Include="LoggerAdapter.cs" />
+    <Compile Include="MenuNavigator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConsoleResultPrinter.cs" />
+    <Compile Include="TextBasedUserInterface.cs" />
     <Compile Include="WildcardResultPrinter.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
+using System.Linq;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.BusinessLogic.Common;
 using CodeSearcher.Interfaces;
@@ -10,7 +12,7 @@ using NLog.Targets;
 
 namespace CodeSearcher
 {
-    class Program
+    internal class Program
     {
         private static ICmdLineHandler m_CmdHandler;
         private static ILogger m_Logger;
@@ -25,11 +27,34 @@ namespace CodeSearcher
 
             Console.WriteLine("Welcome to CodeSearcher");
 
-            int mode = m_CmdHandler[m_CmdHandler.ProgramMode] != null
-                ? m_CmdHandler.GetProgramModeAsInt()
+            var mode = m_CmdHandler[m_CmdHandler.ProgramMode] != null
+                ? m_CmdHandler.GetProgramMode()
                 : ReadProgramMode();
 
-            var logic = Factory.GetCodeSearcherLogic(
+            ICodeSearcherLogic logic = GetCodeSearcherLogic();
+            var manager = Factory.GetCodeSearcherManager(new LoggerAdapter(m_Logger));
+            
+            switch (mode)
+            {
+                case ProgramModes.Index:
+                    CreateIndex(logic); break;
+                case ProgramModes.Search:
+                    SearchInExistingIndex(logic); break;
+                case ProgramModes.Auto:
+                    var tui = new TextBasedUserInterface();
+                    var nav = new MenuNavigator();
+                    ShowConsoleMainMenu(logic, manager, tui, nav); 
+                    break;
+            }
+
+            Console.WriteLine("Programm finished");
+            Console.ReadKey();
+        }
+
+
+        private static ICodeSearcherLogic GetCodeSearcherLogic()
+        {
+            return Factory.GetCodeSearcherLogic(
                 new LoggerAdapter(m_Logger),
                 getIndexPath: () =>
                 {
@@ -52,147 +77,334 @@ namespace CodeSearcher
                         : ReadFileExtensions();
                     return fileExtensions;
                 });
-
-            if (mode == 1)
+        }
+        
+        private static void CreateIndex(ICodeSearcherLogic logic)
+        {
+            logic.CreateNewIndex(() =>
             {
-                logic.CreateNewIndex(() =>
-                {
-                    ShowCreateNewIndexHeader();
-                },
-                (name) => 
-                {
-                    AsyncLogger.WriteLine(name);
-                },
-                (fileCount, timeSpan) =>
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.WriteLine();
-                    Console.WriteLine(">> building search index finished!");
-                    Console.WriteLine("{0} files indexed", fileCount);
-                    Console.WriteLine(">> action take : {0:00}:{1:00}:{2:00}.{3:000}",
-                            timeSpan.Hours,
-                            timeSpan.Minutes,
-                            timeSpan.Seconds,
-                            timeSpan.Milliseconds);
-                    Console.WriteLine();
-                    Console.ForegroundColor = ConsoleColor.White;
-                });
-            }
-            else
+                ShowCreateNewIndexHeader();
+            },
+            (name) =>
             {
-                string exportFileName = string.Empty;
-                IResultExporter exporter = null;
-                bool wildcardSearch;
-                if (!bool.TryParse(m_CmdHandler[m_CmdHandler.WildcardSearch], out wildcardSearch))
-                {
-                    m_Logger.Info("Using Default Searcher");
-                    wildcardSearch = false;
-                }
-                else
-                {
-                    m_Logger.Info("Using Wildcard Searcher");
-                    wildcardSearch = true;
-                }
-
-                logic.SearchWithinExistingIndex(
-                startCallback: () =>
-                {
-                    ShowSearchWithinIndexHeader();
-                },
-                getSearchWord: () =>
-                {
-                    string word;
-                    bool exit;
-                    if (m_CmdHandler[m_CmdHandler.SearchedWord] != null)
-                    {
-                        word = m_CmdHandler[m_CmdHandler.SearchedWord];
-                        exit = true;
-                    }
-                    else
-                    {
-                        exit = ReadWordToSearch(out word);
-                    }
-
-                    word.Trim();
-
-                    return (word, exit);
-                },
-                getMaximumNumberOfHits: () =>
-                {
-                    int numberOfHits;
-                    if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out numberOfHits))
-                    {
-                        m_Logger.Info("Maximum hits to show will be 1000");
-                        numberOfHits = 1000;
-                    }
-                    return numberOfHits;
-                },
-                getHitsPerPage: () =>
-                {
-                    int hitsPerPage;
-                    if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out hitsPerPage))
-                    {
-                        m_Logger.Info("Maximum hits per page will be shown");
-                        hitsPerPage = -1;
-                    }
-
-                    return hitsPerPage;
-                },
-                getExporter: () =>
-                {
-                    bool export;
-                    if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out export))
-                    {
-                        m_Logger.Info("Results will not be exported");
-                        export = false;
-                    }
-                    
-                    if (export)
-                    {
-                        exportFileName = Path.GetTempFileName();
-                        var exportStreamWriter = File.CreateText(exportFileName);
-                        exporter = wildcardSearch
-                            ? Factory.GetWildcardResultExporter(exportStreamWriter)
-                            : Factory.GetResultExporter(exportStreamWriter);
-                    }
-
-                    return (export, exporter);
-                }, 
-                getSingleResultPrinter: () =>
-                {
-                    if (wildcardSearch)
-                    {
-                        return new WildcardResultPrinter();
-                    }
-                    return new ConsoleResultPrinter();
-                },
-                finishedCallback: (timeSpan) => 
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.WriteLine(">> searching completed!");
-                    Console.WriteLine(">> action take : {0:00}:{1:00}:{2:00}.{3:000}",
+                AsyncLogger.WriteLine(name);
+            },
+            (fileCount, timeSpan) =>
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine();
+                Console.WriteLine(">> building search index finished!");
+                Console.WriteLine("{0} files indexed", fileCount);
+                Console.WriteLine(">> action take : {0:00}:{1:00}:{2:00}.{3:000}",
                         timeSpan.Hours,
                         timeSpan.Minutes,
                         timeSpan.Seconds,
                         timeSpan.Milliseconds);
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine();
-                },
-                endOfSearchCallback: () =>
-                {
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
-                },
-                exportFinishedCallback: () =>
-                {
-                    exporter?.Dispose();
-                    Console.WriteLine($"Export file written: {exportFileName}");
-                },
-                wildcardSearch);
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.White;
+            });
+        }
+        
+        private static void SearchInExistingIndex(ICodeSearcherLogic logic)
+        {
+            string exportFileName = string.Empty;
+            IResultExporter exporter = null;
+            bool wildcardSearch;
+            if (!bool.TryParse(m_CmdHandler[m_CmdHandler.WildcardSearch], out wildcardSearch))
+            {
+                m_Logger.Info("Using Default Searcher");
+                wildcardSearch = false;
+            }
+            else
+            {
+                m_Logger.Info("Using Wildcard Searcher");
+                wildcardSearch = true;
             }
 
-            Console.WriteLine("Programm finished");
-            Console.ReadKey();
+            logic.SearchWithinExistingIndex(
+            startCallback: () =>
+            {
+                ShowSearchWithinIndexHeader();
+            },
+            getSearchWord: () =>
+            {
+                string word;
+                bool exit;
+                if (m_CmdHandler[m_CmdHandler.SearchedWord] != null)
+                {
+                    word = m_CmdHandler[m_CmdHandler.SearchedWord];
+                    exit = true;
+                }
+                else
+                {
+                    exit = ReadWordToSearch(out word);
+                }
+
+                word.Trim();
+
+                return (word, exit);
+            },
+            getMaximumNumberOfHits: () =>
+            {
+                int numberOfHits;
+                if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out numberOfHits))
+                {
+                    m_Logger.Info("Maximum hits to show will be 1000");
+                    numberOfHits = 1000;
+                }
+                return numberOfHits;
+            },
+            getHitsPerPage: () =>
+            {
+                int hitsPerPage;
+                if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out hitsPerPage))
+                {
+                    m_Logger.Info("Maximum hits per page will be shown");
+                    hitsPerPage = -1;
+                }
+
+                return hitsPerPage;
+            },
+            getExporter: () =>
+            {
+                bool export;
+                if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out export))
+                {
+                    m_Logger.Info("Results will not be exported");
+                    export = false;
+                }
+
+                if (export)
+                {
+                    exportFileName = Path.GetTempFileName();
+                    var exportStreamWriter = File.CreateText(exportFileName);
+                    exporter = wildcardSearch
+                        ? Factory.GetWildcardResultExporter(exportStreamWriter)
+                        : Factory.GetResultExporter(exportStreamWriter);
+                }
+
+                return (export, exporter);
+            },
+            getSingleResultPrinter: () =>
+            {
+                if (wildcardSearch)
+                {
+                    return new WildcardResultPrinter();
+                }
+                return new ConsoleResultPrinter();
+            },
+            finishedCallback: (timeSpan) =>
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(">> searching completed!");
+                Console.WriteLine(">> action take : {0:00}:{1:00}:{2:00}.{3:000}",
+                    timeSpan.Hours,
+                    timeSpan.Minutes,
+                    timeSpan.Seconds,
+                    timeSpan.Milliseconds);
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine();
+            },
+            endOfSearchCallback: () =>
+            {
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+            },
+            exportFinishedCallback: () =>
+            {
+                exporter?.Dispose();
+                Console.WriteLine($"Export file written: {exportFileName}");
+            },
+            wildcardSearch);
+        }
+
+        internal static void ShowConsoleMainMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        {
+            do
+            {
+                tui.Clear();
+                tui.WriteLine("[1] Create New Index");
+                tui.WriteLine("[2] Show all Indexes");
+                tui.WriteLine("[3] Exit");
+                tui.WriteLine("Please choose: ");
+                var answer = tui.ReadLine();
+                int selection;
+                if (int.TryParse(answer, out selection))
+                {
+                    if (1.Equals(selection)) //Create New Index
+                    {
+                        nav.GoToCreateNewIndexMenu(logic, manager, tui);
+                    }
+                    else if (2.Equals(selection)) //Show All Indexes
+                    {
+                        nav.GoToShowAllIndexesMenu(logic, manager, tui);
+                    }
+                    else if(3.Equals(selection)) //Exit
+                    {
+                        nav.ExitMenu();
+                    }
+                }
+            } while (nav.MenuLoopActive());
+        }
+
+        internal static void ShowCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        {
+            string answer;
+            int selection;
+            // Source path
+            string sourcePath = null;
+            do
+            {
+                tui.WriteLine("Please enter Path with Sources to Index:");
+                answer = tui.ReadLine();
+                if (Directory.Exists(answer))
+                {
+                    sourcePath = answer;
+                    tui.WriteLine($"Path with files to Index: {sourcePath}");
+                    break;
+                }
+                tui.WriteLine("Path do not exist!");
+            } while (tui.ShouldLoop());
+
+            // file extensions
+            var extensions = new List<String>();
+            tui.WriteLine("Please select file extension to index (form .ext1,.ext2)");
+            tui.WriteLine("Leave empty to use (.cs,.xml,.csproj) ");
+            answer = tui.ReadLine();
+            if (string.IsNullOrWhiteSpace(answer))
+            {
+                extensions.Add(".cs");
+                extensions.Add(".xml");
+                extensions.Add(".csproj");
+            }
+            else
+            {
+                foreach (var extension in answer.Split(new[] { ',' }))
+                {
+                    extensions.Add(extension);
+                }
+            }
+
+            tui.WriteLine("Looking for files with extensions: ");
+            extensions.ForEach((ext) => tui.WriteLine($"File Extension: {ext}"));
+
+            if (!string.IsNullOrWhiteSpace(sourcePath) && extensions.Count > 0)
+            {
+                var id = manager.CreateIndex(sourcePath, extensions);
+                tui.WriteLine($"New Index created with ID: {id}");
+                do
+                {
+                    tui.WriteLine("[1] Search in new created index");
+                    tui.WriteLine("[2] Back to main menu");
+                    tui.WriteLine("Please choose: ");
+                    answer = tui.ReadLine();
+                    if (int.TryParse(answer, out selection))
+                    {
+                        if (1.Equals(selection))
+                        {
+                            var selectedIndex = manager.GetIndexById(id);
+                            nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                        }
+                        else if (2.Equals(selection))
+                        {
+                            nav.GoToMainMenu(tui);
+                        }
+                    }
+                } while (tui.ShouldLoop());
+            }
+        }
+
+        internal static void ShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        {
+            string answer;
+            int selection;
+            do
+            {
+                tui.Clear();
+                var indexes = manager.GetAllIndexes().ToList();
+                int count = 0;
+                foreach (var index in indexes)
+                {
+                    tui.WriteLine($"[{++count}] - ID {index.ID} - SourcePath {index.SourcePath}");
+                }
+
+                if (indexes.Count == 0)
+                {
+                    tui.WriteLine("There are currently no folders indexed!");
+                }
+
+                tui.WriteLine($"[{++count}] Return to main menu");
+                tui.WriteLine("Please choose: ");
+                answer = tui.ReadLine();
+                if (int.TryParse(answer, out selection))
+                {
+                    if (indexes.Count > 0 && selection < count)
+                    {
+                        var selectedIndex = indexes[selection - 1];
+                        nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                    }
+                    else
+                    {
+                        nav.GoToMainMenu(tui);
+                    }
+                }
+            } while (tui.ShouldLoop());
+        }
+
+        internal static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui, IMenuNavigator nav)
+        {
+            string answer;
+            int selection;
+
+            do
+            {
+                tui.WriteLine($"ID:\t\t{selectedIndex.ID}");
+                tui.WriteLine($"Source:\t\t{selectedIndex.SourcePath}");
+                tui.Write($"File Extensions:\t\t");
+                foreach (var extension in selectedIndex.FileExtensions)
+                {
+                    tui.Write($"{extension}, ");
+                }
+                tui.WriteLine();
+                tui.WriteLine($"Created on: {selectedIndex.CreatedTime.ToString("yyyy-MM-dd H:mm:ss")}");
+                tui.WriteLine("[1] Search in Index");
+                tui.WriteLine("[2] Delete Index");
+                tui.WriteLine("[3] Return to main menu");
+                tui.WriteLine("Please choose: ");
+                answer = tui.ReadLine();
+                if (int.TryParse(answer, out selection))
+                {
+                    if (1.Equals(selection))
+                    {
+                        logic.SearchWithinExistingIndex(
+                            startCallback: () => { },
+                            getSearchWord: () =>
+                            {
+                                string word;
+                                bool exit = ReadWordToSearch(out word);
+                                word.Trim();
+                                return (word, exit);
+                            },
+                            getMaximumNumberOfHits: () => { return 200; },
+                            getHitsPerPage: () => { return 50; },
+                            getExporter: () => { return (false, null); },
+                            getSingleResultPrinter: () => { return new WildcardResultPrinter(); },
+                            finishedCallback: (timeSpan) => { },
+                            endOfSearchCallback: () => { },
+                            wildcardSearch: true
+                        );
+                    }
+                    else if (2.Equals(selection))
+                    {
+                        manager.DeleteIndex(selectedIndex.ID);
+                        tui.WriteLine($"Index with ID {selectedIndex.ID} deleted!");
+                    }
+                    else if (3.Equals(selection))
+                    {
+                        nav.GoToMainMenu(tui);
+                    }
+                }
+            } while (tui.ShouldLoop());
         }
 
         private static void SetUpLogger()
@@ -247,9 +459,9 @@ namespace CodeSearcher
             };
         }
 
-        private static int ReadProgramMode()
+        private static ProgramModes ReadProgramMode()
         {
-            int result;
+            ProgramModes result;
             bool success;
             do
             {
@@ -260,8 +472,8 @@ namespace CodeSearcher
                 var answer = Console.ReadLine();
                 Console.WriteLine();
 
-                success = Int32.TryParse(answer, out result);
-                success = result == 1 || result == 2;
+                result = (ProgramModes)Enum.Parse(typeof(ProgramModes), answer, false);
+                success = result != ProgramModes.None;
 
             } while (!success);
 
@@ -342,6 +554,7 @@ namespace CodeSearcher
 
         private static bool ReadWordToSearch(out String word)
         {
+            Console.Clear();
             Console.WriteLine("Please enter word to search for:");
             Console.WriteLine("Enter #exit if you like to exit programm");
             Console.WriteLine();

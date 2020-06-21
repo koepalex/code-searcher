@@ -1,4 +1,5 @@
-﻿using CodeSearcher.BusinessLogic.InternalInterfaces;
+﻿using CodeSearcher.BusinessLogic.Common;
+using CodeSearcher.BusinessLogic.InternalInterfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,17 +72,20 @@ namespace CodeSearcher.BusinessLogic.Io
             var files = new List<FileStructure>();
             var resultTexts = new List<FileStructure>();
 
-            foreach (var file in di.GetFiles())
+            if (string.Compare(di.Name, FolderNames.DefaultLuceneIndexName, StringComparison.OrdinalIgnoreCase) != 0)
             {
-                if (m_FileExtensions.Contains(file.Extension))
+                foreach (var file in di.GetFiles())
                 {
-                    files.Add(ReadText(file.FullName));
+                    if (m_FileExtensions.Contains(file.Extension))
+                    {
+                        files.Add(ReadText(file.FullName));
+                    }
                 }
-            }
 
-            foreach (var file in files)
-            {
-                resultTexts.Add(file);
+                foreach (var file in files)
+                {
+                    resultTexts.Add(file);
+                }
             }
 
             return resultTexts;

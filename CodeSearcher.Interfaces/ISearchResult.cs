@@ -12,6 +12,7 @@ namespace CodeSearcher.Interfaces
 		/// </summary>
 		/// <value>The name of the file.</value>
         String FileName { get; }
+
 		/// <summary>
 		/// Represent the Lucene.NET score which indicates the quality of the result
 		/// </summary>

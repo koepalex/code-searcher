@@ -52,7 +52,7 @@ namespace CodeSearcher.Tests.SystemTests
             {
                 _stream = new MemoryStream();
                 var writer = new StreamWriter(_stream);
-                _exporter = Factory.GetResultExporter(writer);
+                _exporter = Factory.GetDefaultResultExporter(writer);
                 
             }
             public void Dispose()

@@ -180,7 +180,7 @@ namespace CodeSearcher
                     var exportStreamWriter = File.CreateText(exportFileName);
                     exporter = wildcardSearch
                         ? Factory.GetWildcardResultExporter(exportStreamWriter)
-                        : Factory.GetResultExporter(exportStreamWriter);
+                        : Factory.GetDefaultResultExporter(exportStreamWriter);
                 }
 
                 return (export, exporter);

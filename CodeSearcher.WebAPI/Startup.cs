@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +16,7 @@ using Microsoft.OpenApi.Models;
 
 namespace CodeSearcher.WebAPI
 {
+#pragma warning disable CS1591
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -44,6 +47,11 @@ namespace CodeSearcher.WebAPI
                         Url = new Uri("https://github.com/koepalex/code-searcher")
                     }
                 });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "docs", "gen", xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
             services.AddLogging(c =>
             {
@@ -80,4 +88,5 @@ namespace CodeSearcher.WebAPI
             });
         }
     }
+#pragma warning restore CS1591
 }

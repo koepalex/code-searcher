@@ -4,6 +4,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\alex\repo\code-searcher\CodeSearcher.WebAPI\bin\docs\gen\CodeSearcher.WebAPI.xml</DocumentationFile>
+    <OutputPath></OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.0" />
   </ItemGroup>

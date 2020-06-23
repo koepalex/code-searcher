@@ -6,16 +6,36 @@ using Microsoft.Extensions.Logging;
 
 namespace CodeSearcher.WebAPI.Controllers
 {
+    /// <summary>
+    /// Web API controller that provides access to code-searcher functionality
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class CodeSearcherController : ControllerBase
     {
-        ICodeSearcherLogger m_Logger;
+        private readonly ICodeSearcherLogger m_Logger;
+
+        /// <summary>
+        /// Default constructor to create code-searcher Web API controller
+        /// </summary>
+        /// <param name="logger">Instance where all messages should be logged into</param>
         public CodeSearcherController(ILogger<CodeSearcherController> logger)
         {
             m_Logger = new WebLogAdapter(logger);
         }
-        // GET api/values
+        
+        /// <summary>
+        /// Read Read all existing indexes
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     GET /api/CodeSearcher
+        ///     {
+        ///     }
+        ///     
+        /// </remarks>
+        /// <returns>Enumeration of existing indexes, maybe empty enumeration</returns>
         [HttpGet]
         public ActionResult<IEnumerable<ICodeSearcherIndex>> Get()
         {
@@ -26,6 +46,11 @@ namespace CodeSearcher.WebAPI.Controllers
         }
 
         //// GET api/values/5
+        ////// <response code="201">Returns the newly created item</response>
+        /// <response code="400">If the item is null</response>            
+        //[HttpPost]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
         //[HttpGet("{id}")]
         //public ActionResult<string> Get(int id)
         //{

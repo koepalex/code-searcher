@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CodeSearcher.WebAPI.Tests
@@ -35,6 +39,33 @@ namespace CodeSearcher.WebAPI.Tests
             using (var response = await client.GetAsync("/api/CodeSearcher"))
             {
                 response.EnsureSuccessStatusCode();
+            }
+        }
+
+        [Test]
+        public async Task Test_ConfigureManagementPath_WithNonExistingPath_Expect_400BadRequest()
+        {
+            var client = m_TestServer.CreateClient();
+
+            var model = new { managementInformationPath = @"B:\Hope\This\Dont\Exist" };
+            var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+            using (var response = await client.PutAsync("/api/CodeSearcher/configure", content))
+            {
+                Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            }
+                    
+        }
+
+        [Test]
+        public async Task Test_ConfigureManagementPath_Expect_200OK()
+        {
+            var client = m_TestServer.CreateClient();
+
+            var model = new { managementInformationPath = WebTestHelper.GetPathToTestData("Meta") };
+            var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+            using (var response = await client.PutAsync("/api/CodeSearcher/configure", content))
+            {
+                Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             }
         }
     }

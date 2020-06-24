@@ -20,4 +20,10 @@
     <ProjectReference Include="..\CodeSearcher.WebAPI\CodeSearcher.WebAPI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestData\Meta\foobar.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

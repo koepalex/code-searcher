@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Net;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -14,6 +18,7 @@ namespace CodeSearcher.WebAPI.Controllers
     public class CodeSearcherController : ControllerBase
     {
         private readonly ICodeSearcherLogger m_Logger;
+        private readonly ICodeSearcherManager m_Manager;
 
         /// <summary>
         /// Default constructor to create code-searcher Web API controller
@@ -22,6 +27,7 @@ namespace CodeSearcher.WebAPI.Controllers
         public CodeSearcherController(ILogger<CodeSearcherController> logger)
         {
             m_Logger = new WebLogAdapter(logger);
+            m_Manager = Factory.Get().GetCodeSearcherManager(m_Logger);
         }
         
         /// <summary>
@@ -40,9 +46,42 @@ namespace CodeSearcher.WebAPI.Controllers
         public ActionResult<IEnumerable<ICodeSearcherIndex>> GetAllIndexes()
         {
             m_Logger.Info("[GET] - GetAllIndexes");
-            var manager = Factory.Get().GetCodeSearcherManager(m_Logger);
-            var indexes = manager.GetAllIndexes();
+            var indexes = m_Manager.GetAllIndexes();
             return new ActionResult<IEnumerable<ICodeSearcherIndex>>(indexes);
+        }
+
+        /// <summary>
+        /// Change the path where the Code Searcher Manager is storing/reading the meta information (Default: %APPDATA%\code-searcher)
+        /// </summary>
+        /// <param name="managementInformationPath">Path to store/read code-searcher meta informarion</param>
+        /// <returns>StatusCodes only</returns>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     PUT /api/CodeSearcher/configure
+        ///     {
+        ///         "managementInformationPath" : "__PATH__"
+        ///     }
+        ///     
+        /// </remarks>
+        /// <response code="200">Path successfully changed</response>
+        /// <response code="400">Path doesn't exist</response>
+        [HttpPut("configure")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult SetManagementFolder([Required] [FromBody] string managementInformationPath)
+        {
+            if (string.IsNullOrWhiteSpace(managementInformationPath))
+            {
+                return BadRequest();
+            }
+
+            if(!Directory.Exists(managementInformationPath))
+            {
+                return BadRequest();
+            }
+
+            m_Manager.ManagementInformationPath = managementInformationPath;
+            return Ok();
         }
 
         //// GET api/values/5

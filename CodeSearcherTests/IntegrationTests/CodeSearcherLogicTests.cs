@@ -52,7 +52,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Test]
         public void Test_CreateLogic_Expect_NotNull()
         {
-            var logic = Factory.GetCodeSearcherLogic(Logger, () => IndexPath, () => Index, () => new List<string>() { ".md" });
+            var logic = Factory.Get().GetCodeSearcherLogic(Logger, () => IndexPath, () => Index, () => new List<string>() { ".md" });
             Assert.NotNull(logic);
         }
 
@@ -60,7 +60,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void Test_IndexFolder_Expect_IgnoreCodeSearcherFolder()
         {
             // "fake" lucene files: folder .code-searcher only contains .md and parent folder contain additional css file 
-            var logic = Factory.GetCodeSearcherLogic(Logger, () => IndexPath, () => Index, () => new List<string>() { ".md", ".css" });
+            var logic = Factory.Get().GetCodeSearcherLogic(Logger, () => IndexPath, () => Index, () => new List<string>() { ".md", ".css" });
 
             logic.CreateNewIndex(
                 () => { },

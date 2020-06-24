@@ -36,11 +36,11 @@ namespace CodeSearcher.WebAPI.Controllers
         ///     
         /// </remarks>
         /// <returns>Enumeration of existing indexes, maybe empty enumeration</returns>
-        [HttpGet]
-        public ActionResult<IEnumerable<ICodeSearcherIndex>> Get()
+        [HttpGet("")]
+        public ActionResult<IEnumerable<ICodeSearcherIndex>> GetAllIndexes()
         {
             m_Logger.Info("[GET] - GetAllIndexes");
-            var manager = Factory.GetCodeSearcherManager(m_Logger);
+            var manager = Factory.Get().GetCodeSearcherManager(m_Logger);
             var indexes = manager.GetAllIndexes();
             return new ActionResult<IEnumerable<ICodeSearcherIndex>>(indexes);
         }

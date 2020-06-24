@@ -53,7 +53,7 @@ namespace CodeSearcher.Tests.SystemTests
             {
                 _stream = new MemoryStream();
                 var writer = new StreamWriter(_stream);
-                _exporter = Factory.GetWildcardResultExporter(writer);
+                _exporter = Factory.Get().GetWildcardResultExporter(writer);
                 _reference = reference;
             }
 
@@ -234,7 +234,7 @@ namespace CodeSearcher.Tests.SystemTests
         {
             var loggerStub = new Mock<ICodeSearcherLogger>();
 
-            return Factory.GetCodeSearcherLogic(
+            return Factory.Get().GetCodeSearcherLogic(
                 loggerStub.Object,
                 () => m_IndexFolder,
                 () => m_SourcePath,

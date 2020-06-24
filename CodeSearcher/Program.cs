@@ -32,7 +32,7 @@ namespace CodeSearcher
                 : ReadProgramMode();
 
             ICodeSearcherLogic logic = GetCodeSearcherLogic();
-            var manager = Factory.GetCodeSearcherManager(new LoggerAdapter(m_Logger));
+            var manager = Factory.Get().GetCodeSearcherManager(new LoggerAdapter(m_Logger));
             
             switch (mode)
             {
@@ -54,7 +54,7 @@ namespace CodeSearcher
 
         private static ICodeSearcherLogic GetCodeSearcherLogic()
         {
-            return Factory.GetCodeSearcherLogic(
+            return Factory.Get().GetCodeSearcherLogic(
                 new LoggerAdapter(m_Logger),
                 getIndexPath: () =>
                 {
@@ -179,8 +179,8 @@ namespace CodeSearcher
                     exportFileName = Path.GetTempFileName();
                     var exportStreamWriter = File.CreateText(exportFileName);
                     exporter = wildcardSearch
-                        ? Factory.GetWildcardResultExporter(exportStreamWriter)
-                        : Factory.GetDefaultResultExporter(exportStreamWriter);
+                        ? Factory.Get().GetWildcardResultExporter(exportStreamWriter)
+                        : Factory.Get().GetDefaultResultExporter(exportStreamWriter);
                 }
 
                 return (export, exporter);

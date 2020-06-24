@@ -13,16 +13,18 @@ using System.Collections.Generic;
 using System.IO;
 using CodeSearcher.BusinessLogic.OwnTokenizer;
 using CodeSearcher.BusinessLogic.Management;
+using System.Runtime.CompilerServices;
 
 namespace CodeSearcher.BusinessLogic
 {
     /// <summary>
     /// Default factory to instanciate CodeSearcher objects
     /// </summary>
-    public static class Factory
+    public class Factory : ICodeSearcherFactory
     {
         private static IKernel m_Kernel;
-        
+        private static ICodeSearcherFactory m_Self;
+
         internal static IKernel Ioc
         {
             get
@@ -36,12 +38,15 @@ namespace CodeSearcher.BusinessLogic
             }
         }
 
-        /// <summary>
-        /// Return instance of management interface, <see cref="ICodeSearcherManager"/>
-        /// </summary>
-        /// <param name="logger">Instance of logger <see cref="ICodeSearcherLogger"/></param>
-        /// <returns>Instance of ICodeSearcherManager</returns>
-        public static ICodeSearcherManager GetCodeSearcherManager(ICodeSearcherLogger logger)
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public static ICodeSearcherFactory Get ()
+        {
+            m_Self = m_Self ?? new Factory();
+            return m_Self;
+        }
+
+        /// <inheritdoc />
+        ICodeSearcherManager ICodeSearcherFactory.GetCodeSearcherManager(ICodeSearcherLogger logger)
         {
             if (logger is null)
             {
@@ -52,15 +57,8 @@ namespace CodeSearcher.BusinessLogic
             return mgr;
         }
 
-        /// <summary>
-        /// Return instance of CodeSearcher businesslogc; <see cref="ICodeSearcherLogic"/>
-        /// </summary>
-        /// <param name="logger">Instance of logger <see cref="ICodeSearcherLogger"/></param>
-        /// <param name="getIndexPath">Callback to inject the path to store lucene index files</param>
-        /// <param name="getSourcePath">Callback to inject the path with files to analyze</param>
-        /// <param name="getFileExtension">Callback to inject extension of files to look for</param>
-        /// <returns>Instance of ICodeSearcherLogic</returns>
-        public static ICodeSearcherLogic GetCodeSearcherLogic(
+        /// <inheritdoc />
+        ICodeSearcherLogic ICodeSearcherFactory.GetCodeSearcherLogic(
             ICodeSearcherLogger logger,
             Func<string> getIndexPath,
             Func<string> getSourcePath,
@@ -94,15 +92,8 @@ namespace CodeSearcher.BusinessLogic
                 );
         }
 
-        /// <summary>
-        /// Return instance of default exporter, <see cref="IResultExporter"/>
-        /// </summary>
-        /// <param name="exportWriter">Writer of writable stream to export findings into</param>
-        /// <returns>Instance of IResultExporter</returns>
-        /// <remarks>
-        /// Don't forget to Dispose result exporter
-        /// </remarks>
-        public static IResultExporter GetDefaultResultExporter(StreamWriter exportWriter)
+        /// <inheritdoc />
+        IResultExporter ICodeSearcherFactory.GetDefaultResultExporter(StreamWriter exportWriter)
         {
             if (exportWriter is null)
             {
@@ -114,15 +105,8 @@ namespace CodeSearcher.BusinessLogic
                 new ConstructorArgument("exportWriter", exportWriter));
         }
 
-        /// <summary>
-        /// Return instance of exporter that handle wildcard search findings, <see cref="IResultExporter"/>
-        /// </summary>
-        /// <param name="exportWriter">Writer of writable stream to export findings into</param>
-        /// <returns>Instance of IResultExporter</returns>
-        /// <remarks>
-        /// Don't forget to Dispose result exporter
-        /// </remarks>
-        public static IResultExporter GetWildcardResultExporter(StreamWriter exportWriter)
+        /// <inheritdoc />
+        IResultExporter ICodeSearcherFactory.GetWildcardResultExporter(StreamWriter exportWriter)
         {
             if (exportWriter is null)
             {
@@ -134,13 +118,8 @@ namespace CodeSearcher.BusinessLogic
                 new ConstructorArgument("exportWriter", exportWriter));
         }
 
-        /// <summary>
-        /// Return instance of class that can lookup words within lucene index
-        /// </summary>
-        /// <param name="pathToIndexFiles">Fullpath to lucene index files</param>
-        /// <returns>Instance of ISearcher</returns>
-        [Obsolete("ISearcher should be only used within CodeSearcher.BusinessLogic (and moved there) - please adapt to use ICodeSearcherLogic instead")]
-        public static ISearcher GetSearcher(String pathToIndexFiles)
+        /// <inheritdoc />
+        ISearcher ICodeSearcherFactory.GetSearcher(String pathToIndexFiles)
         {
             if (String.IsNullOrWhiteSpace(pathToIndexFiles)) throw new ArgumentNullException("pathToIndexFiles");
 

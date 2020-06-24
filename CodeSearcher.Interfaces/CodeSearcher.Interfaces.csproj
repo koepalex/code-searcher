@@ -3,4 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.1;net48</TargetFrameworks>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
+      <DocumentationFile>.\..\_docs\gen\CodeSearcher.Interfaces.xml</DocumentationFile>
+    </PropertyGroup>
 </Project>

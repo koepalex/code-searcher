@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.Interfaces;
+using CodeSearcher.Interfaces.API.Model.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,7 @@ namespace CodeSearcher.WebAPI.Controllers
     {
         private readonly ICodeSearcherLogger m_Logger;
         private readonly ICodeSearcherManager m_Manager;
+        private static string m_ManagementInformation = null;
 
         /// <summary>
         /// Default constructor to create code-searcher Web API controller
@@ -28,6 +30,7 @@ namespace CodeSearcher.WebAPI.Controllers
         {
             m_Logger = new WebLogAdapter(logger);
             m_Manager = Factory.Get().GetCodeSearcherManager(m_Logger);
+            m_Manager.ManagementInformationPath = m_ManagementInformation ?? m_Manager.ManagementInformationPath;
         }
         
         /// <summary>
@@ -53,7 +56,7 @@ namespace CodeSearcher.WebAPI.Controllers
         /// <summary>
         /// Change the path where the Code Searcher Manager is storing/reading the meta information (Default: %APPDATA%\code-searcher)
         /// </summary>
-        /// <param name="managementInformationPath">Path to store/read code-searcher meta informarion</param>
+        /// <param name="model">JSON object containting configuration parameter</param>
         /// <returns>StatusCodes only</returns>
         /// <remarks>
         /// Sample request:
@@ -68,19 +71,20 @@ namespace CodeSearcher.WebAPI.Controllers
         /// <response code="400">Path doesn't exist</response>
         [HttpPut("configure")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult SetManagementFolder([Required] [FromBody] string managementInformationPath)
+        public ActionResult SetManagementFolder([FromBody] ConfigureRequest model)
         {
-            if (string.IsNullOrWhiteSpace(managementInformationPath))
+            if (string.IsNullOrWhiteSpace(model.ManagementInformationPath))
             {
                 return BadRequest();
             }
 
-            if(!Directory.Exists(managementInformationPath))
+            if(!Directory.Exists(model.ManagementInformationPath))
             {
                 return BadRequest();
             }
 
-            m_Manager.ManagementInformationPath = managementInformationPath;
+            m_Manager.ManagementInformationPath = model.ManagementInformationPath;
+            m_ManagementInformation = model.ManagementInformationPath;
             return Ok();
         }
 

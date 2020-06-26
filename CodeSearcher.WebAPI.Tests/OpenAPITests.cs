@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using CodeSearcher.Interfaces.Constants;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using NUnit.Framework;
 using System.Net;
@@ -45,7 +46,7 @@ namespace CodeSearcher.WebAPI.Tests
         public async Task Test_SwaggerUI_Expect_200OK()
         {
             using (var client = m_TestServer.CreateClient())
-            using (var response = await client.GetAsync("/index.html"))
+            using (var response = await client.GetAsync(APIRoutes.OpenApiUiRoute))
             {
                 Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
@@ -58,7 +59,7 @@ namespace CodeSearcher.WebAPI.Tests
         public async Task Test_SwaggerJson_Expect_200OK()
         {
             using (var client = m_TestServer.CreateClient())
-            using (var response = await client.GetAsync("/swagger/v1/swagger.json"))
+            using (var response = await client.GetAsync(APIRoutes.OpenApiDefinitionRoute))
             {
                 Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 

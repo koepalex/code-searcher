@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,9 +16,11 @@ namespace CodeSearcher.WebAPI
 #pragma warning disable CS1591
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IWebHostEnvironment HostEnvironment { get; set; } 
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostEnvironment = hostingEnvironment;
         }
 
         public IConfiguration Configuration { get; }
@@ -53,11 +52,27 @@ namespace CodeSearcher.WebAPI
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "_docs", "gen", xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+
+            // don't slow down application while logging to console in production
             services.AddLogging(c =>
             {
-                c.AddConsole();
+                if(HostEnvironment.IsDevelopment())
+                {
+                    c.AddConsole();
+                    c.SetMinimumLevel(LogLevel.Trace);
+                }
+                else
+                {
+                    c.SetMinimumLevel(LogLevel.Warning);
+                }
                 c.AddDebug();
+                c.AddEventLog();
+                
             });
+            
+            // use hangfire.io for background jobs
+            services.AddHangfire(c => c.UseMemoryStorage());
+            services.AddHangfireServer();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,6 +81,7 @@ namespace CodeSearcher.WebAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseHangfireDashboard();
             }
             app.UseSwagger();
             app.UseSwaggerUI(c =>

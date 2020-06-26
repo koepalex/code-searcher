@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Net;
+using System.Linq;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.Interfaces;
 using CodeSearcher.Interfaces.API.Model.Requests;
@@ -9,6 +10,7 @@ using CodeSearcher.Interfaces.API.Model.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Hangfire;
 
 namespace CodeSearcher.WebAPI.Controllers
 {
@@ -59,7 +61,7 @@ namespace CodeSearcher.WebAPI.Controllers
         /// Currently supported:
         /// * Path where the Code Searcher Manager is storing/reading the meta information (Default: %APPDATA%\code-searcher)
         /// </summary>
-        /// <param name="model">JSON object containting configuration parameter</param>
+        /// <param name="model">JSON object containting configuration parameter, <see cref="ConfigureRequest"/></param>
         /// <returns>StatusCodes only</returns>
         /// <remarks>
         /// Sample request:
@@ -117,6 +119,89 @@ namespace CodeSearcher.WebAPI.Controllers
                 ManagementInformationPath = m_ManagementInformation
             };
         }
+
+        /// <summary>
+        /// Read all files in the given folder with given file extensions and add them to lucene indey
+        /// </summary>
+        /// <param name="model">JSON object containting requried parameter <see cref="CreateIndexRequest"/></param>
+        /// <remarks>
+        /// Sample request:
+        ///     
+        ///     POST  /api/CodeSearcher/index
+        ///     {
+        ///         "SourcePath" : "__PATH__",
+        ///         "FileExtensions" : [".cs", ".csproj", ".xml"]
+        ///     }
+        ///     
+        /// </remarks>
+        /// <returns>JSON object contating indexing job id; requried to cancel the indexing job of get updates</returns>
+        /// <response code="400">Path doesn't exist, or file extensions are missformed</response>
+        [HttpPost("index")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<CreateIndexResponse> CreateNewIndex([FromBody] CreateIndexRequest model)
+        {
+            m_Logger.Info("[GET] /api/CodeSearcher/index");
+
+            #region Request Model Checks
+            if (string.IsNullOrWhiteSpace(model.SourcePath))
+            {
+                m_Logger.Debug("Required parameter SourcePath is null, empty or whitespace");
+                return BadRequest();
+            }
+
+            if (!Directory.Exists(model.SourcePath))
+            {
+                m_Logger.Debug($"Required parameter SourcePath point to path that doesn't exist: {model.SourcePath}");
+                return BadRequest();
+            }
+
+            var extensionList = model.FileExtensions.ToList();
+            if (extensionList.Count == 0)
+            {
+                m_Logger.Debug("Required parameter FileExtensions contains empty list");
+                return BadRequest();
+            }
+
+            var invalidChars = Path.GetInvalidFileNameChars();
+            foreach (var ext in extensionList)
+            {
+                if (!ext.StartsWith("."))
+                {
+                    m_Logger.Debug($"Required parameter FileExtensions contains entry which don't start with '.': {ext}");
+                    return BadRequest();
+
+                }
+
+                foreach (var invalid in invalidChars)
+                {
+                    if (ext.Contains(invalid))
+                    {
+                        m_Logger.Debug($"Required parameter FileExtensions contains entry with invalid filename chars: {ext}");
+                        return BadRequest();
+
+                    }
+
+                }
+            }
+            #endregion
+
+            m_Logger.Info($"SourcePath: {model.SourcePath}");
+            var jobId = BackgroundJob.Enqueue(() => CreateIndex(model));
+            
+            return new CreateIndexResponse
+            { 
+                IndexingJobId = jobId
+            };
+        }
+
+        private int CreateIndex(CreateIndexRequest model)
+        {
+            var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
+            return indexId;
+        }
+
+        // status: JobStorage.Current.GetMonitoringApi().SucceededJobs()[0].Value.Result
+        // delete: BackgroundJob.Delete(jobId) 
 
         //// GET api/values/5
         ////// <response code="201">Returns the newly created item</response>

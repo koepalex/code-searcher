@@ -37,16 +37,21 @@ namespace CodeSearcher.BusinessLogic.Management
         }
 
         /// <inheritdoc/>
-        public int CreateIndex(string sourcePath, IList<string> fileExtensions)
+        public int CreateIndex(string sourcePath, IEnumerable<string> fileExtensionsEnumeration)
         {
             if (sourcePath is null)
             {
                 throw new ArgumentNullException(nameof(sourcePath));
             }
-
-            if (fileExtensions is null || fileExtensions.Count == 0)
+            if (fileExtensionsEnumeration is null)
             {
-                throw new ArgumentNullException(nameof(fileExtensions));
+                throw new ArgumentNullException(nameof(fileExtensionsEnumeration));
+            }
+
+            var fileExtensions = fileExtensionsEnumeration.ToList();
+            if (fileExtensions.Count == 0)
+            {
+                throw new ArgumentNullException(nameof(fileExtensionsEnumeration));
             }
 
             var index = BuildIndexObject(sourcePath, fileExtensions);

@@ -15,7 +15,7 @@ namespace CodeSearcher.Interfaces
         /// <param name="fileExtensions">Extension of file types that should be indexed</param>
         /// <returns>ID of index that was created</returns>
         /// <exception cref="NotSupportedException">If Index for same path and filetype already exist</exception>
-        int CreateIndex(string sourcePath, IList<string> fileExtensions);
+        int CreateIndex(string sourcePath, IEnumerable<string> fileExtensions);
 
         /// <summary>
         /// Method deletes existing code-searcher index (including indexing files)

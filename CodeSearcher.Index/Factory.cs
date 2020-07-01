@@ -14,6 +14,8 @@ using System.IO;
 using CodeSearcher.BusinessLogic.OwnTokenizer;
 using CodeSearcher.BusinessLogic.Management;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
+using CodeSearcher.BusinessLogic.Serialization;
 
 namespace CodeSearcher.BusinessLogic
 {
@@ -127,6 +129,12 @@ namespace CodeSearcher.BusinessLogic
                 new ConstructorArgument("idxPath", pathToIndexFiles));
 
             return searcher;
+        }
+
+        /// <inheritdoc />
+        JsonConverter ICodeSearcherFactory.GetCodeSearcherIndexJsonConverter()
+        {
+            return new CodeSearcherIndexConverter();
         }
 
         internal static IIndexer GetIndexer(String pathToStoreTheIndexFiles, String sourceCodePath, IList<String> fileExtensionsToLookFor)

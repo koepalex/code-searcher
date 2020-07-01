@@ -61,6 +61,11 @@ namespace CodeSearcher.BusinessLogic.Management
             }
             m_Indexes.Add(index);
 
+            if(!Directory.Exists(index.IndexPath))
+            {
+                Directory.CreateDirectory(index.IndexPath);
+            }
+
             var logic = Factory.Get().GetCodeSearcherLogic(
                 m_Logger,
                 () => index.IndexPath,

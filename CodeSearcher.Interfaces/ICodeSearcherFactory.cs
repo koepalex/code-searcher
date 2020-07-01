@@ -1,4 +1,5 @@
 ﻿using CodeSearcher.BusinessLogic;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -58,5 +59,11 @@ namespace CodeSearcher.Interfaces
         /// <returns>Instance of ISearcher</returns>
         [Obsolete("ISearcher should be only used within CodeSearcher.BusinessLogic (and moved there) - please adapt to use ICodeSearcherLogic instead")]
         ISearcher GetSearcher(String pathToIndexFiles);
+
+        /// <summary>
+        /// Return instance of class that can serialize / deserialize ICodeSearcherIndex to and from JSON
+        /// </summary>
+        /// <returns>Instance of JsonConverter</returns>
+        JsonConverter GetCodeSearcherIndexJsonConverter();
     }
 }

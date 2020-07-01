@@ -15,6 +15,6 @@ namespace CodeSearcher.Interfaces.API.Model.Requests
         /// <summary>
         /// Extensions of files that should be indexed
         /// </summary>
-        public IEnumerable<string> FileExtensions { get; set; }
+        public string[] FileExtensions { get; set; }
     }
 }

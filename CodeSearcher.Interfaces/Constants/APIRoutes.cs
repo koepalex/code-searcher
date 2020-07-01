@@ -24,5 +24,10 @@
         /// Route to read and update Code Searcher configuration
         /// </summary>
         public const string ConfigurationRoute = "/api/CodeSearcher/configure";
+
+        /// <summary>
+        /// Route to index a new folder
+        /// </summary>
+        public const string CreateIndexRoute = "/api/CodeSearcher/index";
     }
 }

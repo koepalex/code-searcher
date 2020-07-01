@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Net;
+﻿using System.IO;
 using System.Linq;
 using CodeSearcher.BusinessLogic;
 using CodeSearcher.Interfaces;
@@ -11,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Hangfire;
+using System;
 
 namespace CodeSearcher.WebAPI.Controllers
 {
@@ -33,7 +31,14 @@ namespace CodeSearcher.WebAPI.Controllers
         {
             m_Logger = new WebLogAdapter(logger);
             m_Manager = Factory.Get().GetCodeSearcherManager(m_Logger);
-            m_Manager.ManagementInformationPath = m_ManagementInformation ?? m_Manager.ManagementInformationPath;
+            if (m_ManagementInformation != null && string.Compare(m_ManagementInformation, m_Manager.ManagementInformationPath, StringComparison.OrdinalIgnoreCase) != 0)
+            {
+                m_Manager.ManagementInformationPath = m_ManagementInformation;
+            }
+            else
+            {
+                m_ManagementInformation = m_Manager.ManagementInformationPath;
+            }
         }
         
         /// <summary>
@@ -47,13 +52,16 @@ namespace CodeSearcher.WebAPI.Controllers
         ///     }
         ///     
         /// </remarks>
-        /// <returns>Enumeration of existing indexes, maybe empty enumeration</returns>
+        /// <returns>Enumeration of existing indexes, maybe empty enumeration <see cref="GetIndexesResponse"/></returns>
         [HttpGet("")]
-        public ActionResult<IEnumerable<ICodeSearcherIndex>> GetAllIndexes()
+        public ActionResult<GetIndexesResponse> GetAllIndexes()
         {
             m_Logger.Info("[GET] /api/CodeSearcher/ (GetAllIndexes)");
             var indexes = m_Manager.GetAllIndexes();
-            return new ActionResult<IEnumerable<ICodeSearcherIndex>>(indexes);
+            return new GetIndexesResponse
+            {
+                Indexes = indexes.ToArray()
+            };
         }
 
         /// <summary>
@@ -186,7 +194,7 @@ namespace CodeSearcher.WebAPI.Controllers
             #endregion
 
             m_Logger.Info($"SourcePath: {model.SourcePath}");
-            var jobId = BackgroundJob.Enqueue(() => CreateIndex(model));
+            var jobId = BackgroundJob.Enqueue(() => m_Manager.CreateIndex(model.SourcePath, model.FileExtensions));
             
             return new CreateIndexResponse
             { 
@@ -194,10 +202,46 @@ namespace CodeSearcher.WebAPI.Controllers
             };
         }
 
-        private int CreateIndex(CreateIndexRequest model)
+        
+        //public int CreateIndex(CreateIndexRequest model)
+        //{
+        //    var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
+        //    return indexId;
+        //}
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///     
+        ///     DELETE  /api/CodeSearcher/index?IndexID="__ID__"
+        ///     {
+        ///     }
+        ///     
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpDelete("index")]
+        public ActionResult<DeleteIndexResponse> DeleteExistingIndex([FromQuery] DeleteIndexRequest model)
         {
-            var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
-            return indexId;
+            m_Logger.Info("[DELETE] /api/CodeSearcher/index");
+
+            bool success = true;
+            try
+            {
+                m_Manager.DeleteIndex(model.IndexID);
+            }
+            catch (NotSupportedException e)
+            {
+                m_Logger.Error(e.Message);
+                success = false;
+            }
+
+            return new DeleteIndexResponse
+            {
+                Succeeded = success
+            };
         }
 
         // status: JobStorage.Current.GetMonitoringApi().SucceededJobs()[0].Value.Result

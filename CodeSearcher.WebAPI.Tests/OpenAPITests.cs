@@ -9,6 +9,7 @@ namespace CodeSearcher.WebAPI.Tests
 {
     [TestFixture]
     [Category("SafeForCI")]
+    [Order(100)]
     class OpenAPITests
     {
         private TestServer m_TestServer;

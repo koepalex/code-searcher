@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Hangfire;
 using System;
+using Microsoft.Extensions.Caching.Memory;
+using CodeSearcher.WebAPI.Common;
+using Hangfire.Server;
 
 namespace CodeSearcher.WebAPI.Controllers
 {
@@ -21,23 +24,26 @@ namespace CodeSearcher.WebAPI.Controllers
     {
         private readonly ICodeSearcherLogger m_Logger;
         private readonly ICodeSearcherManager m_Manager;
-        private static string m_ManagementInformation = null;
+        private readonly IMemoryCache m_MemoryCache;
 
         /// <summary>
         /// Default constructor to create code-searcher Web API controller
         /// </summary>
         /// <param name="logger">Instance where all messages should be logged into</param>
-        public CodeSearcherController(ILogger<CodeSearcherController> logger)
+        /// <param name="memoryCache">Instance to cache data</param>
+        public CodeSearcherController(ILogger<CodeSearcherController> logger, IMemoryCache memoryCache)
         {
             m_Logger = new WebLogAdapter(logger);
             m_Manager = Factory.Get().GetCodeSearcherManager(m_Logger);
-            if (m_ManagementInformation != null && string.Compare(m_ManagementInformation, m_Manager.ManagementInformationPath, StringComparison.OrdinalIgnoreCase) != 0)
+            m_MemoryCache = memoryCache;
+
+            string cachedManagementInformation;
+            if (m_MemoryCache.TryGetValue<string>(CacheKeys.ManagementInformationKey, out cachedManagementInformation))
             {
-                m_Manager.ManagementInformationPath = m_ManagementInformation;
-            }
-            else
-            {
-                m_ManagementInformation = m_Manager.ManagementInformationPath;
+                if (string.Compare(cachedManagementInformation, m_Manager.ManagementInformationPath, StringComparison.OrdinalIgnoreCase) != 0)
+                {
+                    m_Manager.ManagementInformationPath = cachedManagementInformation;
+                }
             }
         }
         
@@ -100,7 +106,8 @@ namespace CodeSearcher.WebAPI.Controllers
             }
 
             m_Manager.ManagementInformationPath = model.ManagementInformationPath;
-            m_ManagementInformation = model.ManagementInformationPath;
+
+            m_MemoryCache.Set(CacheKeys.ManagementInformationKey, model.ManagementInformationPath);
             return Ok();
         }
 
@@ -122,14 +129,23 @@ namespace CodeSearcher.WebAPI.Controllers
         public ActionResult<ConfigureResponse> GetConfiguration()
         {
             m_Logger.Info("[GET] /api/CodeSearcher/configure");
-            return new ConfigureResponse
+
+            var result = new ConfigureResponse();
+            string cachedManagementInformation;
+            if (m_MemoryCache.TryGetValue<string>(CacheKeys.ManagementInformationKey, out cachedManagementInformation))
             {
-                ManagementInformationPath = m_ManagementInformation
-            };
+                result.ManagementInformationPath = cachedManagementInformation;
+            }
+            else
+            {
+                result.ManagementInformationPath = m_Manager.ManagementInformationPath;
+            }
+
+            return result;
         }
 
         /// <summary>
-        /// Read all files in the given folder with given file extensions and add them to lucene indey
+        /// Read all files in the given folder with given file extensions and add them to lucene index
         /// </summary>
         /// <param name="model">JSON object containting requried parameter <see cref="CreateIndexRequest"/></param>
         /// <remarks>
@@ -194,7 +210,7 @@ namespace CodeSearcher.WebAPI.Controllers
             #endregion
 
             m_Logger.Info($"SourcePath: {model.SourcePath}");
-            var jobId = BackgroundJob.Enqueue(() => m_Manager.CreateIndex(model.SourcePath, model.FileExtensions));
+            var jobId = BackgroundJob.Enqueue(() => CreateIndex(model, null));
             
             return new CreateIndexResponse
             { 
@@ -202,28 +218,44 @@ namespace CodeSearcher.WebAPI.Controllers
             };
         }
 
-        
-        //public int CreateIndex(CreateIndexRequest model)
-        //{
-        //    var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
-        //    return indexId;
-        //}
+        /// <summary>
+        /// Background job to index folder
+        /// </summary>
+        /// <param name="model">request model for indexing task</param>
+        /// <param name="context">will be substitued by hangfire with context object</param>
+        [ApiExplorerSettings(IgnoreApi = true)] // Ignore in OpenAPI definition
+        [NonAction] // Ignore for ASP.net Core Controller mapping
+        [AutomaticRetry(Attempts = BackgroundJobsConstants.NumberOfRetries)]  //configure hangfire to retry on failure
+        //[Queue(BackgroundJobsConstants.IndexingQueueName)] //name of the queue
+        public void CreateIndex(CreateIndexRequest model, PerformContext context)
+        {
+            string cachedManagementInformation;
+            if (m_MemoryCache.TryGetValue<string>(CacheKeys.ManagementInformationKey, out cachedManagementInformation))
+            {
+                m_Manager.ManagementInformationPath = cachedManagementInformation;
+            }
+
+            var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
+
+            m_MemoryCache.Set(context.BackgroundJob.Id, indexId);
+        }
 
         /// <summary>
-        /// 
+        /// Delete existing lucene index
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///     
-        ///     DELETE  /api/CodeSearcher/index?IndexID="__ID__"
+        ///     DELETE  /api/CodeSearcher/index/
         ///     {
+        ///         "IndexID" : __ID__
         ///     }
         ///     
         /// </remarks>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>JSON object indicating if delete operation was successfull</returns>
         [HttpDelete("index")]
-        public ActionResult<DeleteIndexResponse> DeleteExistingIndex([FromQuery] DeleteIndexRequest model)
+        public ActionResult<DeleteIndexResponse> DeleteExistingIndex(DeleteIndexRequest model)
         {
             m_Logger.Info("[DELETE] /api/CodeSearcher/index");
 
@@ -247,34 +279,5 @@ namespace CodeSearcher.WebAPI.Controllers
         // status: JobStorage.Current.GetMonitoringApi().SucceededJobs()[0].Value.Result
         // delete: BackgroundJob.Delete(jobId) 
 
-        //// GET api/values/5
-        ////// <response code="201">Returns the newly created item</response>
-        /// <response code="400">If the item is null</response>            
-        //[HttpPost]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[HttpGet("{id}")]
-        //public ActionResult<string> Get(int id)
-        //{
-        //    return "value";
-        //}
-
-        //// POST api/values
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        //// PUT api/values/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/values/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }

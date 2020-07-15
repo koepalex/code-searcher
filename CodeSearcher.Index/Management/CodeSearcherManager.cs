@@ -146,6 +146,7 @@ namespace CodeSearcher.BusinessLogic.Management
         private void WriteMetaFilesToDisk()
         {
             var path = Path.Combine(ManagementInformationPath, s_OverviewFile);
+            Directory.CreateDirectory(ManagementInformationPath);
             using (var stream = File.OpenWrite(path))
             using(var sw = new StreamWriter(stream))
             {

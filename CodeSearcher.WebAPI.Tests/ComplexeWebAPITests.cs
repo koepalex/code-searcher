@@ -113,5 +113,70 @@ namespace CodeSearcher.WebAPI.Tests
                 }
             }
         }
+
+        [Test]
+        public async Task Test_SearchInIndex_Expect_Success()
+        {
+            using (var client = m_TestServer.CreateClient())
+            {
+                var newPath = WebTestHelper.GetPathToTestData("Meta");
+                var configureModel = new { managementInformationPath = newPath };
+                var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json");
+                using (_ = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
+                {
+                }
+
+                var createIndexModel = new CreateIndexRequest()
+                {
+                    SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
+                    FileExtensions = new[] { ".txt" }
+                };
+                requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json");
+                using (_ = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
+                {
+                }
+
+                GetIndexesResponse indexesModel;
+                int count = 0;
+                do
+                {
+                    using (var response = await client.GetAsync(APIRoutes.CodeSearcherRoute))
+                    {
+                        var responsePayload = await response.Content.ReadAsStringAsync();
+                        var settings = new JsonSerializerSettings();
+                        settings.Converters.Add(Factory.Get().GetCodeSearcherIndexJsonConverter());
+                        indexesModel = JsonConvert.DeserializeObject<GetIndexesResponse>(responsePayload, settings);
+                        Assert.That(indexesModel, Is.Not.Null);
+                        Assert.That(indexesModel.Indexes, Is.Not.Null);
+                    }
+                    await Task.Delay(250);
+                    //timeout
+                    Assert.That(count++, Is.LessThan(100));
+                } while (indexesModel.Indexes.Length < 1);
+
+                var searchModel = new SearchIndexRequest()
+                {
+                    IndexID = indexesModel.Indexes[0].ID,
+                    SearchWord = "erat"
+                };
+                requestPayload = new StringContent(JsonConvert.SerializeObject(searchModel), Encoding.UTF8, "application/json");
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    Content = requestPayload,
+                    RequestUri = new Uri(client.BaseAddress, APIRoutes.SearchInIndexRoute)
+                };
+                using (var response = await client.SendAsync(request))
+                {
+                    response.EnsureSuccessStatusCode();
+
+                    var responsePayload = await response.Content.ReadAsStringAsync();
+                    var settings = new JsonSerializerSettings();
+                    settings.Converters.Add(Factory.Get().GetDetailedResultJsonConverter());
+                    settings.Converters.Add(Factory.Get().GetFindingsInFileJsonConverter());
+                    var searchIndex = JsonConvert.DeserializeObject<SearchIndexResponse>(responsePayload, settings);
+                }
+            }
         }
+    }
 }

@@ -65,5 +65,17 @@ namespace CodeSearcher.Interfaces
         /// </summary>
         /// <returns>Instance of JsonConverter</returns>
         JsonConverter GetCodeSearcherIndexJsonConverter();
+
+        /// <summary>
+        /// Return instance of class that can serialize / deserialize IDetailedSearchResult to and from JSON
+        /// </summary>
+        /// <returns>Instance of JsonConverter</returns>
+        JsonConverter GetDetailedResultJsonConverter();
+
+        /// <summary>
+        /// Return instance of class that can serialize / deserialize IFindingInFile to and from JSON
+        /// </summary>
+        /// <returns>Instance of JsonConverter</returns>
+        JsonConverter GetFindingsInFileJsonConverter();
     }
 }

@@ -16,6 +16,8 @@ using CodeSearcher.BusinessLogic.Management;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using CodeSearcher.BusinessLogic.Serialization;
+using CodeSearcher.BusinessLogic.SearchResults;
+using CodeSearcher.BusinessLogic.Exporter;
 
 namespace CodeSearcher.BusinessLogic
 {
@@ -137,6 +139,23 @@ namespace CodeSearcher.BusinessLogic
             return new CodeSearcherIndexConverter();
         }
 
+        /// <inheritdoc />
+        JsonConverter ICodeSearcherFactory.GetDetailedResultJsonConverter()
+        {
+            return new DetailedResultJsonConverter();
+        }
+
+        /// <inheritdoc />
+        JsonConverter ICodeSearcherFactory.GetFindingsInFileJsonConverter()
+        {
+            return new FindingsInFileJsonConverter();
+        }
+
+        internal static VirtualExporter GetVirtualResultExporter()
+        {
+            return new VirtualExporter();
+        }
+
         internal static IIndexer GetIndexer(String pathToStoreTheIndexFiles, String sourceCodePath, IList<String> fileExtensionsToLookFor)
         {
             if (String.IsNullOrWhiteSpace(pathToStoreTheIndexFiles)) throw new ArgumentNullException("pathToStoreTheIndexFiles");
@@ -256,6 +275,24 @@ namespace CodeSearcher.BusinessLogic
         internal static ICodeSearcherIndex GetCodeSearcherIndex(string sourcePath, string indexPath, IList<string> fileExtensions)
         {
             return new CodeSearcherIndex(sourcePath, indexPath, fileExtensions);
+        }
+
+        internal static IDetailedSearchResult GetDetailedSearchResult(string fileName)
+        {
+            return new DetailedSearchResult
+            {
+                Filename = fileName
+            };
+        }
+
+        internal static IFindingInFile GetFindingInFile(int lineNumber, int position, int length)
+        {
+            return new FindingInFile
+            {
+                LineNumber = lineNumber,
+                Position = position,
+                Length = length,
+            };
         }
     }
 }

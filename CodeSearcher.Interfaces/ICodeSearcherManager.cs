@@ -38,8 +38,17 @@ namespace CodeSearcher.Interfaces
         ICodeSearcherIndex GetIndexById(int indexId);
 
         /// <summary>
+        /// Method looks for word in existing index
+        /// </summary>
+        /// <param name="indexId">Unique identifier of code-searcher index</param>
+        /// <param name="searchWord">word to lookup</param>
+        /// <returns></returns>
+        IEnumerable<IDetailedSearchResult> SearchInIndex(int indexId, string searchWord);
+
+        /// <summary>
         /// Defines the path where the Manager is storing/reading the meta information (Default: %APPDATA%\code-searcher)
         /// </summary>
         string ManagementInformationPath { get; set; }
+
     }
 }

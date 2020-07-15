@@ -118,16 +118,18 @@ namespace CodeSearcher.BusinessLogic
                             m_Logger.Info("Found {0} hits", searchResultContainer.NumberOfHits);
                             foreach (var result in searchResultContainer)
                             {
-                                printer.NumbersToShow = hitsPerPage == -1
-                                    ? int.MaxValue
-                                    : hitsPerPage;
+                                if (printer != null)
+                                {
+                                    printer.NumbersToShow = hitsPerPage == -1
+                                        ? int.MaxValue
+                                        : hitsPerPage;
 
-                                printer.Print(result.FileName, searchedWord);
+                                    printer.Print(result.FileName, searchedWord);
+                                }
                             }
 
                             if (export)
                             {
-                                
                                 resultExporter.Export(searchResultContainer, searchedWord);
 
                                 exportFinishedCallback?.Invoke();

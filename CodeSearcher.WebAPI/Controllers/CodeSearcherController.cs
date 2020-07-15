@@ -226,7 +226,6 @@ namespace CodeSearcher.WebAPI.Controllers
         [ApiExplorerSettings(IgnoreApi = true)] // Ignore in OpenAPI definition
         [NonAction] // Ignore for ASP.net Core Controller mapping
         [AutomaticRetry(Attempts = BackgroundJobsConstants.NumberOfRetries)]  //configure hangfire to retry on failure
-        //[Queue(BackgroundJobsConstants.IndexingQueueName)] //name of the queue
         public void CreateIndex(CreateIndexRequest model, PerformContext context)
         {
             string cachedManagementInformation;
@@ -276,8 +275,47 @@ namespace CodeSearcher.WebAPI.Controllers
             };
         }
 
-        // status: JobStorage.Current.GetMonitoringApi().SucceededJobs()[0].Value.Result
-        // delete: BackgroundJob.Delete(jobId) 
+        /// <summary>
+        /// Looking for word in existing index
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     GET /api/CodeSearcher/search
+        ///     {
+        ///         "IndexID" : __ID__,
+        ///         "SearchWord": "__WORD__"
+        ///     }
+        ///     
+        /// </remarks>
+        /// <returns>JSON object contating indexing job id; requried to cancel the indexing job of get updates</returns>
+        /// <response code="400">word to search is null, whitespace or empty</response>
+        [HttpPost("search")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<SearchIndexResponse> SearchExistingIndex(SearchIndexRequest model)
+        {
+            m_Logger.Info("[GET] /api/CodeSearcher/");
 
+            if(string.IsNullOrWhiteSpace(model.SearchWord))
+            {
+                m_Logger.Debug("Required parameter SearchWord is null, empty or whitespace");
+                return BadRequest();
+            }
+
+            if(m_Manager.GetIndexById(model.IndexID) == null)
+            {
+                m_Logger.Debug("Required parameter IndexID point to non existing index");
+                return BadRequest();
+            }
+            m_Logger.Info($"looking in index {model.IndexID} for {model.SearchWord}");
+            var searchResults = m_Manager.SearchInIndex(model.IndexID, model.SearchWord);
+
+            return new SearchIndexResponse
+            {
+                Results = searchResults.ToArray()
+            };
+        }
+
+        // status: JobStorage.Current.GetMonitoringApi().SucceededJobs()[0].Value.Result
     }
 }

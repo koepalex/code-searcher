@@ -125,7 +125,7 @@ namespace CodeSearcher.BusinessLogic.Indexer
         {
             //without this call, no elements will found within the index
             m_LuceneIndexWriter.Optimize();
-                        
+            m_LuceneIndexWriter.Flush(true, true, true);
             m_LuceneIndexWriter.Dispose();
             m_LuceneAnalyzer.Dispose();
             m_LuceneDirectoy.Dispose();

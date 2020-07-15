@@ -108,6 +108,33 @@ namespace CodeSearcher.BusinessLogic.Management
             return index;
         }
 
+        /// <inheritdoc/>
+        public IEnumerable<IDetailedSearchResult> SearchInIndex(int indexId, string searchWord)
+        {
+            var index = GetIndexById(indexId);
+
+            var exporter = Factory.GetVirtualResultExporter();
+
+            Factory.Get().GetCodeSearcherLogic(
+                m_Logger,
+                getIndexPath: () => index.IndexPath,
+                getSourcePath: () => index.SourcePath,
+                getFileExtension: () => index.FileExtensions
+            ).SearchWithinExistingIndex(
+                startCallback: () => { },
+                getSearchWord: () => (searchWord, true),
+                getMaximumNumberOfHits: () => -1,
+                getHitsPerPage: () => -1,
+                getExporter: () => (true, exporter),
+                getSingleResultPrinter: () => null,
+                finishedCallback: (timeSpan) => { },
+                endOfSearchCallback: () => { },
+                wildcardSearch: true
+            );
+
+            return exporter.DetailedResult;
+        }
+
         private ICodeSearcherIndex BuildIndexObject(string sourcePath, IList<string> fileExtensions)
         {
             return Factory.GetCodeSearcherIndex(

@@ -29,5 +29,10 @@
         /// Route to index a new folder
         /// </summary>
         public const string CreateIndexRoute = "/api/CodeSearcher/index";
+
+        /// <summary>
+        /// Route to search within existing index
+        /// </summary>
+        public const string SearchInIndexRoute = "/api/CodeSearcher/search";
     }
 }

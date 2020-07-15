@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace CodeSearcher.Interfaces.API.Model.Requests
+﻿namespace CodeSearcher.Interfaces.API.Model.Requests
 {
     /// <summary>
     /// Model for creating new index Request

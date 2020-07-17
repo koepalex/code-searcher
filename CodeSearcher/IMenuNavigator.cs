@@ -11,10 +11,9 @@ namespace CodeSearcher
         /// <summary>
         /// Jumping to the menu for a specifiy code-searcher index
         /// </summary>
-        /// <param name="logic"></param>
         /// <param name="manager"></param>
         /// <param name="selectedIndex"></param>
-        void GoToSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui);
+        void GoToSelectedIndexMenu(ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui);
         
         /// <summary>
         /// Jumping to the main menu
@@ -25,18 +24,16 @@ namespace CodeSearcher
         /// <summary>
         /// Jumping to the menu to create a new index
         /// </summary>
-        /// <param name="logic"></param>
         /// <param name="manager"></param>
         /// <param name="tui"></param>
-        void GoToCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui);
+        void GoToCreateNewIndexMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui);
         
         /// <summary>
         /// Jumping to the menu that list all existing indexes
         /// </summary>
-        /// <param name="logic"></param>
         /// <param name="manager"></param>
         /// <param name="tui"></param>
-        void GoToShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui);
+        void GoToShowAllIndexesMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui);
 
         /// <summary>
         /// Return from text based menu to main program (set MenuLoopActive to false)

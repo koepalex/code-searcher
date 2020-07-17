@@ -60,6 +60,9 @@ namespace CodeSearcher.BusinessLogic
             var mgr = Ioc.Get<ICodeSearcherManager>(new ConstructorArgument("logger", logger));
             return mgr;
         }
+        
+        //todo encapsulate in test interface
+        internal static ICodeSearcherLogic CodeSearcherLogic { get; set; }
 
         /// <inheritdoc />
         ICodeSearcherLogic ICodeSearcherFactory.GetCodeSearcherLogic(
@@ -68,6 +71,12 @@ namespace CodeSearcher.BusinessLogic
             Func<string> getSourcePath,
             Func<IList<string>> getFileExtension)
         {
+            //for testing
+            if (CodeSearcherLogic != null)
+            {
+                return CodeSearcherLogic;
+            }
+
             if (logger is null)
             {
                 throw new ArgumentNullException(nameof(logger));

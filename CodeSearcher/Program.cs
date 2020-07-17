@@ -43,7 +43,7 @@ namespace CodeSearcher
                 case ProgramModes.Auto:
                     var tui = new TextBasedUserInterface();
                     var nav = new MenuNavigator();
-                    ShowConsoleMainMenu(logic, manager, tui, nav); 
+                    ShowConsoleMainMenu(manager, tui, nav); 
                     break;
             }
 
@@ -218,7 +218,7 @@ namespace CodeSearcher
             wildcardSearch);
         }
 
-        internal static void ShowConsoleMainMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowConsoleMainMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             do
             {
@@ -233,11 +233,11 @@ namespace CodeSearcher
                 {
                     if (1.Equals(selection)) //Create New Index
                     {
-                        nav.GoToCreateNewIndexMenu(logic, manager, tui);
+                        nav.GoToCreateNewIndexMenu(manager, tui);
                     }
                     else if (2.Equals(selection)) //Show All Indexes
                     {
-                        nav.GoToShowAllIndexesMenu(logic, manager, tui);
+                        nav.GoToShowAllIndexesMenu(manager, tui);
                     }
                     else if(3.Equals(selection)) //Exit
                     {
@@ -247,7 +247,7 @@ namespace CodeSearcher
             } while (nav.MenuLoopActive());
         }
 
-        internal static void ShowCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowCreateNewIndexMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
             int selection;
@@ -303,7 +303,7 @@ namespace CodeSearcher
                         if (1.Equals(selection))
                         {
                             var selectedIndex = manager.GetIndexById(id);
-                            nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                            nav.GoToSelectedIndexMenu(manager, selectedIndex, tui);
                         }
                         else if (2.Equals(selection))
                         {
@@ -314,7 +314,7 @@ namespace CodeSearcher
             }
         }
 
-        internal static void ShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowAllIndexesMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
             int selection;
@@ -341,7 +341,7 @@ namespace CodeSearcher
                     if (indexes.Count > 0 && selection < count)
                     {
                         var selectedIndex = indexes[selection - 1];
-                        nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                        nav.GoToSelectedIndexMenu(manager, selectedIndex, tui);
                     }
                     else
                     {
@@ -351,7 +351,7 @@ namespace CodeSearcher
             } while (tui.ShouldLoop());
         }
 
-        internal static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowSelectedIndexMenu(ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
             int selection;
@@ -376,6 +376,7 @@ namespace CodeSearcher
                 {
                     if (1.Equals(selection))
                     {
+                        var logic = GetCodeSearcherLogicByIndex(selectedIndex);
                         logic.SearchWithinExistingIndex(
                             startCallback: () => { },
                             getSearchWord: () =>
@@ -405,6 +406,16 @@ namespace CodeSearcher
                     }
                 }
             } while (tui.ShouldLoop());
+        }
+
+        private static ICodeSearcherLogic GetCodeSearcherLogicByIndex(ICodeSearcherIndex selectedIndex)
+        {
+            return Factory.Get().GetCodeSearcherLogic(
+                new LoggerAdapter(m_Logger),
+                getIndexPath: () => selectedIndex.IndexPath,
+                getSourcePath: () => selectedIndex.SourcePath,
+                getFileExtension: () => selectedIndex.FileExtensions
+            );
         }
 
         private static void SetUpLogger()

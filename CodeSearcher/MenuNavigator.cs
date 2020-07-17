@@ -13,22 +13,22 @@ namespace CodeSearcher
         }
 
         /// <inheritdoc />
-        public void GoToSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui)
+        public void GoToSelectedIndexMenu(ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui)
         {
-            Program.ShowSelectedIndexMenu(logic, manager, selectedIndex, tui, this);
+            Program.ShowSelectedIndexMenu(manager, selectedIndex, tui, this);
             tui.SetShouldLoop(false);
         }
 
         /// <inheritdoc />
-        public void GoToCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui)
+        public void GoToCreateNewIndexMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui)
         {
-            Program.ShowCreateNewIndexMenu(logic, manager, tui, this);
+            Program.ShowCreateNewIndexMenu(manager, tui, this);
         }
 
         /// <inheritdoc />
-        public void GoToShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui)
+        public void GoToShowAllIndexesMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui)
         {
-            Program.ShowAllIndexesMenu(logic, manager, tui, this);
+            Program.ShowAllIndexesMenu(manager, tui, this);
         }
 
         /// <inheritdoc />

@@ -24,7 +24,7 @@ namespace CodeSearcher.BusinessLogic
     /// <summary>
     /// Default factory to instanciate CodeSearcher objects
     /// </summary>
-    public class Factory : ICodeSearcherFactory
+    public class Factory : ICodeSearcherFactory, ITestFactory
     {
         private static IKernel m_Kernel;
         private static ICodeSearcherFactory m_Self;
@@ -49,6 +49,13 @@ namespace CodeSearcher.BusinessLogic
             return m_Self;
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        internal static ITestFactory GetTest()
+        {
+            m_Self = m_Self ?? new Factory();
+            return (ITestFactory)m_Self;
+        }
+
         /// <inheritdoc />
         ICodeSearcherManager ICodeSearcherFactory.GetCodeSearcherManager(ICodeSearcherLogger logger)
         {
@@ -60,9 +67,15 @@ namespace CodeSearcher.BusinessLogic
             var mgr = Ioc.Get<ICodeSearcherManager>(new ConstructorArgument("logger", logger));
             return mgr;
         }
-        
-        //todo encapsulate in test interface
-        internal static ICodeSearcherLogic CodeSearcherLogic { get; set; }
+
+        private ICodeSearcherLogic m_CodeSearcherLogic;
+        ICodeSearcherLogic ITestFactory.CodeSearcherLogic 
+        { 
+            set
+            {
+                m_CodeSearcherLogic = value;
+            }
+         }
 
         /// <inheritdoc />
         ICodeSearcherLogic ICodeSearcherFactory.GetCodeSearcherLogic(
@@ -72,9 +85,9 @@ namespace CodeSearcher.BusinessLogic
             Func<IList<string>> getFileExtension)
         {
             //for testing
-            if (CodeSearcherLogic != null)
+            if (m_CodeSearcherLogic != null)
             {
-                return CodeSearcherLogic;
+                return m_CodeSearcherLogic;
             }
 
             if (logger is null)

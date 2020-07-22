@@ -289,8 +289,10 @@ namespace CodeSearcher.WebAPI.Controllers
         ///     
         /// </remarks>
         /// <returns>JSON object contating indexing job id; requried to cancel the indexing job of get updates</returns>
+        /// <response code="200">Search was successfull</response>
         /// <response code="400">word to search is null, whitespace or empty</response>
         [HttpPost("search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<SearchIndexResponse> SearchExistingIndex(SearchIndexRequest model)
         {

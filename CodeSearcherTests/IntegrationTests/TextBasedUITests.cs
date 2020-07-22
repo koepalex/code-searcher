@@ -366,7 +366,7 @@ namespace CodeSearcher.Tests.IntegrationTests
                 .Returns(1.ToString());
             tuiMock.Setup(tui => tui.ShouldLoop()).Returns(false);
             var navStub = new Mock<IMenuNavigator>();
-            Factory.CodeSearcherLogic = logicMock.Object;
+            Factory.GetTest().CodeSearcherLogic = logicMock.Object;
 
             Program.ShowSelectedIndexMenu( managerMock.Object, indexStub1.Object, tuiMock.Object, navStub.Object);
 

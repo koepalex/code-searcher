@@ -123,7 +123,7 @@ namespace CodeSearcher.BusinessLogic.Management
             ).SearchWithinExistingIndex(
                 startCallback: () => { },
                 getSearchWord: () => (searchWord, true),
-                getMaximumNumberOfHits: () => -1,
+                getMaximumNumberOfHits: () => 100,
                 getHitsPerPage: () => -1,
                 getExporter: () => (true, exporter),
                 getSingleResultPrinter: () => null,

@@ -140,7 +140,7 @@ namespace CodeSearcher
                     exit = ReadWordToSearch(out word);
                 }
 
-                word.Trim();
+                word?.Trim();
 
                 return (word, exit);
             },
@@ -383,14 +383,18 @@ namespace CodeSearcher
                             {
                                 string word;
                                 bool exit = ReadWordToSearch(out word);
-                                word.Trim();
+                                word?.Trim();
                                 return (word, exit);
                             },
                             getMaximumNumberOfHits: () => { return 200; },
                             getHitsPerPage: () => { return 50; },
                             getExporter: () => { return (false, null); },
                             getSingleResultPrinter: () => { return new WildcardResultPrinter(); },
-                            finishedCallback: (timeSpan) => { },
+                            finishedCallback: (timeSpan) => 
+                            {
+                                Console.WriteLine("Press any key to continue");
+                                Console.ReadKey();
+                            },
                             endOfSearchCallback: () => { },
                             wildcardSearch: true
                         );

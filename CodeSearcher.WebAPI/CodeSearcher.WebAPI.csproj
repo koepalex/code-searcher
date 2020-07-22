@@ -5,8 +5,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>.\..\_docs\gen\CodeSearcher.WebAPI.xml</DocumentationFile>
+    <DocumentationFile>.\bin\Debug\netcoreapp3.1\CodeSearcher.WebAPI.xml</DocumentationFile>
     <OutputPath></OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>.\bin\Release\netcoreapp3.1\CodeSearcher.WebAPI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

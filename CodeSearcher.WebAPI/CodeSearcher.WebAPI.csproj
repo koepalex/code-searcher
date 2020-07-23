@@ -23,10 +23,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CodeSearcher.Index\CodeSearcher.BusinessLogic.csproj">
-      <SetTargetFramework>TargetFramework=netstandard2.1</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\CodeSearcher.Interfaces\CodeSearcher.Interfaces.csproj">
-      <SetTargetFramework>TargetFramework=netstandard2.1</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
 

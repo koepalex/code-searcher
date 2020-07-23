@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="TestData\01_ToIndex\42.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestData\01_ToIndex\42.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Appveyor.TestLogger" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.6" />
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CodeSearcher.Index\CodeSearcher.BusinessLogic.csproj">
+      <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+    </ProjectReference>
+    <ProjectReference Include="..\CodeSearcher.Interfaces\CodeSearcher.Interfaces.csproj">
+      <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+    </ProjectReference>
+    <ProjectReference Include="..\CodeSearcher.WebAPI\CodeSearcher.WebAPI.csproj">
+      <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData\Meta\foobar.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

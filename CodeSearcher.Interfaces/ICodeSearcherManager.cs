@@ -15,7 +15,7 @@ namespace CodeSearcher.Interfaces
         /// <param name="fileExtensions">Extension of file types that should be indexed</param>
         /// <returns>ID of index that was created</returns>
         /// <exception cref="NotSupportedException">If Index for same path and filetype already exist</exception>
-        int CreateIndex(string sourcePath, IList<string> fileExtensions);
+        int CreateIndex(string sourcePath, IEnumerable<string> fileExtensions);
 
         /// <summary>
         /// Method deletes existing code-searcher index (including indexing files)
@@ -38,8 +38,17 @@ namespace CodeSearcher.Interfaces
         ICodeSearcherIndex GetIndexById(int indexId);
 
         /// <summary>
+        /// Method looks for word in existing index
+        /// </summary>
+        /// <param name="indexId">Unique identifier of code-searcher index</param>
+        /// <param name="searchWord">word to lookup</param>
+        /// <returns></returns>
+        IEnumerable<IDetailedSearchResult> SearchInIndex(int indexId, string searchWord);
+
+        /// <summary>
         /// Defines the path where the Manager is storing/reading the meta information (Default: %APPDATA%\code-searcher)
         /// </summary>
         string ManagementInformationPath { get; set; }
+
     }
 }

@@ -1,6 +1,8 @@
 [bB]in/
 [oO]bj/
 DownloadedTestData/
+gen/
+
 
 # IDE files
 .vs/

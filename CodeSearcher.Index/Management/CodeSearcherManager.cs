@@ -37,16 +37,21 @@ namespace CodeSearcher.BusinessLogic.Management
         }
 
         /// <inheritdoc/>
-        public int CreateIndex(string sourcePath, IList<string> fileExtensions)
+        public int CreateIndex(string sourcePath, IEnumerable<string> fileExtensionsEnumeration)
         {
             if (sourcePath is null)
             {
                 throw new ArgumentNullException(nameof(sourcePath));
             }
-
-            if (fileExtensions is null || fileExtensions.Count == 0)
+            if (fileExtensionsEnumeration is null)
             {
-                throw new ArgumentNullException(nameof(fileExtensions));
+                throw new ArgumentNullException(nameof(fileExtensionsEnumeration));
+            }
+
+            var fileExtensions = fileExtensionsEnumeration.ToList();
+            if (fileExtensions.Count == 0)
+            {
+                throw new ArgumentNullException(nameof(fileExtensionsEnumeration));
             }
 
             var index = BuildIndexObject(sourcePath, fileExtensions);
@@ -56,7 +61,12 @@ namespace CodeSearcher.BusinessLogic.Management
             }
             m_Indexes.Add(index);
 
-            var logic = Factory.GetCodeSearcherLogic(
+            if(!Directory.Exists(index.IndexPath))
+            {
+                Directory.CreateDirectory(index.IndexPath);
+            }
+
+            var logic = Factory.Get().GetCodeSearcherLogic(
                 m_Logger,
                 () => index.IndexPath,
                 () => index.SourcePath,
@@ -98,6 +108,33 @@ namespace CodeSearcher.BusinessLogic.Management
             return index;
         }
 
+        /// <inheritdoc/>
+        public IEnumerable<IDetailedSearchResult> SearchInIndex(int indexId, string searchWord)
+        {
+            var index = GetIndexById(indexId);
+
+            var exporter = Factory.GetVirtualResultExporter();
+
+            Factory.Get().GetCodeSearcherLogic(
+                m_Logger,
+                getIndexPath: () => index.IndexPath,
+                getSourcePath: () => index.SourcePath,
+                getFileExtension: () => index.FileExtensions
+            ).SearchWithinExistingIndex(
+                startCallback: () => { },
+                getSearchWord: () => (searchWord, true),
+                getMaximumNumberOfHits: () => 100,
+                getHitsPerPage: () => -1,
+                getExporter: () => (true, exporter),
+                getSingleResultPrinter: () => null,
+                finishedCallback: (timeSpan) => { },
+                endOfSearchCallback: () => { },
+                wildcardSearch: true
+            );
+
+            return exporter.DetailedResult;
+        }
+
         private ICodeSearcherIndex BuildIndexObject(string sourcePath, IList<string> fileExtensions)
         {
             return Factory.GetCodeSearcherIndex(
@@ -109,22 +146,20 @@ namespace CodeSearcher.BusinessLogic.Management
         private void WriteMetaFilesToDisk()
         {
             var path = Path.Combine(ManagementInformationPath, s_OverviewFile);
-            using (var stream = File.OpenWrite(path))
-            using(var sw = new StreamWriter(stream))
+            Directory.CreateDirectory(ManagementInformationPath);
+            using var stream = File.OpenWrite(path);
+            using var sw = new StreamWriter(stream);
+            try
             {
-
-                try
-                {
-                    m_Logger.Info($"Writing Index Overview to file: {path}");
-                    var json = JsonConvert.SerializeObject(m_Indexes, GetSerializationSettings());
-                    sw.Write(json);
-                    sw.Flush();
-                }
-                catch (Exception e)
-                {
-                    m_Logger.Error($"Exception {e.Message} with callstack {e.StackTrace}");
-                    throw;
-                }
+                m_Logger.Info($"Writing Index Overview to file: {path}");
+                var json = JsonConvert.SerializeObject(m_Indexes, GetSerializationSettings());
+                sw.Write(json);
+                sw.Flush();
+            }
+            catch (Exception e)
+            {
+                m_Logger.Error($"Exception {e.Message} with callstack {e.StackTrace}");
+                throw;
             }
         }
 

@@ -32,7 +32,7 @@ namespace CodeSearcher
                 : ReadProgramMode();
 
             ICodeSearcherLogic logic = GetCodeSearcherLogic();
-            var manager = Factory.GetCodeSearcherManager(new LoggerAdapter(m_Logger));
+            var manager = Factory.Get().GetCodeSearcherManager(new LoggerAdapter(m_Logger));
             
             switch (mode)
             {
@@ -43,7 +43,7 @@ namespace CodeSearcher
                 case ProgramModes.Auto:
                     var tui = new TextBasedUserInterface();
                     var nav = new MenuNavigator();
-                    ShowConsoleMainMenu(logic, manager, tui, nav); 
+                    ShowConsoleMainMenu(manager, tui, nav); 
                     break;
             }
 
@@ -54,20 +54,16 @@ namespace CodeSearcher
 
         private static ICodeSearcherLogic GetCodeSearcherLogic()
         {
-            return Factory.GetCodeSearcherLogic(
+            return Factory.Get().GetCodeSearcherLogic(
                 new LoggerAdapter(m_Logger),
                 getIndexPath: () =>
                 {
-                    var idxPath = m_CmdHandler[m_CmdHandler.IndexPath] != null
-                        ? m_CmdHandler[m_CmdHandler.IndexPath]
-                        : ReadIndexPath();
+                    var idxPath = m_CmdHandler[m_CmdHandler.IndexPath] ?? ReadIndexPath();
                     return idxPath;
                 },
                 getSourcePath: () =>
                 {
-                    var srcPath = m_CmdHandler[m_CmdHandler.SourcePath] != null
-                        ? m_CmdHandler[m_CmdHandler.SourcePath]
-                        : ReadSourcePath();
+                    var srcPath = m_CmdHandler[m_CmdHandler.SourcePath] ?? ReadSourcePath();
                     return srcPath;
                 },
                 getFileExtension: () =>
@@ -109,16 +105,15 @@ namespace CodeSearcher
         {
             string exportFileName = string.Empty;
             IResultExporter exporter = null;
-            bool wildcardSearch;
-            if (!bool.TryParse(m_CmdHandler[m_CmdHandler.WildcardSearch], out wildcardSearch))
-            {
-                m_Logger.Info("Using Default Searcher");
-                wildcardSearch = false;
-            }
-            else
+            if (bool.TryParse(m_CmdHandler[m_CmdHandler.WildcardSearch], out bool wildcardSearch))
             {
                 m_Logger.Info("Using Wildcard Searcher");
                 wildcardSearch = true;
+            }
+            else
+            {
+                m_Logger.Info("Using Default Searcher");
+                wildcardSearch = false;
             }
 
             logic.SearchWithinExistingIndex(
@@ -140,14 +135,13 @@ namespace CodeSearcher
                     exit = ReadWordToSearch(out word);
                 }
 
-                word.Trim();
+                word?.Trim();
 
                 return (word, exit);
             },
             getMaximumNumberOfHits: () =>
             {
-                int numberOfHits;
-                if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out numberOfHits))
+                if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out int numberOfHits))
                 {
                     m_Logger.Info("Maximum hits to show will be 1000");
                     numberOfHits = 1000;
@@ -156,8 +150,7 @@ namespace CodeSearcher
             },
             getHitsPerPage: () =>
             {
-                int hitsPerPage;
-                if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out hitsPerPage))
+                if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out int hitsPerPage))
                 {
                     m_Logger.Info("Maximum hits per page will be shown");
                     hitsPerPage = -1;
@@ -167,8 +160,7 @@ namespace CodeSearcher
             },
             getExporter: () =>
             {
-                bool export;
-                if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out export))
+                if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out bool export))
                 {
                     m_Logger.Info("Results will not be exported");
                     export = false;
@@ -179,8 +171,8 @@ namespace CodeSearcher
                     exportFileName = Path.GetTempFileName();
                     var exportStreamWriter = File.CreateText(exportFileName);
                     exporter = wildcardSearch
-                        ? Factory.GetWildcardResultExporter(exportStreamWriter)
-                        : Factory.GetDefaultResultExporter(exportStreamWriter);
+                        ? Factory.Get().GetWildcardResultExporter(exportStreamWriter)
+                        : Factory.Get().GetDefaultResultExporter(exportStreamWriter);
                 }
 
                 return (export, exporter);
@@ -218,7 +210,7 @@ namespace CodeSearcher
             wildcardSearch);
         }
 
-        internal static void ShowConsoleMainMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowConsoleMainMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             do
             {
@@ -228,18 +220,17 @@ namespace CodeSearcher
                 tui.WriteLine("[3] Exit");
                 tui.WriteLine("Please choose: ");
                 var answer = tui.ReadLine();
-                int selection;
-                if (int.TryParse(answer, out selection))
+                if (int.TryParse(answer, out int selection))
                 {
                     if (1.Equals(selection)) //Create New Index
                     {
-                        nav.GoToCreateNewIndexMenu(logic, manager, tui);
+                        nav.GoToCreateNewIndexMenu(manager, tui);
                     }
                     else if (2.Equals(selection)) //Show All Indexes
                     {
-                        nav.GoToShowAllIndexesMenu(logic, manager, tui);
+                        nav.GoToShowAllIndexesMenu(manager, tui);
                     }
-                    else if(3.Equals(selection)) //Exit
+                    else if (3.Equals(selection)) //Exit
                     {
                         nav.ExitMenu();
                     }
@@ -247,10 +238,9 @@ namespace CodeSearcher
             } while (nav.MenuLoopActive());
         }
 
-        internal static void ShowCreateNewIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowCreateNewIndexMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
-            int selection;
             // Source path
             string sourcePath = null;
             do
@@ -298,12 +288,12 @@ namespace CodeSearcher
                     tui.WriteLine("[2] Back to main menu");
                     tui.WriteLine("Please choose: ");
                     answer = tui.ReadLine();
-                    if (int.TryParse(answer, out selection))
+                    if (int.TryParse(answer, out int selection))
                     {
                         if (1.Equals(selection))
                         {
                             var selectedIndex = manager.GetIndexById(id);
-                            nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                            nav.GoToSelectedIndexMenu(manager, selectedIndex, tui);
                         }
                         else if (2.Equals(selection))
                         {
@@ -314,10 +304,9 @@ namespace CodeSearcher
             }
         }
 
-        internal static void ShowAllIndexesMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowAllIndexesMenu(ICodeSearcherManager manager, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
-            int selection;
             do
             {
                 tui.Clear();
@@ -336,12 +325,12 @@ namespace CodeSearcher
                 tui.WriteLine($"[{++count}] Return to main menu");
                 tui.WriteLine("Please choose: ");
                 answer = tui.ReadLine();
-                if (int.TryParse(answer, out selection))
+                if (int.TryParse(answer, out int selection))
                 {
                     if (indexes.Count > 0 && selection < count)
                     {
                         var selectedIndex = indexes[selection - 1];
-                        nav.GoToSelectedIndexMenu(logic, manager, selectedIndex, tui);
+                        nav.GoToSelectedIndexMenu(manager, selectedIndex, tui);
                     }
                     else
                     {
@@ -351,10 +340,9 @@ namespace CodeSearcher
             } while (tui.ShouldLoop());
         }
 
-        internal static void ShowSelectedIndexMenu(ICodeSearcherLogic logic, ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui, IMenuNavigator nav)
+        internal static void ShowSelectedIndexMenu(ICodeSearcherManager manager, ICodeSearcherIndex selectedIndex, ITextBasedUserInterface tui, IMenuNavigator nav)
         {
             string answer;
-            int selection;
 
             do
             {
@@ -372,24 +360,28 @@ namespace CodeSearcher
                 tui.WriteLine("[3] Return to main menu");
                 tui.WriteLine("Please choose: ");
                 answer = tui.ReadLine();
-                if (int.TryParse(answer, out selection))
+                if (int.TryParse(answer, out int selection))
                 {
                     if (1.Equals(selection))
                     {
+                        var logic = GetCodeSearcherLogicByIndex(selectedIndex);
                         logic.SearchWithinExistingIndex(
                             startCallback: () => { },
                             getSearchWord: () =>
                             {
-                                string word;
-                                bool exit = ReadWordToSearch(out word);
-                                word.Trim();
+                                bool exit = ReadWordToSearch(out string word);
+                                word?.Trim();
                                 return (word, exit);
                             },
                             getMaximumNumberOfHits: () => { return 200; },
                             getHitsPerPage: () => { return 50; },
                             getExporter: () => { return (false, null); },
                             getSingleResultPrinter: () => { return new WildcardResultPrinter(); },
-                            finishedCallback: (timeSpan) => { },
+                            finishedCallback: (timeSpan) =>
+                            {
+                                Console.WriteLine("Press any key to continue");
+                                Console.ReadKey();
+                            },
                             endOfSearchCallback: () => { },
                             wildcardSearch: true
                         );
@@ -405,6 +397,16 @@ namespace CodeSearcher
                     }
                 }
             } while (tui.ShouldLoop());
+        }
+
+        private static ICodeSearcherLogic GetCodeSearcherLogicByIndex(ICodeSearcherIndex selectedIndex)
+        {
+            return Factory.Get().GetCodeSearcherLogic(
+                new LoggerAdapter(m_Logger),
+                getIndexPath: () => selectedIndex.IndexPath,
+                getSourcePath: () => selectedIndex.SourcePath,
+                getFileExtension: () => selectedIndex.FileExtensions
+            );
         }
 
         private static void SetUpLogger()
@@ -521,7 +523,7 @@ namespace CodeSearcher
                 var answer = Console.ReadLine();
                 Console.WriteLine();
 
-                success = Int32.TryParse(answer, out result);
+                _ = Int32.TryParse(answer, out result);
                 success = result == 1 || result == 2;
 
             } while (!success);

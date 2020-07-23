@@ -12,7 +12,7 @@ namespace CodeSearcher.WebServer
 		{
 			var results = new List<ResultItems>(50);
 
-			using (var searcher = Factory.GetSearcher(idxPath))
+			using (var searcher = Factory.Get().GetSearcher(idxPath))
 			{
 				searcher.SearchFileContent(resultModel.SearchPattern, resultModel.MaximumNumberOfHits, resultContainer => 
 				{

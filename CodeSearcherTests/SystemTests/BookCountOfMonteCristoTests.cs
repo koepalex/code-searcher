@@ -45,14 +45,14 @@ namespace CodeSearcher.Tests.SystemTests
 
         private class TestResultExporterAdapter : IResultExporter
         {
-            private MemoryStream _stream;
-            private IResultExporter _exporter;
+            private readonly MemoryStream _stream;
+            private readonly IResultExporter _exporter;
 
             internal TestResultExporterAdapter()
             {
                 _stream = new MemoryStream();
                 var writer = new StreamWriter(_stream);
-                _exporter = Factory.GetDefaultResultExporter(writer);
+                _exporter = Factory.Get().GetDefaultResultExporter(writer);
                 
             }
             public void Dispose()
@@ -211,7 +211,7 @@ namespace CodeSearcher.Tests.SystemTests
         {
             var loggerStub = new Mock<ICodeSearcherLogger>();
 
-            return Factory.GetCodeSearcherLogic(
+            return Factory.Get().GetCodeSearcherLogic(
                 loggerStub.Object,
                 () => m_IndexFolder,
                 () => m_SourcePath,

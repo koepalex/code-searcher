@@ -62,11 +62,7 @@ namespace CodeSearcher.BusinessLogic.Indexer
                        var doc = Factory.GetLuceneDocument();
 
 					   var fileName = fileStructure.FilePath;
-					   if (m_KnowFiles.Contains(fileName))
-					   {
-							
-					   }
-					   else
+					   if (!m_KnowFiles.Contains(fileName))
 					   {
 						   m_KnowFiles.Add(fileName);
 						   var fileContent = fileStructure.Text;
@@ -125,7 +121,7 @@ namespace CodeSearcher.BusinessLogic.Indexer
         {
             //without this call, no elements will found within the index
             m_LuceneIndexWriter.Optimize();
-                        
+            m_LuceneIndexWriter.Flush(true, true, true);
             m_LuceneIndexWriter.Dispose();
             m_LuceneAnalyzer.Dispose();
             m_LuceneDirectoy.Dispose();

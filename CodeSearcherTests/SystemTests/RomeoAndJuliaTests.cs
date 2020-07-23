@@ -45,15 +45,15 @@ namespace CodeSearcher.Tests.SystemTests
 
         private class TestResultExporterAdapter : IResultExporter
         {
-            private MemoryStream _stream;
-            private IResultExporter _exporter;
-            private IList<string> _reference;
+            private readonly MemoryStream _stream;
+            private readonly IResultExporter _exporter;
+            private readonly IList<string> _reference;
 
             internal TestResultExporterAdapter(IList<string> reference)
             {
                 _stream = new MemoryStream();
                 var writer = new StreamWriter(_stream);
-                _exporter = Factory.GetWildcardResultExporter(writer);
+                _exporter = Factory.Get().GetWildcardResultExporter(writer);
                 _reference = reference;
             }
 
@@ -68,6 +68,7 @@ namespace CodeSearcher.Tests.SystemTests
                 _exporter.Export(searchResultContainer, searchedWord);
             }
 
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>")]
             internal void Verify()
             {
                 var reader = new StreamReader(_stream);
@@ -234,7 +235,7 @@ namespace CodeSearcher.Tests.SystemTests
         {
             var loggerStub = new Mock<ICodeSearcherLogger>();
 
-            return Factory.GetCodeSearcherLogic(
+            return Factory.Get().GetCodeSearcherLogic(
                 loggerStub.Object,
                 () => m_IndexFolder,
                 () => m_SourcePath,

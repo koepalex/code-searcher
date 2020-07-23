@@ -38,12 +38,16 @@ namespace CodeSearcher.WebServer
 				{
 					if (Log.Get.IsInfoEnabled)
 						Log.Get.Info("Press Ctrl + c to exit");
-					
+
+					using var signint = new UnixSignal(Signum.SIGINT);
+					using var signterm = new UnixSignal(Signum.SIGTERM);
+					using var signquit = new UnixSignal(Signum.SIGQUIT);
+					using var signhub = new UnixSignal(Signum.SIGHUP);
 					UnixSignal.WaitAny(new[] {
-						new UnixSignal(Signum.SIGINT),
-						new UnixSignal(Signum.SIGTERM),
-						new UnixSignal(Signum.SIGQUIT),
-						new UnixSignal(Signum.SIGHUP)
+						signint,
+						signterm,
+						signquit,
+						signhub
 					});
 				}
 				else
@@ -57,6 +61,8 @@ namespace CodeSearcher.WebServer
 
 			if (Log.Get.IsInfoEnabled)
 				Log.Get.Info("[Info] CodeSearcher.Webserver stopped");
+
+			Log.GetInstance().Dispose();
 		}
 	}
 }

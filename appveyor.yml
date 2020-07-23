@@ -66,6 +66,7 @@ test:
   assemblies:
     only:
       - CodeSearcher.Tests.dll
+      - CodeSearcher.WebAPI.Tests.dll
   categories:
     only:
       - SafeForCI

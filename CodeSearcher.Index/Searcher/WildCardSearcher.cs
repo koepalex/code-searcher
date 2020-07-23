@@ -1,12 +1,12 @@
-﻿using CodeSearcher.Interfaces;
-using Lucene.Net.Documents;
-using Lucene.Net.Search;
-using Lucene.Net.Store;
-using System;
-using System.Collections.Generic;
-
-namespace CodeSearcher.BusinessLogic.Searcher
+﻿namespace CodeSearcher.BusinessLogic.Searcher
 {
+    using CodeSearcher.Interfaces;
+    using Lucene.Net.Documents;
+    using Lucene.Net.Search;
+    using Lucene.Net.Store;
+    using System;
+    using System.Collections.Generic;
+
     internal class WildcardSearcher : ISearcher
     {
         private Directory m_IndexDirectory;
@@ -23,6 +23,7 @@ namespace CodeSearcher.BusinessLogic.Searcher
         {
             if (String.IsNullOrWhiteSpace(pattern)) throw new ArgumentNullException("pattern");
             if (action == null) throw new ArgumentNullException("action");
+            if (maxNumberOfHits < 1) throw new ArgumentException("maxNumberOfHits need to be bigger or equal to 1");
 
             var query = Factory.GetLuceneWildcardSearchQuery("content", pattern.ToLowerInvariant());
 

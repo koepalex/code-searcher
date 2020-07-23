@@ -64,10 +64,10 @@ namespace TestData.For.Code.Searcher
             return new List<string>(new[] { $"{_OtherPath}", '€' });
         }
 
-        public bool ReturnTrue => false || true;
-        public bool ReturnFalse => false && true;
+        public bool ReturnTrue => false || true; //lgtm [cs/constant-condition]
+		public bool ReturnFalse => false && true; //lgtm [cs/constant-condition]
 
-        public object TrinaryOperator => null ? null : null;
+		public object TrinaryOperator => null ? null : null;
 
         protected override int GetHashCode()
         {

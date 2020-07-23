@@ -14,7 +14,7 @@ namespace CodeSearcher.Tests.SystemTests
     public class BookAliceTests
     {
         private string m_IndexFolder;
-        private IList<string> m_Files = new List<string>(2048);
+        private readonly IList<string> m_Files = new List<string>(2048);
         private const string m_BookFolderName = "Alice Adventure in Wonderland";
 
         [OneTimeSetUp]

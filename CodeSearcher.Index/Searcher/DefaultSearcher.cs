@@ -1,20 +1,12 @@
-﻿using Lucene.Net.Analysis;
-using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Documents;
-using Lucene.Net.Index;
-using Lucene.Net.Search;
-using Lucene.Net.Store;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CodeSearcher.Interfaces;
-using Ninject;
-using Ninject.Parameters;
-
-namespace CodeSearcher.BusinessLogic.Searcher
+﻿namespace CodeSearcher.BusinessLogic.Searcher
 {
+    using Lucene.Net.Documents;
+    using Lucene.Net.Search;
+    using Lucene.Net.Store;
+    using System;
+    using System.Collections.Generic;
+    using CodeSearcher.Interfaces;
+
     internal class DefaultSearcher : ISearcher
     {
         private Directory m_IndexDirectory;
@@ -31,6 +23,7 @@ namespace CodeSearcher.BusinessLogic.Searcher
         {
             if (String.IsNullOrWhiteSpace(pattern)) throw new ArgumentNullException("pattern");
             if (action == null) throw new ArgumentNullException("action");
+            if (maxNumberOfHits < 1) throw new ArgumentException("maxNumberOfHits need to be bigger or equal to 1");
 
             var query = Factory.GetLuceneSearchQuery("content", pattern.ToLowerInvariant());
 

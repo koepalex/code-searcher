@@ -17,8 +17,7 @@ function onSearchBtn () {
 		}
 	})
 	.done(function(data) {
-		//$("html").html(data);
-		document.write(data);
+		document.write(data); //lgtm [js/eval-like-call]
 	})
 	.fail(function() {
     	alert( "error - while loading the result view" );

@@ -52,7 +52,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(1)]
         public void Test_CreateManager_Expect_NotNull()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             Assert.NotNull(mgr);
         }
 
@@ -60,7 +60,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(2)]
         public void Test_ReadDefaultMetaPath_Expect_Appdata()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             var metaPath = mgr.ManagementInformationPath;
 
             Assert.That(metaPath, Is.SubPathOf(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)));
@@ -70,7 +70,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(3)]
         public void Test_WriteMetaPath_Expect_PathUpdated()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             var metaPath = mgr.ManagementInformationPath;
 
@@ -82,7 +82,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(4)]
         public void Test_ReadAllIndex_Expect_BeEmpty()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             
             var indexes = mgr.GetAllIndexes();
@@ -93,7 +93,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(5)]
         public void Test_CreateIndex_Expect_BeUniqueId()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
 
             var id = mgr.CreateIndex(Index1, new List<string> { ".txt" });
@@ -104,7 +104,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(6)]
         public void Test_CreateIndexTwice_Expect_Exception()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
 
             var id = mgr.CreateIndex(Index2, new List<string> { ".txt" });
@@ -117,7 +117,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(6)]
         public void Test_CreateIndex_Expect_MetaWritten()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
 
             mgr.CreateIndex(Index3, new List<string> { ".txt" });
@@ -132,12 +132,11 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(7)]
         public void Test_LoadCreatedIndex_Expect_CanBeLoaded()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             var id = mgr.CreateIndex(Index2, new List<string> { ".txt" });
-            mgr = null;
             GC.Collect();
-            mgr = Factory.GetCodeSearcherManager(Logger);
+            mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
 
             var indexes = mgr.GetAllIndexes();
@@ -149,7 +148,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(8)]
         public void Test_GetIndexByID_Expect_ReturnIndex()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             _ = mgr.CreateIndex(Index1, new List<string> { ".txt" });
             _ = mgr.CreateIndex(Index2, new List<string> { ".txt" });
@@ -164,7 +163,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(9)]
         public void Test_GetIndexByUnkownID_Expect_Null()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             
             var current = mgr.GetIndexById(-1);
@@ -175,7 +174,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(10)]
         public void Test_DeleteIndex_Expect_OK()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             _ = mgr.CreateIndex(Index1, new List<string> { ".txt" });
             var referenceIndex = mgr.CreateIndex(Index3, new List<string> { ".txt" });
@@ -193,7 +192,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         [Order(11)]
         public void Test_DeleteIndexWithUnkownID_Expect_Exception()
         {
-            var mgr = Factory.GetCodeSearcherManager(Logger);
+            var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             
             Assert.Catch<NotSupportedException>(() => { mgr.DeleteIndex(-1); });

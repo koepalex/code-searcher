@@ -14,20 +14,14 @@ namespace CodeSearcher.WebServer
 
 			Get("/", _ =>
 			{
-				if (cfgManager.TryLoadConfig())
-				{
-					//TODO redirect to error page
-				}
+				_ = cfgManager.TryLoadConfig();
 
 				return View[new SearchModel { IndexPath = cfgManager.IndexPath, MaximumNumberOfHits = Int32.MaxValue }];
 			});
 
 			Get("/results", param =>
 			{
-				if (cfgManager.TryLoadConfig())
-				{
-					//TODO redirect to error page
-				}
+				_ = cfgManager.TryLoadConfig();
 
 				var resultModel = this.Bind<ResultModel>();
 

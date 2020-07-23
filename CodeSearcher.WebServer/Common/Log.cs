@@ -5,10 +5,12 @@ using NLog.Targets;
 
 namespace CodeSearcher.WebServer
 {
-	public class Log
+	public sealed class Log : IDisposable
 	{
 		private ILogger _logger;
 		private static Log _self;
+		private readonly ColoredConsoleTarget m_ConsoleTarget;
+		private readonly FileTarget m_FileTarget;
 
 		public Log()
 		{
@@ -16,22 +18,22 @@ namespace CodeSearcher.WebServer
 			var config = new LoggingConfiguration();
 
 			// Step 2. Create targets and add them to the configuration 
-			var consoleTarget = new ColoredConsoleTarget();
-			config.AddTarget("console", consoleTarget);
+			m_ConsoleTarget = new ColoredConsoleTarget();
+			config.AddTarget("console", m_ConsoleTarget);
 
-			var fileTarget = new FileTarget();
-			config.AddTarget("file", fileTarget);
+			m_FileTarget = new FileTarget();
+			config.AddTarget("file", m_FileTarget);
 
 			// Step 3. Set target properties 
-			consoleTarget.Layout = @"${date:format=HH\:mm\:ss} ${logger} ${message}";
-			fileTarget.FileName = "${basedir}/codeSearcher.WebServer.log";
-			fileTarget.Layout = "${message}";
+			m_ConsoleTarget.Layout = @"${date:format=HH\:mm\:ss} ${logger} ${message}";
+			m_FileTarget.FileName = "${basedir}/codeSearcher.WebServer.log";
+			m_FileTarget.Layout = "${message}";
 
 			// Step 4. Define rules
-			var rule1 = new LoggingRule("*", LogLevel.Info, consoleTarget);
+			var rule1 = new LoggingRule("*", LogLevel.Info, m_ConsoleTarget);
 			config.LoggingRules.Add(rule1);
 
-			var rule2 = new LoggingRule("*", LogLevel.Warn, fileTarget);
+			var rule2 = new LoggingRule("*", LogLevel.Warn, m_FileTarget);
 			config.LoggingRules.Add(rule2);
 
 			// Step 5. Activate the configuration
@@ -52,6 +54,18 @@ namespace CodeSearcher.WebServer
 				return _self._logger;
 			}
 		}
-	}
+
+		internal static Log GetInstance()
+        {
+			return _self;
+        }
+
+        public void Dispose()
+        {
+			m_ConsoleTarget?.Dispose();
+			m_FileTarget?.Dispose();
+			_self = null;
+        }
+    }
 }
 

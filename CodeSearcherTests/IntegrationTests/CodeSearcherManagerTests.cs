@@ -135,7 +135,6 @@ namespace CodeSearcher.Tests.IntegrationTests
             var mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;
             var id = mgr.CreateIndex(Index2, new List<string> { ".txt" });
-            mgr = null;
             GC.Collect();
             mgr = Factory.Get().GetCodeSearcherManager(Logger);
             mgr.ManagementInformationPath = MetaFolder;

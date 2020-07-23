@@ -45,9 +45,9 @@ namespace CodeSearcher.Tests.SystemTests
 
         private class TestResultExporterAdapter : IResultExporter
         {
-            private MemoryStream _stream;
-            private IResultExporter _exporter;
-            private IList<string> _reference;
+            private readonly MemoryStream _stream;
+            private readonly IResultExporter _exporter;
+            private readonly IList<string> _reference;
 
             internal TestResultExporterAdapter(IList<string> reference)
             {
@@ -68,6 +68,7 @@ namespace CodeSearcher.Tests.SystemTests
                 _exporter.Export(searchResultContainer, searchedWord);
             }
 
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>")]
             internal void Verify()
             {
                 var reader = new StreamReader(_stream);

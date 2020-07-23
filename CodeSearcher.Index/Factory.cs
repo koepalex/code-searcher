@@ -45,14 +45,14 @@ namespace CodeSearcher.BusinessLogic
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static ICodeSearcherFactory Get ()
         {
-            m_Self = m_Self ?? new Factory();
+            m_Self ??= new Factory();
             return m_Self;
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         internal static ITestFactory GetTest()
         {
-            m_Self = m_Self ?? new Factory();
+            m_Self ??= new Factory();
             return (ITestFactory)m_Self;
         }
 

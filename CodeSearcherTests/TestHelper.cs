@@ -6,7 +6,7 @@ namespace CodeSearcher.Tests
 {
     internal static class TestHelper
 	{
-        private static Random m_Random = new Random(DateTime.Now.Millisecond);
+        private static readonly Random m_Random = new Random(DateTime.Now.Millisecond);
         internal const string BigFileName = "BigBoy.bin";
 
         internal static string GetTestEnvironmentPath

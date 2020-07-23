@@ -15,7 +15,6 @@ namespace CodeSearcher.BusinessLogic
         /// </summary>
         /// <remarks>
         /// SourcePath, IndexPath and FileExtensions are mandatory parameter to create CodeSearcherLogic
-        /// <see cref="CodeSearcher.BusinessLogic.Factory"/>
         /// </remarks>
         /// <param name="startCallback">Callback which is called when creating index is about to start</param>
         /// <param name="fileProccessedCallback">Callback which is called for each file that was analyzed</param>

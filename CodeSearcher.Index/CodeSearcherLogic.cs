@@ -38,22 +38,20 @@ namespace CodeSearcher.BusinessLogic
             var srcPath = m_GetSourcePath();
             var fileExtensions = m_GetFileExtension();
 
-            using (var indexer = Factory.GetIndexer(idxPath, srcPath, fileExtensions))
+            using var indexer = Factory.GetIndexer(idxPath, srcPath, fileExtensions);
+            indexer.IndexerProcessFile += (sender, args) =>
             {
-                indexer.IndexerProcessFile += (sender, args) =>
-                {
-                    Interlocked.Increment(ref m_FileCounter);
-                    fileProccessedCallback(args.FileName);
-                };
+                Interlocked.Increment(ref m_FileCounter);
+                fileProccessedCallback(args.FileName);
+            };
 
-                var timeSpan = RunActionWithTimings("Create New Index", () =>
-                {
-                    var task = indexer.CreateIndex();
-                    task.Wait();
-                });
+            var timeSpan = RunActionWithTimings("Create New Index", () =>
+            {
+                var task = indexer.CreateIndex();
+                task.Wait();
+            });
 
-                finishedCallback(m_FileCounter, timeSpan);
-            }
+            finishedCallback(m_FileCounter, timeSpan);
         }
 
         private TimeSpan RunActionWithTimings(String name, Action action)
@@ -98,53 +96,51 @@ namespace CodeSearcher.BusinessLogic
             var idxPath = m_GetIndexPath();
 
 #pragma warning disable 618 //Pragma can be removed when ISearcher is moved into BusinessLogic and Factory.GetSearcher is internal
-            using (var searcher = useWildcardSearch ? Factory.GetWildcardSearcher(idxPath) : Factory.Get().GetSearcher(idxPath))
-            {
+            using var searcher = useWildcardSearch ? Factory.GetWildcardSearcher(idxPath) : Factory.Get().GetSearcher(idxPath);
 #pragma warning restore 618
-                int numberOfHits = getMaximumNumberOfHits();
-                int hitsPerPage = getHitsPerPage();
-                (bool export, IResultExporter resultExporter) = getExporter();
-                var printer = getSingleResultPrinter();
+            int numberOfHits = getMaximumNumberOfHits();
+            int hitsPerPage = getHitsPerPage();
+            (bool export, IResultExporter resultExporter) = getExporter();
+            var printer = getSingleResultPrinter();
 
-                do
+            do
+            {
+                (string searchedWord, bool shouldExit) = getSearchWord();
+                if (string.IsNullOrWhiteSpace(searchedWord) && shouldExit) break;
+
+                var timeSpan = RunActionWithTimings("Search For " + searchedWord, () =>
                 {
-                    (string searchedWord, bool shouldExit) = getSearchWord();
-                    if (string.IsNullOrWhiteSpace(searchedWord) && shouldExit) break;
-
-                    var timeSpan = RunActionWithTimings("Search For " + searchedWord, () =>
+                    searcher.SearchFileContent(searchedWord, numberOfHits, (searchResultContainer) =>
                     {
-                        searcher.SearchFileContent(searchedWord, numberOfHits, (searchResultContainer) =>
+                        m_Logger.Info("Found {0} hits", searchResultContainer.NumberOfHits);
+                        foreach (var result in searchResultContainer)
                         {
-                            m_Logger.Info("Found {0} hits", searchResultContainer.NumberOfHits);
-                            foreach (var result in searchResultContainer)
+                            if (printer != null)
                             {
-                                if (printer != null)
-                                {
-                                    printer.NumbersToShow = hitsPerPage == -1
-                                        ? int.MaxValue
-                                        : hitsPerPage;
+                                printer.NumbersToShow = hitsPerPage == -1
+                                    ? int.MaxValue
+                                    : hitsPerPage;
 
-                                    printer.Print(result.FileName, searchedWord);
-                                }
+                                printer.Print(result.FileName, searchedWord);
                             }
+                        }
 
-                            if (export)
-                            {
-                                resultExporter.Export(searchResultContainer, searchedWord);
+                        if (export)
+                        {
+                            resultExporter.Export(searchResultContainer, searchedWord);
 
-                                exportFinishedCallback?.Invoke();
-                            }
-                        });
+                            exportFinishedCallback?.Invoke();
+                        }
                     });
+                });
 
-                    finishedCallback(timeSpan);
+                finishedCallback(timeSpan);
 
-                    if (shouldExit) break;
+                if (shouldExit) break;
 
-                } while (true);
+            } while (true);
 
-                endOfSearchCallback();
-            }
+            endOfSearchCallback();
         }
     }
 }

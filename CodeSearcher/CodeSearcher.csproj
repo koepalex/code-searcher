@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CmdLineHandler.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ICmdLineHandler.cs" />
     <Compile Include="IMenuNavigator.cs" />
     <Compile Include="ITextBasedUserInterface.cs" />

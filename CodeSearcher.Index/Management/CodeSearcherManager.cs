@@ -147,22 +147,19 @@ namespace CodeSearcher.BusinessLogic.Management
         {
             var path = Path.Combine(ManagementInformationPath, s_OverviewFile);
             Directory.CreateDirectory(ManagementInformationPath);
-            using (var stream = File.OpenWrite(path))
-            using(var sw = new StreamWriter(stream))
+            using var stream = File.OpenWrite(path);
+            using var sw = new StreamWriter(stream);
+            try
             {
-
-                try
-                {
-                    m_Logger.Info($"Writing Index Overview to file: {path}");
-                    var json = JsonConvert.SerializeObject(m_Indexes, GetSerializationSettings());
-                    sw.Write(json);
-                    sw.Flush();
-                }
-                catch (Exception e)
-                {
-                    m_Logger.Error($"Exception {e.Message} with callstack {e.StackTrace}");
-                    throw;
-                }
+                m_Logger.Info($"Writing Index Overview to file: {path}");
+                var json = JsonConvert.SerializeObject(m_Indexes, GetSerializationSettings());
+                sw.Write(json);
+                sw.Flush();
+            }
+            catch (Exception e)
+            {
+                m_Logger.Error($"Exception {e.Message} with callstack {e.StackTrace}");
+                throw;
             }
         }
 

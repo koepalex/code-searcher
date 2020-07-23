@@ -45,8 +45,8 @@ namespace CodeSearcher.Tests.SystemTests
 
         private class TestResultExporterAdapter : IResultExporter
         {
-            private MemoryStream _stream;
-            private IResultExporter _exporter;
+            private readonly MemoryStream _stream;
+            private readonly IResultExporter _exporter;
 
             internal TestResultExporterAdapter()
             {

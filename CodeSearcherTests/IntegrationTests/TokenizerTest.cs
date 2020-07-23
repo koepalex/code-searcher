@@ -314,7 +314,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             LoadFileAndTokenizer(FooClass, FooClassFile, (tok) => {
                 67.SkipLines(tok);
-                tok.CheckForTokenAtPositions(new List<int> { 42 });
+                tok.CheckForTokenAtPositions(new List<int> { 44 });
             });
         }
 

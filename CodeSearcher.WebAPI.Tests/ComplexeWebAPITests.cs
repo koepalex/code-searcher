@@ -52,65 +52,63 @@ namespace CodeSearcher.WebAPI.Tests
         [Test]
         public async Task Test_DeleteIndex_Expect_Success()
         {
-            using (var client = m_TestServer.CreateClient())
+            using var client = m_TestServer.CreateClient();
+            var newPath = WebTestHelper.GetPathToTestData("Meta");
+            var configureModel = new { managementInformationPath = newPath };
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json"))
+            using (_ = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
             {
-                var newPath = WebTestHelper.GetPathToTestData("Meta");
-                var configureModel = new { managementInformationPath = newPath };
-                var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json");
-                using (_ = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
-                {
-                }
+            }
 
-                var createIndexModel = new CreateIndexRequest()
-                {
-                    SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
-                    FileExtensions = new[] { ".txt" }
-                };
-                requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json");
-                using (_ = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
-                {
-                }
+            var createIndexModel = new CreateIndexRequest()
+            {
+                SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
+                FileExtensions = new[] { ".txt" }
+            };
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json"))
+            using (_ = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
+            {
+            }
 
-                //TODO can be optimized with API method to get information if background job still running
-                GetIndexesResponse indexesModel;
-                int count = 0;
-                do
+            //TODO can be optimized with API method to get information if background job still running
+            GetIndexesResponse indexesModel;
+            int count = 0;
+            do
+            {
+                using (var response = await client.GetAsync(APIRoutes.CodeSearcherRoute))
                 {
-                    using (var response = await client.GetAsync(APIRoutes.CodeSearcherRoute))
-                    {
-                        var responsePayload = await response.Content.ReadAsStringAsync();
-                        var settings = new JsonSerializerSettings();
-                        settings.Converters.Add(Factory.Get().GetCodeSearcherIndexJsonConverter());
-                        indexesModel = JsonConvert.DeserializeObject<GetIndexesResponse>(responsePayload, settings);
-                        Assert.That(indexesModel, Is.Not.Null);
-                        Assert.That(indexesModel.Indexes, Is.Not.Null);
-                    }
-                    await Task.Delay(250);
-                    //timeout
-                    Assert.That(count++, Is.LessThan(100));
-                } while (indexesModel.Indexes.Length < 1);
-
-                var deleteRequestModel = new DeleteIndexRequest
-                {
-                    IndexID = indexesModel.Indexes[0].ID
-                };
-
-                // simplified API client.DeleteAsync doesn't allow to set content
-                var deleteRequest = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Delete,
-                    RequestUri = new Uri(client.BaseAddress, APIRoutes.CreateIndexRoute),
-                    Content = new StringContent(JsonConvert.SerializeObject(deleteRequestModel), Encoding.UTF8, "application/json")
-                };
-
-                using (var response = await client.SendAsync(deleteRequest))
-                {
-                    response.EnsureSuccessStatusCode();
                     var responsePayload = await response.Content.ReadAsStringAsync();
-                    var deleteModel = JsonConvert.DeserializeObject<DeleteIndexResponse>(responsePayload);
-                    Assert.That(deleteModel, Is.Not.Null);
-                    Assert.That(deleteModel.Succeeded, Is.True);
+                    var settings = new JsonSerializerSettings();
+                    settings.Converters.Add(Factory.Get().GetCodeSearcherIndexJsonConverter());
+                    indexesModel = JsonConvert.DeserializeObject<GetIndexesResponse>(responsePayload, settings);
+                    Assert.That(indexesModel, Is.Not.Null);
+                    Assert.That(indexesModel.Indexes, Is.Not.Null);
                 }
+                await Task.Delay(250);
+                //timeout
+                Assert.That(count++, Is.LessThan(100));
+            } while (indexesModel.Indexes.Length < 1);
+
+            var deleteRequestModel = new DeleteIndexRequest
+            {
+                IndexID = indexesModel.Indexes[0].ID
+            };
+
+            // simplified API client.DeleteAsync doesn't allow to set content
+            var deleteRequest = new HttpRequestMessage
+            {
+                Method = HttpMethod.Delete,
+                RequestUri = new Uri(client.BaseAddress, APIRoutes.CreateIndexRoute),
+                Content = new StringContent(JsonConvert.SerializeObject(deleteRequestModel), Encoding.UTF8, "application/json")
+            };
+
+            using (var response = await client.SendAsync(deleteRequest))
+            {
+                response.EnsureSuccessStatusCode();
+                var responsePayload = await response.Content.ReadAsStringAsync();
+                var deleteModel = JsonConvert.DeserializeObject<DeleteIndexResponse>(responsePayload);
+                Assert.That(deleteModel, Is.Not.Null);
+                Assert.That(deleteModel.Succeeded, Is.True);
             }
         }
 
@@ -121,7 +119,7 @@ namespace CodeSearcher.WebAPI.Tests
             {
                 var newPath = WebTestHelper.GetPathToTestData("Meta");
                 var configureModel = new { managementInformationPath = newPath };
-                var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json");
+                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json"))
                 using (_ = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
                 {
                 }
@@ -131,7 +129,7 @@ namespace CodeSearcher.WebAPI.Tests
                     SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
                     FileExtensions = new[] { ".txt" }
                 };
-                requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json");
+                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json"))
                 using (_ = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
                 {
                 }
@@ -159,22 +157,24 @@ namespace CodeSearcher.WebAPI.Tests
                     IndexID = indexesModel.Indexes[0].ID,
                     SearchWord = "erat"
                 };
-                requestPayload = new StringContent(JsonConvert.SerializeObject(searchModel), Encoding.UTF8, "application/json");
-                var request = new HttpRequestMessage
+                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(searchModel), Encoding.UTF8, "application/json"))
                 {
-                    Method = HttpMethod.Post,
-                    Content = requestPayload,
-                    RequestUri = new Uri(client.BaseAddress, APIRoutes.SearchInIndexRoute)
-                };
-                using (var response = await client.SendAsync(request))
-                {
-                    response.EnsureSuccessStatusCode();
+                    var request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Post,
+                        Content = requestPayload,
+                        RequestUri = new Uri(client.BaseAddress, APIRoutes.SearchInIndexRoute)
+                    };
+                    using (var response = await client.SendAsync(request))
+                    {
+                        response.EnsureSuccessStatusCode();
 
-                    var responsePayload = await response.Content.ReadAsStringAsync();
-                    var settings = new JsonSerializerSettings();
-                    settings.Converters.Add(Factory.Get().GetDetailedResultJsonConverter());
-                    settings.Converters.Add(Factory.Get().GetFindingsInFileJsonConverter());
-                    var searchIndex = JsonConvert.DeserializeObject<SearchIndexResponse>(responsePayload, settings);
+                        var responsePayload = await response.Content.ReadAsStringAsync();
+                        var settings = new JsonSerializerSettings();
+                        settings.Converters.Add(Factory.Get().GetDetailedResultJsonConverter());
+                        settings.Converters.Add(Factory.Get().GetFindingsInFileJsonConverter());
+                        var searchIndex = JsonConvert.DeserializeObject<SearchIndexResponse>(responsePayload, settings);
+                    }
                 }
             }
         }

@@ -236,7 +236,14 @@ namespace CodeSearcher.WebAPI.Controllers
 
             var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
 
-            m_MemoryCache.Set(context.BackgroundJob.Id, indexId);
+            if (context != null)
+            {
+                m_MemoryCache.Set(context.BackgroundJob.Id, indexId);
+            }
+            else
+            {
+                m_Logger.Debug($"hangfire.io didn't inject PerformContext instance, didn't save indexId into memory cache ");
+            }
         }
 
         /// <summary>

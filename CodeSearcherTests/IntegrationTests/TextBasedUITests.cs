@@ -131,7 +131,6 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void Test_CreateNewIndexWithChoiceDetails_Expect_GoToDetailsMenu()
         {
             const int id = 42;
-            var logicStub = new Mock<ICodeSearcherLogic>();
             var indexStub = new Mock<ICodeSearcherIndex>();
             
             var managerMock = new Mock<ICodeSearcherManager>();

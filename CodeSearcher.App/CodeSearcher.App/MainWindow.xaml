@@ -1,0 +1,36 @@
+﻿<Window x:Class="CodeSearcher.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CodeSearcher.App"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        Loaded="OnMainWindowLoaded">
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="23" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <Button Margin="1" Name="NewIndexButton" Click="NewIndexButtonClick">New Index</Button>
+            <Button Margin="1" IsEnabled="false" Name="DeleteIndexButton" Click="DeleteIndexButtonClick">Delete Index</Button>
+        </StackPanel>
+        
+        <TreeView Grid.Column="0" Grid.Row="1" Name="IndexTreeView" SelectedItemChanged="IndexTreeViewSelectedItemChanged" />
+        
+        <TreeView Grid.Column="0" Grid.Row="2" Name="FindingTreeView" />
+
+        <TextBox Grid.Column="1" Grid.Row="0" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown"></TextBox>
+        
+        <avalonedit:TextEditor SyntaxHighlighting="CSharp" ShowLineNumbers="True" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2"/>
+    </Grid>
+</Window>

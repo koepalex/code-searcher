@@ -21,6 +21,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CodeSearcher.Interfaces.API.Model.Requests;
 using CodeSearcher.Interfaces.Constants;
+using ICSharpCode.AvalonEdit.Document;
 using Path = System.IO.Path;
 
 namespace CodeSearcher.App
@@ -92,6 +93,18 @@ namespace CodeSearcher.App
             DeleteIndexButton.IsEnabled = _selectedIndex != null;
         }
 
+
+        private void FindingTreeViewSelectionItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var file = ((FindingTreeView.SelectedItem as TreeViewItem)?.Parent as TreeViewItem)?.Tag as IDetailedSearchResult;
+            var finding = (FindingTreeView.SelectedItem as TreeViewItem)?.Tag as IFindingInFile;
+            if (file != null && finding != null)
+            {
+
+                TextEditor.Document = new TextDocument(new StringTextSource(File.ReadAllText(file.Filename)));
+            }
+        }
+
         private void NewIndexButtonClick(object sender, RoutedEventArgs e)
         {
             // Show Create New Index Dialog
@@ -146,7 +159,7 @@ namespace CodeSearcher.App
                         {
                             var item = new TreeViewItem
                             {
-                                Header = findingResults.Filename,
+                                Header = Path.GetFileName(findingResults.Filename),
                                 Tag = findingResults,
                                 Name = Path.GetFileNameWithoutExtension(findingResults.Filename),
                                 IsEnabled = true,
@@ -156,13 +169,14 @@ namespace CodeSearcher.App
                             {
                                 var subItem = new TreeViewItem
                                 {
-                                    Header = findingResults.Filename,
+                                    Header = $"LineNumber: {lineFinding.LineNumber} Position: {lineFinding.Position} Length: {lineFinding.Length}",
                                     Tag = lineFinding,
                                     Name = $"Line{lineFinding.LineNumber}Pos{lineFinding.Position}Len{lineFinding.Length}",
                                     IsEnabled = true,
                                 };
                                 item.Items.Add(subItem);
                             }
+
                             FindingTreeView.Items.Add(item);
                         }
                     }

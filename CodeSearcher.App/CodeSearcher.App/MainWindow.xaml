@@ -27,10 +27,10 @@
         
         <TreeView Grid.Column="0" Grid.Row="1" Name="IndexTreeView" SelectedItemChanged="IndexTreeViewSelectedItemChanged" />
         
-        <TreeView Grid.Column="0" Grid.Row="2" Name="FindingTreeView" />
+        <TreeView Grid.Column="0" Grid.Row="2" Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged"/>
 
         <TextBox Grid.Column="1" Grid.Row="0" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown"></TextBox>
         
-        <avalonedit:TextEditor SyntaxHighlighting="CSharp" ShowLineNumbers="True" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2"/>
+        <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Name="TextEditor"/>
     </Grid>
 </Window>

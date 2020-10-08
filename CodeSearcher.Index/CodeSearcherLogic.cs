@@ -95,9 +95,7 @@ namespace CodeSearcher.BusinessLogic
 
             var idxPath = m_GetIndexPath();
 
-#pragma warning disable 618 //Pragma can be removed when ISearcher is moved into BusinessLogic and Factory.GetSearcher is internal
-            using var searcher = useWildcardSearch ? Factory.GetWildcardSearcher(idxPath) : Factory.Get().GetSearcher(idxPath); //lgtm [cs/call-to-obsolete-method]
-#pragma warning restore 618
+            using var searcher = useWildcardSearch ? Factory.GetWildcardSearcher(idxPath) : Factory.GetSearcher(idxPath); 
             int numberOfHits = getMaximumNumberOfHits();
             int hitsPerPage = getHitsPerPage();
             (bool export, IResultExporter resultExporter) = getExporter();

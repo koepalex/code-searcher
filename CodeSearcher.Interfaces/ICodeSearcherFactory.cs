@@ -52,13 +52,7 @@ namespace CodeSearcher.Interfaces
         /// </remarks>
         IResultExporter GetWildcardResultExporter(StreamWriter exportWriter);
 
-        /// <summary>
-        /// Return instance of class that can lookup words within lucene index
-        /// </summary>
-        /// <param name="pathToIndexFiles">Fullpath to lucene index files</param>
-        /// <returns>Instance of ISearcher</returns>
-        [Obsolete("ISearcher should be only used within CodeSearcher.BusinessLogic (and moved there) - please adapt to use ICodeSearcherLogic instead")]
-        ISearcher GetSearcher(String pathToIndexFiles);
+        
 
         /// <summary>
         /// Return instance of class that can serialize / deserialize ICodeSearcherIndex to and from JSON

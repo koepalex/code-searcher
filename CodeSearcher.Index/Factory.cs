@@ -143,9 +143,12 @@ namespace CodeSearcher.BusinessLogic
                 "Wildcard",
                 new ConstructorArgument("exportWriter", exportWriter));
         }
-
-        /// <inheritdoc />
-        ISearcher ICodeSearcherFactory.GetSearcher(String pathToIndexFiles)
+        /// <summary>
+        /// Return instance of class that can lookup words within lucene index
+        /// </summary>
+        /// <param name="pathToIndexFiles">Fullpath to lucene index files</param>
+        /// <returns>Instance of ISearcher</returns>
+        internal static ISearcher GetSearcher(String pathToIndexFiles)
         {
             if (String.IsNullOrWhiteSpace(pathToIndexFiles)) throw new ArgumentNullException("pathToIndexFiles");
 

@@ -32,6 +32,7 @@ namespace CodeSearcher.App
     public partial class MainWindow : Window
     {
         private ICodeSearcherIndex _selectedIndex;
+        private readonly AppViewModel _viewModel;
 
         public MainWindow()
         {
@@ -51,6 +52,9 @@ namespace CodeSearcher.App
                 MessageBox.Show(sb.ToString());
                 Environment.FailFast("unhandled exception");
             };
+
+            _viewModel = new AppViewModel();
+            DataContext = _viewModel;
         }
 
         private async void OnMainWindowLoaded(object sender, RoutedEventArgs e)
@@ -86,7 +90,7 @@ namespace CodeSearcher.App
                 }
                 else
                 {
-                    StatusBarTextBox.Text = "Not Indexes available";
+                    _viewModel.StatusMessage = "Not Indexes available";
                 }
 
                 SearchTextBox.Focus();
@@ -138,7 +142,7 @@ namespace CodeSearcher.App
 
                     if (_selectedIndex == null)
                     {
-                        StatusBarTextBox.Text = "Please select index to search within";
+                        _viewModel.StatusMessage = "Please select index to search within";
                         return;
                     }
 

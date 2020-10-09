@@ -80,7 +80,14 @@ namespace CodeSearcher.App
                     IndexTreeView.Items.Add(item);
                 }
 
-                ((TreeViewItem) IndexTreeView.Items[0]).IsSelected = true;
+                if (IndexTreeView.Items.Count > 0)
+                {
+                    ((TreeViewItem) IndexTreeView.Items[0]).IsSelected = true;
+                }
+                else
+                {
+                    StatusBarTextBox.Text = "Not Indexes available";
+                }
 
                 SearchTextBox.Focus();
             }
@@ -102,6 +109,8 @@ namespace CodeSearcher.App
             {
 
                 TextEditor.Document = new TextDocument(new StringTextSource(File.ReadAllText(file.Filename)));
+                double vertOffset = (TextEditor.TextArea.TextView.DefaultLineHeight) * finding.LineNumber;
+                TextEditor.ScrollToVerticalOffset(vertOffset);
             }
         }
 
@@ -126,6 +135,12 @@ namespace CodeSearcher.App
                     // Call search
                     using var client = new HttpClient();
                     client.BaseAddress = new Uri(@"http://localhost:5000");
+
+                    if (_selectedIndex == null)
+                    {
+                        StatusBarTextBox.Text = "Please select index to search within";
+                        return;
+                    }
 
                     var searchRequest = new SearchIndexRequest
                     {

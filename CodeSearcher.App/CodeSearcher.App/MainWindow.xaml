@@ -8,29 +8,39 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         Loaded="OnMainWindowLoaded">
-    <Grid >
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="23" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <StackPanel Grid.Column="0" Orientation="Horizontal">
-            <Button Margin="1" Name="NewIndexButton" Click="NewIndexButtonClick">New Index</Button>
-            <Button Margin="1" IsEnabled="false" Name="DeleteIndexButton" Click="DeleteIndexButtonClick">Delete Index</Button>
-        </StackPanel>
+    <DockPanel>
         
-        <TreeView Grid.Column="0" Grid.Row="1" Name="IndexTreeView" SelectedItemChanged="IndexTreeViewSelectedItemChanged" />
-        
-        <TreeView Grid.Column="0" Grid.Row="2" Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged"/>
+        <StatusBar DockPanel.Dock="Bottom" MinHeight="23">
+            <StatusBarItem>
+                    <TextBlock Name="StatusBarTextBox" />
+            </StatusBarItem>
+        </StatusBar>
 
-        <TextBox Grid.Column="1" Grid.Row="0" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown"></TextBox>
-        
-        <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Name="TextEditor"/>
-    </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="23" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button Margin="1" Name="NewIndexButton" Click="NewIndexButtonClick">New Index</Button>
+                <Button Margin="1" IsEnabled="false" Name="DeleteIndexButton" Click="DeleteIndexButtonClick">Delete Index</Button>
+            </StackPanel>
+
+            <TreeView Grid.Column="0" Grid.Row="1" Name="IndexTreeView" SelectedItemChanged="IndexTreeViewSelectedItemChanged" />
+
+            <TreeView Grid.Column="0" Grid.Row="2" Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged"/>
+
+            <TextBox Grid.Column="1" Grid.Row="0" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown"></TextBox>
+
+            <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Name="TextEditor"/>
+        </Grid>
+
+    </DockPanel>
 </Window>

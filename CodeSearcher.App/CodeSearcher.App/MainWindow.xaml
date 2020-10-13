@@ -26,25 +26,34 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="23" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Button Margin="1" Name="NewIndexButton" Click="NewIndexButtonClick">New Index</Button>
-                <Button Margin="1" IsEnabled="false" Name="DeleteIndexButton" Click="DeleteIndexButtonClick">Delete Index</Button>
+                <Button Margin="4,4,4,4" Name="NewIndexButton" Click="NewIndexButtonClick">New Index</Button>
+                <Button Margin="4,4,4,4" IsEnabled="false" Name="DeleteIndexButton" Click="DeleteIndexButtonClick">Delete Index</Button>
             </StackPanel>
 
-            <TreeView Grid.Column="0" Grid.Row="1" Name="IndexTreeView" SelectedItemChanged="IndexTreeViewSelectedItemChanged" />
+            <DockPanel Grid.Column="0" Grid.Row="1" LastChildFill="True">
+                <Label DockPanel.Dock="Top">Existing Indexes:</Label>
+                <TreeView Name="IndexTreeView" SelectedItemChanged="IndexTreeViewSelectedItemChanged" />
+            </DockPanel>
 
-            <TreeView Grid.Column="0" Grid.Row="2" Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged"/>
+            <DockPanel Grid.Column="0" Grid.Row="2" LastChildFill="True">
+                <Label DockPanel.Dock="Top">Files with findings:</Label>
+                <TreeView Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged" />
+            </DockPanel>
 
-            <TextBox Grid.Column="1" Grid.Row="0" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown"></TextBox>
+            <DockPanel  Grid.Column="1" Grid.Row="0" LastChildFill="True" >
+                <Label Padding="0,4 8, 0">Enter search pattern:</Label>
+                <TextBox Margin="4,4,4,4" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown" Width="Auto"></TextBox>
+            </DockPanel>
 
             <TabControl Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
                 <TabItem Header="Code Viewer">
-                    <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True"  Name="TextEditor"/>
+                    <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True"  Name="TextEditor" IsReadOnly="True"/>
                 </TabItem>
                 <TabItem Header="Diagnostic Console">
                     <wpf:ConsoleControl Name="DiagConsole" />

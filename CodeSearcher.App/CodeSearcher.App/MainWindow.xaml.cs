@@ -58,11 +58,6 @@ namespace CodeSearcher.App
             _viewModel = new AppViewModel();
             DataContext = _viewModel;
 
-            //var procInfo = new ProcessStartInfo("CodeSearcher.WebAPI.exe", string.Empty);
-            //procInfo.UseShellExecute = false;
-            //procInfo.WorkingDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "WebApi");
-
-            //DiagConsole.ProcessInterface.StartProcess(procInfo);
             DiagConsole.ProcessInterface.StartProcess("CodeSearcher.WebAPI.exe", string.Empty);
         }
 

@@ -4,10 +4,13 @@ using CodeSearcher.Interfaces.API.Model.Response;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -54,10 +57,22 @@ namespace CodeSearcher.App
 
             _viewModel = new AppViewModel();
             DataContext = _viewModel;
+
+            //var procInfo = new ProcessStartInfo("CodeSearcher.WebAPI.exe", string.Empty);
+            //procInfo.UseShellExecute = false;
+            //procInfo.WorkingDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "WebApi");
+
+            //DiagConsole.ProcessInterface.StartProcess(procInfo);
+            DiagConsole.ProcessInterface.StartProcess("CodeSearcher.WebAPI.exe", string.Empty);
         }
 
         private async void OnMainWindowLoaded(object sender, RoutedEventArgs e)
         {
+            while (!DiagConsole.ProcessInterface.IsProcessRunning)
+            {
+                await Task.Delay(250);
+            }
+
             _viewModel.StatusMessage = "Loading existing indexes from server";
             var indexes = await _viewModel.LoadIndexesAsync();
 
@@ -84,6 +99,11 @@ namespace CodeSearcher.App
             }
 
             SearchTextBox.Focus();
+        }
+
+        private async void OnMainWindowClosing(object sender, CancelEventArgs e)
+        {
+            DiagConsole.ProcessInterface.StopProcess();
         }
 
         private void IndexTreeViewSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

@@ -5,9 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CodeSearcher.App"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:wpf="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
-        Loaded="OnMainWindowLoaded">
+        Loaded="OnMainWindowLoaded"
+        Closing="OnMainWindowClosing">
 
     <DockPanel>
         
@@ -40,7 +42,14 @@
 
             <TextBox Grid.Column="1" Grid.Row="0" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown"></TextBox>
 
-            <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Name="TextEditor"/>
+            <TabControl Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
+                <TabItem Header="Code Viewer">
+                    <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True"  Name="TextEditor"/>
+                </TabItem>
+                <TabItem Header="Diagnostic Console">
+                    <wpf:ConsoleControl Name="DiagConsole" />
+                </TabItem>
+            </TabControl>
         </Grid>
 
     </DockPanel>

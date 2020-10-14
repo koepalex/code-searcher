@@ -318,7 +318,16 @@ namespace CodeSearcher.WebAPI.Controllers
                 return BadRequest();
             }
             m_Logger.Info($"looking in index {model.IndexID} for {model.SearchWord}");
-            var searchResults = m_Manager.SearchInIndex(model.IndexID, model.SearchWord);
+            var searchResults = m_Manager.SearchInIndex(model.IndexID, model.SearchWord).ToArray();
+            
+            //indexing using index starting by zero, need to add one for line number
+            foreach(var searchResult in searchResults)
+            {
+                foreach(var finding in searchResult.Findings)
+                {
+                    finding.LineNumber += 1;
+                }
+            }
 
             return new SearchIndexResponse
             {

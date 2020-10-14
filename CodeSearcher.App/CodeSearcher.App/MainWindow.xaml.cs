@@ -141,7 +141,8 @@ namespace CodeSearcher.App
             if (file != null && finding != null && File.Exists(file.Filename))
             {
                 TextEditor.Document = new TextDocument(new StringTextSource(File.ReadAllText(file.Filename)));
-                double vertOffset = (TextEditor.TextArea.TextView.DefaultLineHeight) * finding.LineNumber;
+                var jumpLineNumber = finding.LineNumber > 1 ? (finding.LineNumber - 1) : finding.LineNumber;
+                double vertOffset = (TextEditor.TextArea.TextView.DefaultLineHeight) * jumpLineNumber;
                 TextEditor.ScrollToVerticalOffset(vertOffset);
             }
             else
@@ -157,9 +158,12 @@ namespace CodeSearcher.App
 
         private async void DeleteIndexButtonClick(object sender, RoutedEventArgs e)
         {
-            // Show Confirmation Dialog
-            await _viewModel.DeleteIndexAsync();
-            InitializeIndexView();
+            var result = MessageBox.Show("Do you want to delete the existing Index?", "Confirmation", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
+            {
+                await _viewModel.DeleteIndexAsync();
+                await InitializeIndexView();
+            }
         }
 
         private async void SearchTextBoxKeyDown(object sender, KeyEventArgs e)
@@ -171,7 +175,7 @@ namespace CodeSearcher.App
                 {
 
                     var results = await _viewModel.LoadSearchResultAsync(searchPattern);
-                    foreach (var findingResults in results)
+                    foreach (var findingResults in results.Where(r => r.Findings.Any()))
                     {
                         var item = new TreeViewItem
                         {

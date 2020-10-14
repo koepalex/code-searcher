@@ -141,9 +141,10 @@ namespace CodeSearcher.App
             if (file != null && finding != null && File.Exists(file.Filename))
             {
                 TextEditor.Document = new TextDocument(new StringTextSource(File.ReadAllText(file.Filename)));
-                var jumpLineNumber = finding.LineNumber > 1 ? (finding.LineNumber - 1) : finding.LineNumber;
-                double vertOffset = (TextEditor.TextArea.TextView.DefaultLineHeight) * jumpLineNumber;
-                TextEditor.ScrollToVerticalOffset(vertOffset);
+
+                TextEditor.ScrollToLine(finding.LineNumber);
+                var documentLine = TextEditor.Document.GetLineByNumber(finding.LineNumber);
+                TextEditor.Select(documentLine.Offset + finding.Position, finding.Length);
             }
             else
             {

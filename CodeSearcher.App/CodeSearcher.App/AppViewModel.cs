@@ -120,5 +120,34 @@ namespace CodeSearcher.App
             return searchResponse?.Results ?? Enumerable.Empty<IDetailedSearchResult>();
 
         }
+
+        public async Task DeleteIndexAsync()
+        {
+            if (SelectedIndex == null)
+            {
+                return;
+            }
+
+            using var client = new HttpClient();
+            client.BaseAddress = new Uri(_baseAddress);
+
+            var deleteRequest = new DeleteIndexRequest
+            {
+                IndexID = SelectedIndex.ID
+            };
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(deleteRequest), Encoding.UTF8, "application/json"))
+            {
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    Content = requestPayload,
+                    RequestUri = new Uri(client.BaseAddress, APIRoutes.CreateIndexRoute)
+                };
+                using (var response = await client.SendAsync(request))
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+        }
     }
 }

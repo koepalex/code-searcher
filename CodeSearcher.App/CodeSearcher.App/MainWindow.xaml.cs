@@ -42,6 +42,7 @@ namespace CodeSearcher.App
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
+                DiagConsole?.ProcessInterface?.StopProcess();
                 var sb = new StringBuilder();
                 var ex = (Exception) args.ExceptionObject;
                 while (ex != null)
@@ -63,6 +64,11 @@ namespace CodeSearcher.App
 
         private async void OnMainWindowLoaded(object sender, RoutedEventArgs e)
         {
+            await InitializeIndexView();
+        }
+
+        private async Task InitializeIndexView()
+        {
             while (!DiagConsole.ProcessInterface.IsProcessRunning)
             {
                 await Task.Delay(250);
@@ -71,11 +77,14 @@ namespace CodeSearcher.App
             _viewModel.StatusMessage = "Loading existing indexes from server";
             var indexes = await _viewModel.LoadIndexesAsync();
 
+            IndexTreeView.Items.Clear();
             foreach (var index in indexes)
             {
+                var header = GetHeaderNameFromIndex(index);
+
                 var item = new TreeViewItem
                 {
-                    Header = index.SourcePath,
+                    Header = header,
                     Tag = index,
                     Name = $"Item_{Math.Abs(index.ID).ToString()}",
                     IsEnabled = true
@@ -85,7 +94,7 @@ namespace CodeSearcher.App
 
             if (IndexTreeView.Items.Count > 0)
             {
-                ((TreeViewItem) IndexTreeView.Items[0]).IsSelected = true;
+                ((TreeViewItem)IndexTreeView.Items[0]).IsSelected = true;
                 _viewModel.StatusMessage = "Loading Indexes finished";
             }
             else
@@ -94,6 +103,23 @@ namespace CodeSearcher.App
             }
 
             SearchTextBox.Focus();
+        }
+
+        private string GetHeaderNameFromIndex(ICodeSearcherIndex index)
+        {
+            var sb = new StringBuilder();
+            sb.Append(index.SourcePath?.Split("\\")?.LastOrDefault() ?? "error processing name");
+            sb.Append(" {");
+            for (var i = 0; i < index.FileExtensions.Count; i++)
+            {
+                sb.Append(index.FileExtensions[i]);
+                if (i != (index.FileExtensions.Count - 1))
+                {
+                    sb.Append(",");
+                }
+            }
+            sb.Append("}");
+            return sb.ToString();
         }
 
         private async void OnMainWindowClosing(object sender, CancelEventArgs e)
@@ -129,9 +155,11 @@ namespace CodeSearcher.App
             // Show Create New Index Dialog
         }
 
-        private void DeleteIndexButtonClick(object sender, RoutedEventArgs e)
+        private async void DeleteIndexButtonClick(object sender, RoutedEventArgs e)
         {
             // Show Confirmation Dialog
+            await _viewModel.DeleteIndexAsync();
+            InitializeIndexView();
         }
 
         private async void SearchTextBoxKeyDown(object sender, KeyEventArgs e)
@@ -149,7 +177,6 @@ namespace CodeSearcher.App
                         {
                             Header = Path.GetFileName(findingResults.Filename),
                             Tag = findingResults,
-                            Name = Path.GetFileNameWithoutExtension(findingResults.Filename),
                             IsEnabled = true,
                         };
 

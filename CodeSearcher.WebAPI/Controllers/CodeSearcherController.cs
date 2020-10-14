@@ -4,6 +4,7 @@ using CodeSearcher.BusinessLogic;
 using CodeSearcher.Interfaces;
 using CodeSearcher.Interfaces.API.Model.Requests;
 using CodeSearcher.Interfaces.API.Model.Response;
+using CodeSearcher.Interfaces.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -62,7 +63,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [HttpGet("")]
         public ActionResult<GetIndexesResponse> GetAllIndexes()
         {
-            m_Logger.Info("[GET] /api/CodeSearcher/ (GetAllIndexes)");
+            m_Logger.Info($"[GET] {APIRoutes.CodeSearcherRoute} (GetAllIndexes)");
             var indexes = m_Manager.GetAllIndexes();
             return new GetIndexesResponse
             {
@@ -92,7 +93,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult SetConfiguration([FromBody] ConfigureRequest model)
         {
-            m_Logger.Info("[PUT] /api/CodeSearcher/configure");
+            m_Logger.Info($"[PUT] {APIRoutes.ConfigurationRoute}");
             if (string.IsNullOrWhiteSpace(model.ManagementInformationPath))
             {
                 m_Logger.Debug("Required parameter ManagementInformationPath is null, empty or whitespace");
@@ -128,7 +129,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [HttpGet("configure")]
         public ActionResult<ConfigureResponse> GetConfiguration()
         {
-            m_Logger.Info("[GET] /api/CodeSearcher/configure");
+            m_Logger.Info($"[GET] {APIRoutes.ConfigurationRoute}");
 
             var result = new ConfigureResponse();
             string cachedManagementInformation;
@@ -164,7 +165,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<CreateIndexResponse> CreateNewIndex([FromBody] CreateIndexRequest model)
         {
-            m_Logger.Info("[GET] /api/CodeSearcher/index");
+            m_Logger.Info($"[GET] {APIRoutes.CreateIndexRoute}");
 
             #region Request Model Checks
             if (string.IsNullOrWhiteSpace(model.SourcePath))
@@ -252,7 +253,7 @@ namespace CodeSearcher.WebAPI.Controllers
         /// <remarks>
         /// Sample request:
         ///     
-        ///     DELETE  /api/CodeSearcher/index/
+        ///     DELETE  /api/CodeSearcher/index
         ///     {
         ///         "IndexID" : __ID__
         ///     }
@@ -263,7 +264,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [HttpDelete("index")]
         public ActionResult<DeleteIndexResponse> DeleteExistingIndex(DeleteIndexRequest model)
         {
-            m_Logger.Info("[DELETE] /api/CodeSearcher/index");
+            m_Logger.Info($"[DELETE] {APIRoutes.CreateIndexRoute}");
 
             bool success = true;
             try
@@ -303,7 +304,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<SearchIndexResponse> SearchExistingIndex(SearchIndexRequest model)
         {
-            m_Logger.Info("[GET] /api/CodeSearcher/");
+            m_Logger.Info($"[GET] {APIRoutes.SearchInIndexRoute}");
 
             if(string.IsNullOrWhiteSpace(model.SearchWord))
             {

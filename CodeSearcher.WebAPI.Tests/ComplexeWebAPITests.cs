@@ -29,25 +29,20 @@ namespace CodeSearcher.WebAPI.Tests
                 .UseStartup<CodeSearcher.WebAPI.Startup>();
 
             m_TestServer = new TestServer(builder);
-            var metaPath = WebTestHelper.GetPathToTestData("Meta");
-            if (Directory.Exists(metaPath))
-            {
-                Directory.Delete(metaPath, true);
-                Directory.CreateDirectory(metaPath);
-            }
         }
 
         [TearDown]
         public void TearDown()
         {
             m_TestServer.Dispose();
+            // Cleanup, but not really  needed for the tests to work ...            
+            // if the metaPath is created between tests, the second test does not work for some reason ...
             var metaPath = WebTestHelper.GetPathToTestData("Meta");
             if (Directory.Exists(metaPath))
             {
                 Directory.Delete(metaPath, true);
-                Directory.CreateDirectory(metaPath);
             }
-        }
+         }
 
         [Test]
         public async Task Test_DeleteIndex_Expect_Success()
@@ -65,6 +60,7 @@ namespace CodeSearcher.WebAPI.Tests
                 SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
                 FileExtensions = new[] { ".txt" }
             };
+
             using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json"))
             using (_ = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
             {
@@ -115,67 +111,64 @@ namespace CodeSearcher.WebAPI.Tests
         [Test]
         public async Task Test_SearchInIndex_Expect_Success()
         {
-            using (var client = m_TestServer.CreateClient())
+            using var client = m_TestServer.CreateClient();
+            var newPath = WebTestHelper.GetPathToTestData("Meta");
+            var configureModel = new { managementInformationPath = newPath };
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json"))
+            using (_ = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
             {
-                var newPath = WebTestHelper.GetPathToTestData("Meta");
-                var configureModel = new { managementInformationPath = newPath };
-                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json"))
-                using (_ = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
-                {
-                }
+            }
 
-                var createIndexModel = new CreateIndexRequest()
+            var createIndexModel = new CreateIndexRequest()
+            {
+                SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
+                FileExtensions = new[] { ".txt" }
+            };
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json"))
+            using (_ = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
+            {
+            }
+
+            GetIndexesResponse indexesModel;
+            int count = 0;
+            do
+            {
+                using (var response = await client.GetAsync(APIRoutes.CodeSearcherRoute))
                 {
-                    SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
-                    FileExtensions = new[] { ".txt" }
+                    var responsePayload = await response.Content.ReadAsStringAsync();
+                    var settings = new JsonSerializerSettings();
+                    settings.Converters.Add(Factory.Get().GetCodeSearcherIndexJsonConverter());
+                    indexesModel = JsonConvert.DeserializeObject<GetIndexesResponse>(responsePayload, settings);
+                    Assert.That(indexesModel, Is.Not.Null);
+                    Assert.That(indexesModel.Indexes, Is.Not.Null);
+                }
+                await Task.Delay(250);
+                //timeout
+                Assert.That(count++, Is.LessThan(100));
+            } while (indexesModel.Indexes.Length < 1);
+
+            var searchModel = new SearchIndexRequest()
+            {
+                IndexID = indexesModel.Indexes[0].ID,
+                SearchWord = "erat"
+            };
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(searchModel), Encoding.UTF8, "application/json"))
+            {
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    Content = requestPayload,
+                    RequestUri = new Uri(client.BaseAddress, APIRoutes.SearchInIndexRoute)
                 };
-                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json"))
-                using (_ = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
-                {
-                }
 
-                GetIndexesResponse indexesModel;
-                int count = 0;
-                do
-                {
-                    using (var response = await client.GetAsync(APIRoutes.CodeSearcherRoute))
-                    {
-                        var responsePayload = await response.Content.ReadAsStringAsync();
-                        var settings = new JsonSerializerSettings();
-                        settings.Converters.Add(Factory.Get().GetCodeSearcherIndexJsonConverter());
-                        indexesModel = JsonConvert.DeserializeObject<GetIndexesResponse>(responsePayload, settings);
-                        Assert.That(indexesModel, Is.Not.Null);
-                        Assert.That(indexesModel.Indexes, Is.Not.Null);
-                    }
-                    await Task.Delay(250);
-                    //timeout
-                    Assert.That(count++, Is.LessThan(100));
-                } while (indexesModel.Indexes.Length < 1);
+                using var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
 
-                var searchModel = new SearchIndexRequest()
-                {
-                    IndexID = indexesModel.Indexes[0].ID,
-                    SearchWord = "erat"
-                };
-                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(searchModel), Encoding.UTF8, "application/json"))
-                {
-                    var request = new HttpRequestMessage
-                    {
-                        Method = HttpMethod.Post,
-                        Content = requestPayload,
-                        RequestUri = new Uri(client.BaseAddress, APIRoutes.SearchInIndexRoute)
-                    };
-                    using (var response = await client.SendAsync(request))
-                    {
-                        response.EnsureSuccessStatusCode();
-
-                        var responsePayload = await response.Content.ReadAsStringAsync();
-                        var settings = new JsonSerializerSettings();
-                        settings.Converters.Add(Factory.Get().GetDetailedResultJsonConverter());
-                        settings.Converters.Add(Factory.Get().GetFindingsInFileJsonConverter());
-                        var searchIndex = JsonConvert.DeserializeObject<SearchIndexResponse>(responsePayload, settings);
-                    }
-                }
+                var responsePayload = await response.Content.ReadAsStringAsync();
+                var settings = new JsonSerializerSettings();
+                settings.Converters.Add(Factory.Get().GetDetailedResultJsonConverter());
+                settings.Converters.Add(Factory.Get().GetFindingsInFileJsonConverter());
+                var searchIndex = JsonConvert.DeserializeObject<SearchIndexResponse>(responsePayload, settings);
             }
         }
     }

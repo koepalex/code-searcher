@@ -12,7 +12,6 @@ namespace CodeSearcher.Tests.SystemTests
     [Category("NotSafeForCI")]
     public class BookCountOfMonteCristoTests
     {
-        private string m_IndexFolder;
         private string m_SourcePath;
         private const string m_BookFolderName = "The Count of Monte Cristo";
         private const string m_BookFileName = "The Count of Monte Cristo.txt";
@@ -20,25 +19,7 @@ namespace CodeSearcher.Tests.SystemTests
         [OneTimeSetUp]
         public void OnTimeSetup()
         {
-            // create new folder for lucene index
-            var tempFolder = Path.GetTempPath();
-            m_IndexFolder = Path.Combine(tempFolder, $"IndexFolder{DateTime.UtcNow.Ticks.ToString()}");
-
-            if (Directory.Exists(m_IndexFolder))
-            {
-                Directory.Delete(m_IndexFolder, true);
-            }
-            Directory.CreateDirectory(m_IndexFolder);
             m_SourcePath = TestHelper.GetPathToSystemTestData(m_BookFolderName);
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            if (Directory.Exists(m_IndexFolder))
-            {
-                Directory.Delete(m_IndexFolder, true);
-            }
         }
 
         #region Test Classes
@@ -103,47 +84,75 @@ namespace CodeSearcher.Tests.SystemTests
         [NonParallelizable]
         public void Test_CreateIndexOfTheCountOfMonteCristo()
         {
-            var logic = GetCodeSearchLogic();
-            logic.CreateNewIndex(
-                () => { },
-                (fileName) =>
+            var indexPath = GetIndexPath();
+            try
+            {
+                var logic = GetCodeSearchLogic(indexPath);
+                logic.CreateNewIndex(
+                    () => { },
+                    (fileName) =>
+                    {
+                        Assert.That(fileName.EndsWith(m_BookFileName));
+                    },
+                    (numberOfFiles, timeSpan) =>
+                    {
+                        Assert.That(numberOfFiles, Is.EqualTo(1));
+                    });
+            }
+            finally
+            {
+                if (Directory.Exists(indexPath))
                 {
-                    Assert.That(fileName.EndsWith(m_BookFileName));
-                },
-                (numberOfFiles, timeSpan) =>
-                {
-                    Assert.That(numberOfFiles, Is.EqualTo(1));
-                });
+                   Directory.Delete(indexPath, true);
+                }
+            }
         }
+    
 
         [Test]
         [Order(2)]
         [NonParallelizable]
         public void Test_Search_Word_Large()
         {
-            var logic = GetCodeSearchLogic();
-            string searchWord = "large";
+            var indexPath = GetIndexPath();
+            try
+            {
+                var logic = GetCodeSearchLogic(indexPath);
+                logic.CreateNewIndex(
+                    () => { },
+                    (fileName) => { },
+                    (numberOfFiles, timeSpan) => {
+                        string searchWord = "large";
 
-            var printerStub = new Mock<ISingleResultPrinter>();
-            printerStub.SetupAllProperties();
-            printerStub.Setup(
-                x => x.Print(
-                    It.IsAny<string>(),
-                    It.IsAny<string>()
-                )
-            );
+                        var printerStub = new Mock<ISingleResultPrinter>();
+                        printerStub.SetupAllProperties();
+                        printerStub.Setup(
+                            x => x.Print(
+                                It.IsAny<string>(),
+                                It.IsAny<string>()
+                            )
+                        );
 
-            logic.SearchWithinExistingIndex(
-                startCallback: () => { },
-                getSearchWord: () => { return (searchWord, true); },
-                getMaximumNumberOfHits: () => { return 1000; },
-                getHitsPerPage: () => { return -1; },
-                getExporter: () => { return (false, null); },
-                getSingleResultPrinter: () => { return printerStub.Object; },
-                finishedCallback: (timeSpan) => { },
-                endOfSearchCallback: () => { });
+                        logic.SearchWithinExistingIndex(
+                            startCallback: () => { },
+                            getSearchWord: () => { return (searchWord, true); },
+                            getMaximumNumberOfHits: () => { return 1000; },
+                            getHitsPerPage: () => { return -1; },
+                            getExporter: () => { return (false, null); },
+                            getSingleResultPrinter: () => { return printerStub.Object; },
+                            finishedCallback: (timeSpan2) => { },
+                            endOfSearchCallback: () => { });
 
-            printerStub.VerifyAll();
+                        printerStub.VerifyAll();
+                    });
+            }
+            finally
+            {
+                if (Directory.Exists(indexPath))
+                {
+                    Directory.Delete(indexPath, true);
+                }
+            }
         }
 
         [Test]
@@ -151,29 +160,45 @@ namespace CodeSearcher.Tests.SystemTests
         [NonParallelizable]
         public void Test_SearchAndExport_Word_The()
         {
-            var logic = GetCodeSearchLogic();
-            string searchWord = "the";
+            var indexPath = GetIndexPath();
+            try
+            {
+                var logic = GetCodeSearchLogic(indexPath);
+                logic.CreateNewIndex(
+                    () => { },
+                    (fileName) => { },
+                    (numberOfFiles, timeSpan) => {
+                        string searchWord = "the";
 
-            var printerStub = new Mock<ISingleResultPrinter>();
-            printerStub.SetupAllProperties();
+                        var printerStub = new Mock<ISingleResultPrinter>();
+                        printerStub.SetupAllProperties();
 
-            var exporterStub = new Mock<IResultExporter>();
-            exporterStub.Setup(x => x.Export(
-                It.IsAny<ISearchResultContainer>(),
-                It.Is<string>(
-                    s => s.Equals("the"))));
+                        var exporterStub = new Mock<IResultExporter>();
+                        exporterStub.Setup(x => x.Export(
+                            It.IsAny<ISearchResultContainer>(),
+                            It.Is<string>(
+                                s => s.Equals("the"))));
 
-            logic.SearchWithinExistingIndex(
-                startCallback: () => { },
-                getSearchWord: () => { return (searchWord, true); },
-                getMaximumNumberOfHits: () => { return 1000; },
-                getHitsPerPage: () => { return -1; },
-                getExporter: () => { return (true, exporterStub.Object); },
-                getSingleResultPrinter: () => { return printerStub.Object; },
-                finishedCallback: (timeSpan) => { },
-                endOfSearchCallback: () => { });
+                        logic.SearchWithinExistingIndex(
+                            startCallback: () => { },
+                            getSearchWord: () => { return (searchWord, true); },
+                            getMaximumNumberOfHits: () => { return 1000; },
+                            getHitsPerPage: () => { return -1; },
+                            getExporter: () => { return (true, exporterStub.Object); },
+                            getSingleResultPrinter: () => { return printerStub.Object; },
+                            finishedCallback: (timeSpan2) => { },
+                            endOfSearchCallback: () => { });
 
-            exporterStub.VerifyAll();
+                        exporterStub.VerifyAll();
+                    });
+            }
+            finally
+            {
+                if (Directory.Exists(indexPath))
+                {
+                    Directory.Delete(indexPath, true);
+                }
+            }
         }
 
         [Test]
@@ -181,39 +206,65 @@ namespace CodeSearcher.Tests.SystemTests
         [NonParallelizable]
         public void Test_SearchAndExport_Word_Will()
         {
-            var logic = GetCodeSearchLogic();
-            string searchWord = "Will";
+            var indexPath = GetIndexPath();
+            try
+            {
+                var logic = GetCodeSearchLogic(indexPath);
+                logic.CreateNewIndex(
+                    () => { },
+                    (fileName) => { },
+                    (numberOfFiles, timeSpan) => {
+                        string searchWord = "Will";
 
-            var printerStub = new Mock<ISingleResultPrinter>();
-            printerStub.SetupAllProperties();
+                        var printerStub = new Mock<ISingleResultPrinter>();
+                        printerStub.SetupAllProperties();
 
-            var exporter = new TestResultExporterAdapter();
+                        var exporter = new TestResultExporterAdapter();
 
-            logic.SearchWithinExistingIndex(
-                startCallback: () => { },
-                getSearchWord: () => { return (searchWord, true); },
-                getMaximumNumberOfHits: () => { return 2000; },
-                getHitsPerPage: () => { return -1; },
-                getExporter: () => { return (true, exporter); },
-                getSingleResultPrinter: () => { return printerStub.Object; },
-                finishedCallback: (timeSpan) => { },
-                endOfSearchCallback: () => { },
-                exportFinishedCallback: () =>
+                        logic.SearchWithinExistingIndex(
+                            startCallback: () => { },
+                            getSearchWord: () => { return (searchWord, true); },
+                            getMaximumNumberOfHits: () => { return 2000; },
+                            getHitsPerPage: () => { return -1; },
+                            getExporter: () => { return (true, exporter); },
+                            getSingleResultPrinter: () => { return printerStub.Object; },
+                            finishedCallback: (timeSpan2) => { },
+                            endOfSearchCallback: () => { },
+                            exportFinishedCallback: () =>
+                            {
+                                exporter.Verify();
+                                exporter.Dispose();
+                            });
+                    });
+            }
+            finally
+            {
+                if (Directory.Exists(indexPath))
                 {
-                    exporter.Verify();
-                    exporter.Dispose();
-                });
+                    Directory.Delete(indexPath, true);
+                }
+            }
         }
+
         #endregion
 
         #region Private Implementation
-        private ICodeSearcherLogic GetCodeSearchLogic()
+        private string GetIndexPath()
+        {
+            // create new folder for lucene index
+            var tempFolder = Path.GetTempPath();
+            var indexFolder = Path.Combine(tempFolder, $"IndexFolder{DateTime.UtcNow.Ticks.ToString()}");
+            Directory.CreateDirectory(indexFolder);
+            return indexFolder;
+        }
+
+        private ICodeSearcherLogic GetCodeSearchLogic(string indexPath)
         {
             var loggerStub = new Mock<ICodeSearcherLogger>();
 
             return Factory.Get().GetCodeSearcherLogic(
                 loggerStub.Object,
-                () => m_IndexFolder,
+                () => indexPath,
                 () => m_SourcePath,
                 () => new List<string> { ".txt" });
         }

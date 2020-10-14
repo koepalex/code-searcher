@@ -28,23 +28,18 @@ namespace CodeSearcher.WebAPI.Tests
                 .UseStartup<CodeSearcher.WebAPI.Startup>();
 
             m_TestServer = new TestServer(builder);
-            var metaPath = WebTestHelper.GetPathToTestData("Meta");
-            if (Directory.Exists(metaPath))
-            {
-                Directory.Delete(metaPath, true);
-                Directory.CreateDirectory(metaPath);
-            }
         }
 
         [TearDown]
         public void TearDown()
         {
             m_TestServer.Dispose();
+
+            // CleanUp ...
             var metaPath = WebTestHelper.GetPathToTestData("Meta");
             if (Directory.Exists(metaPath))
             {
                 Directory.Delete(metaPath, true);
-                Directory.CreateDirectory(metaPath);
             }
         }
 
@@ -94,10 +89,17 @@ namespace CodeSearcher.WebAPI.Tests
         [Order(5)]
         public async Task Test_ConfigureManagementPath_Expect_200OK()
         {
-            using var client = m_TestServer.CreateClient();
-            var model = new { managementInformationPath = WebTestHelper.GetPathToTestData("Meta") };
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (!Directory.Exists(metaPath))
+            {                
+                Directory.CreateDirectory(metaPath);
+            }
+            using var client = m_TestServer.CreateClient();            
+            var model = new { managementInformationPath = metaPath };
             var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+            
             using var response = await client.PutAsync(APIRoutes.ConfigurationRoute, content);
+
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         }
 
@@ -105,9 +107,13 @@ namespace CodeSearcher.WebAPI.Tests
         [Order(6)]
         public async Task Test_ConfigureManagementPath_Expect_ConfigurationApplied()
         {
-            using var client = m_TestServer.CreateClient();
-            var newPath = WebTestHelper.GetPathToTestData("Meta");
-            var model = new { managementInformationPath = newPath };
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (!Directory.Exists(metaPath))
+            {                
+                Directory.CreateDirectory(metaPath);
+            }
+            using var client = m_TestServer.CreateClient();            
+            var model = new { managementInformationPath = metaPath };
             using var requestPayload = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
             using (_ = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
             {
@@ -115,10 +121,11 @@ namespace CodeSearcher.WebAPI.Tests
 
             using var response = await client.GetAsync(APIRoutes.ConfigurationRoute);
             response.EnsureSuccessStatusCode();
+            
             var responsePayload = await response.Content.ReadAsStringAsync();
             var configurationModel = JsonConvert.DeserializeObject<ConfigureResponse>(responsePayload);
             Assert.That(configurationModel, Is.Not.Null);
-            Assert.That(configurationModel.ManagementInformationPath, Is.EqualTo(newPath));
+            Assert.That(configurationModel.ManagementInformationPath, Is.EqualTo(metaPath));
         }
 
         [Test]

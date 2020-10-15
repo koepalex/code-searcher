@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using CodeSearcher.App.ViewModels;
 using ICSharpCode.AvalonEdit.Document;
 using Path = System.IO.Path;
 
@@ -139,6 +140,9 @@ namespace CodeSearcher.App
         private void NewIndexButtonClick(object sender, RoutedEventArgs e)
         {
             // Show Create New Index Dialog
+            var window = new AddIndexWindow();
+            window.ShowInTaskbar = false;
+            window.Show();
         }
 
         private async void DeleteIndexButtonClick(object sender, RoutedEventArgs e)

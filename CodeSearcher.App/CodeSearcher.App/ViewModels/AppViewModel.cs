@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using CodeSearcher.BusinessLogic;
@@ -13,7 +14,7 @@ using CodeSearcher.Interfaces.API.Model.Response;
 using CodeSearcher.Interfaces.Constants;
 using Newtonsoft.Json;
 
-namespace CodeSearcher.App
+namespace CodeSearcher.App.ViewModels
 {
     public class AppViewModel : INotifyPropertyChanged
     {
@@ -22,14 +23,11 @@ namespace CodeSearcher.App
         private string _statusMessage;
         public string StatusMessage
         {
-            get
-            {
-                return _statusMessage;
-            }
+            get => _statusMessage;
             set
             {
                 _statusMessage = value;
-                NotifyPropertChanged(nameof(StatusMessage));
+                NotifyPropertyChanged();
             }
         }
 
@@ -37,14 +35,11 @@ namespace CodeSearcher.App
 
         public ICodeSearcherIndex SelectedIndex
         {
-            get
-            {
-                return _selectedIndex;
-            }
+            get => _selectedIndex;
             set
             {
                 _selectedIndex = value;
-                NotifyPropertChanged(nameof(SelectedIndex));
+                NotifyPropertyChanged();
             }
         }
 
@@ -58,7 +53,7 @@ namespace CodeSearcher.App
             Indexes = new ObservableCollection<ICodeSearcherIndex>();
         }
 
-        public void NotifyPropertChanged(string propertyName)
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

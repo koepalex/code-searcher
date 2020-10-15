@@ -10,7 +10,7 @@
         Title="Code Searcher App" Height="450" Width="800"
         Loaded="OnMainWindowLoaded"
         Closing="OnMainWindowClosing"
-        Icon="Assets/magnifying_glass.ico">
+        Icon="../Assets/magnifying_glass.ico">
 
     <DockPanel>
         

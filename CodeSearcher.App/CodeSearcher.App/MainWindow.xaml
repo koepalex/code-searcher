@@ -7,7 +7,7 @@
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:wpf="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="Code Searcher App" Height="450" Width="800"
         Loaded="OnMainWindowLoaded"
         Closing="OnMainWindowClosing">
 
@@ -22,12 +22,14 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="4" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="4" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -41,17 +43,21 @@
                 <TreeView Name="IndexTreeView" SelectedItemChanged="IndexTreeViewSelectedItemChanged" />
             </DockPanel>
 
-            <DockPanel Grid.Column="0" Grid.Row="2" LastChildFill="True">
+            <GridSplitter Grid.Column="0" Grid.Row="2" Height="4" HorizontalAlignment="Stretch" Background="DarkGray"></GridSplitter>
+
+            <DockPanel Grid.Column="0" Grid.Row="3" LastChildFill="True">
                 <Label DockPanel.Dock="Top">Files with findings:</Label>
                 <TreeView Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged" />
             </DockPanel>
 
-            <DockPanel  Grid.Column="1" Grid.Row="0" LastChildFill="True" >
+            <GridSplitter Grid.Column="1" Grid.Row="0"  Grid.RowSpan="4" Width="4" HorizontalAlignment="Stretch" Background="DarkGray"></GridSplitter>
+
+            <DockPanel  Grid.Column="2" Grid.Row="0" LastChildFill="True" >
                 <Label Padding="0,4 8, 0">Enter search pattern:</Label>
                 <TextBox Margin="4,4,4,4" Name="SearchTextBox" KeyDown="SearchTextBoxKeyDown" Width="Auto"></TextBox>
             </DockPanel>
 
-            <TabControl Grid.Column="1" Grid.Row="1" Grid.RowSpan="2">
+            <TabControl Grid.Column="2" Grid.Row="1" Grid.RowSpan="3">
                 <TabItem Header="Code Viewer">
                     <avalonedit:TextEditor SyntaxHighlighting="C#" ShowLineNumbers="True"  Name="TextEditor" IsReadOnly="True"/>
                 </TabItem>

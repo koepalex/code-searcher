@@ -139,10 +139,14 @@ namespace CodeSearcher.App
 
         private void NewIndexButtonClick(object sender, RoutedEventArgs e)
         {
-            // Show Create New Index Dialog
             var window = new AddIndexWindow();
+            window.Owner = this;
             window.ShowInTaskbar = false;
-            window.Show();
+            var dialogResult = window.ShowDialog();
+            if (dialogResult.GetValueOrDefault(false))
+            {
+                _viewModel.StatusMessage = $"Creation of index started with id {(window.DataContext as AddIndexViewModel)?.JobId}";
+            }
         }
 
         private async void DeleteIndexButtonClick(object sender, RoutedEventArgs e)

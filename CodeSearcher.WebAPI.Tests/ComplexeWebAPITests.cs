@@ -35,16 +35,12 @@ namespace CodeSearcher.WebAPI.Tests
         public void TearDown()
         {
             m_TestServer.Dispose();
-            // Cleanup, but not really  needed for the tests to work ...            
-            // if the metaPath is created between tests, the second test does not work for some reason ...
-            var metaPath = WebTestHelper.GetPathToTestData("Meta");
-            if (Directory.Exists(metaPath))
-            {
-                Directory.Delete(metaPath, true);
-            }
-         }
+        }
+
 
         [Test]
+        [Order(1)]
+        [NonParallelizable]
         public async Task Test_DeleteIndex_Expect_Success()
         {
             using var client = m_TestServer.CreateClient();
@@ -106,9 +102,19 @@ namespace CodeSearcher.WebAPI.Tests
                 Assert.That(deleteModel, Is.Not.Null);
                 Assert.That(deleteModel.Succeeded, Is.True);
             }
+
+            // Cleanup, but not really  needed for the tests to work ...            
+            // if the metaPath is created between tests, the second test does not work for some reason ...
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (Directory.Exists(metaPath))
+            {
+                Directory.Delete(metaPath, true);
+            }
         }
 
         [Test]
+        [Order(2)]
+        [NonParallelizable]
         public async Task Test_SearchInIndex_Expect_Success()
         {
             using var client = m_TestServer.CreateClient();
@@ -170,13 +176,27 @@ namespace CodeSearcher.WebAPI.Tests
                 settings.Converters.Add(Factory.Get().GetFindingsInFileJsonConverter());
                 var searchIndex = JsonConvert.DeserializeObject<SearchIndexResponse>(responsePayload, settings);
             }
+
+            // Cleanup, but not really  needed for the tests to work ...            
+            // if the metaPath is created between tests, the second test does not work for some reason ...
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (Directory.Exists(metaPath))
+            {
+                Directory.Delete(metaPath, true);
+            }
         }
 
         [Test]
+        [Order(3)]
+        [NonParallelizable]
         public async Task Test_CreateIndexStatusApi_Expect_Success()
         {
             using var client = m_TestServer.CreateClient();
             var newPath = WebTestHelper.GetPathToTestData("Meta");
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
             var configureModel = new { managementInformationPath = newPath };
             using (var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json"))
             using (var response = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
@@ -222,12 +242,20 @@ namespace CodeSearcher.WebAPI.Tests
                         var responsePayload = await response.Content.ReadAsStringAsync();
                         var settings = new JsonSerializerSettings();
                         createIndexStatusResponse = JsonConvert.DeserializeObject<CreateIndexStatusResponse>(responsePayload, settings);
-                        Assert.That(createIndexResponse, Is.Not.Null);
+                        Assert.That(createIndexStatusResponse, Is.Not.Null);
                         Assert.That(createIndexStatusResponse.Exists, Is.True);
                     }
                 }
             } while (!createIndexStatusResponse.IndexingFinished);
             Assert.That(createIndexStatusResponse.IndexId, Is.Not.SameAs(-1));
+
+            // Cleanup, but not really  needed for the tests to work ...            
+            // if the metaPath is created between tests, the second test does not work for some reason ...
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (Directory.Exists(metaPath))
+            {
+                Directory.Delete(metaPath, true);
+            }
         }
     }
 }

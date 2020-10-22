@@ -211,8 +211,11 @@ namespace CodeSearcher.WebAPI.Controllers
             #endregion
 
             m_Logger.Info($"SourcePath: {model.SourcePath}");
-            var jobId = BackgroundJob.Enqueue(() => CreateIndex(model, null));
             
+            var jobId = BackgroundJob.Enqueue(() => CreateIndex(model, null));
+            m_MemoryCache.Set(jobId, -1);
+            m_MemoryCache.Set($"{jobId}_IsRunning", true);
+
             return new CreateIndexResponse
             { 
                 IndexingJobId = jobId
@@ -280,24 +283,22 @@ namespace CodeSearcher.WebAPI.Controllers
         [AutomaticRetry(Attempts = BackgroundJobsConstants.NumberOfRetries)]  //configure hangfire to retry on failure
         public void CreateIndex(CreateIndexRequest model, PerformContext context)
         {
+            if (context == null)
+            {
+                m_Logger.Error($"hangfire.io didn't inject PerformContext instance, didn't save indexId into memory cache ");
+                throw new ArgumentNullException(nameof(context));
+            }
+
             string cachedManagementInformation;
             if (m_MemoryCache.TryGetValue<string>(CacheKeys.ManagementInformationKey, out cachedManagementInformation))
             {
                 m_Manager.ManagementInformationPath = cachedManagementInformation;
             }
-            if (context == null)
-            {
-                m_Logger.Debug($"hangfire.io didn't inject PerformContext instance, didn't save indexId into memory cache ");
-            }
-
-            m_MemoryCache.Set(context.BackgroundJob.Id, -1);
-            m_MemoryCache.Set($"{context.BackgroundJob.Id}_IsRunning", true);
 
             var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
 
             m_MemoryCache.Set(context.BackgroundJob.Id, indexId);
             m_MemoryCache.Set($"{context.BackgroundJob.Id}_IsRunning", false);
-
         }
 
         /// <summary>

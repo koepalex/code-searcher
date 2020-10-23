@@ -21,7 +21,7 @@ namespace CodeSearcher.WebAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>().UseUrls(args);
                 });
     }
 #pragma warning restore CS1591

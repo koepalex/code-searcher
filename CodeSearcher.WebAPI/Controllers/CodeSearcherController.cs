@@ -47,7 +47,7 @@ namespace CodeSearcher.WebAPI.Controllers
                 }
             }
         }
-        
+
         /// <summary>
         /// Read Read all existing indexes
         /// </summary>
@@ -61,7 +61,7 @@ namespace CodeSearcher.WebAPI.Controllers
         /// </remarks>
         /// <returns>Enumeration of existing indexes, maybe empty enumeration <see cref="GetIndexesResponse"/></returns>
         [HttpGet("")]
-        public ActionResult<GetIndexesResponse> GetAllIndexes()
+        public ActionResult<GetIndexesResponse> GetRoot()
         {
             m_Logger.Info($"[GET] {APIRoutes.CodeSearcherRoute} (GetAllIndexes)");
             var indexes = m_Manager.GetAllIndexes();
@@ -69,6 +69,26 @@ namespace CodeSearcher.WebAPI.Controllers
             {
                 Indexes = indexes.ToArray()
             };
+        }
+
+        /// <summary>
+        /// Read all existing indexes
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     GET /api/CodeSearcher/indexList
+        ///     {
+        ///     }
+        ///     
+        /// </remarks>
+        /// <returns>Array of existing indexes, maybe empty Array <see cref="ICodeSearcherIndex"/></returns>
+        [HttpGet("indexList")]
+        public ActionResult<ICodeSearcherIndex[]> GetAllIndexes()
+        {
+            m_Logger.Info($"[GET] {APIRoutes.IndexListRoute} (GetAllIndexes)");
+            var indexes = m_Manager.GetAllIndexes();
+            return  indexes.ToArray();
         }
 
         /// <summary>

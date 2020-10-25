@@ -24,7 +24,7 @@ namespace CodeSearcher.BusinessLogic.Common
     /// <summary>
     /// Class contain constants for well know folder names
     /// </summary>
-    internal static class FolderNames
+    public static class FolderNames
     {
         /// <summary>
         /// Name of the folder, that is used to store lucene files, when using CodeSearcherManager

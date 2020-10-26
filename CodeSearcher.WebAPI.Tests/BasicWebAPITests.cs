@@ -44,11 +44,20 @@ namespace CodeSearcher.WebAPI.Tests
         }
 
         [Test]
-        [Order(1)]
-        public async Task Test_Route_Expect_200OK()
+        [Order(0)]
+        public async Task Test_Route_for_RootPath_Expect_200OK()
         {
             using var client = m_TestServer.CreateClient();
             using var response = await client.GetAsync(APIRoutes.CodeSearcherRoute);
+            response.EnsureSuccessStatusCode();
+        }
+
+        [Test]
+        [Order(1)]
+        public async Task Test_Route_for_SearchIndexeList_Expect_200OK()
+        {
+            using var client = m_TestServer.CreateClient();
+            using var response = await client.GetAsync(APIRoutes.IndexListRoute);
             response.EnsureSuccessStatusCode();
         }
 

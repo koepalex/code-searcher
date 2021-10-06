@@ -74,7 +74,7 @@ namespace CodeSearcher.App.ViewModels
             var searchRequest = new CreateIndexRequest
             {
                 SourcePath = SourcePath,
-                FileExtensions = Extensions.Split(",")
+                FileExtensions = Extensions.Split(";")
             };
 
             using (var requestPayload = new StringContent(JsonConvert.SerializeObject(searchRequest), Encoding.UTF8, "application/json"))

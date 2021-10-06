@@ -1,1 +1,5 @@
-﻿start XCOPY /Y /s /d $(ProjectDir)SystemTests\DownloadedTestData $(TargetDir)SystemTests\DownloadedTestData\
+﻿IF EXIST $(ProjectDir)SystemTests\DownloadedTestData (
+    start XCOPY /Y /s /d $(ProjectDir)SystemTests\DownloadedTestData $(TargetDir)SystemTests\DownloadedTestData\
+) ELSE (
+    echo ERROR: TestData for system test does not exit! Please call CreateTestEnvironment.ps1 once on your development PC.
+)

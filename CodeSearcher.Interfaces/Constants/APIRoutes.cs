@@ -21,6 +21,11 @@
         public const string CodeSearcherRoute = "/api/CodeSearcher";
 
         /// <summary>
+        /// Base route to access CodeSearchers list of indexes
+        /// </summary>
+        public const string IndexListRoute = "/api/CodeSearcher/indexList";
+
+        /// <summary>
         /// Route to read and update Code Searcher configuration
         /// </summary>
         public const string ConfigurationRoute = "/api/CodeSearcher/configure";

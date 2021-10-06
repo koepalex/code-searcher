@@ -94,7 +94,7 @@ namespace CodeSearcher.App.ViewModels
 
             using (var requestPayload = new StringContent(JsonConvert.SerializeObject(searchRequest), Encoding.UTF8, "application/json"))
             {
-                var request = new HttpRequestMessage
+                using var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
                     Content = requestPayload,
@@ -132,7 +132,7 @@ namespace CodeSearcher.App.ViewModels
             };
             using (var requestPayload = new StringContent(JsonConvert.SerializeObject(deleteRequest), Encoding.UTF8, "application/json"))
             {
-                var request = new HttpRequestMessage
+                using var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Delete,
                     Content = requestPayload,

@@ -272,7 +272,7 @@ namespace CodeSearcher.WebAPI.Tests
 
                 using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexStatusModel), Encoding.UTF8, "application/json"))
                 {
-                    var request = new HttpRequestMessage
+                    using var request = new HttpRequestMessage
                     {
                         Method = HttpMethod.Get,
                         Content = requestPayload,

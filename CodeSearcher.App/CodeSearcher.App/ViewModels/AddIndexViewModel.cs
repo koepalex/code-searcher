@@ -94,6 +94,37 @@ namespace CodeSearcher.App.ViewModels
                     JobId = createIndexResponse.IndexingJobId;
                 }
             }
+
+            //wait until index has been created
+            while (true)
+            {
+                await Task.Delay(250);
+
+                var jobCompletedRequest = new CreateIndexStatusRequest
+                {
+                    JobId = JobId
+                };
+                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(jobCompletedRequest), Encoding.UTF8, "application/json"))
+                {
+                    var request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        Content = requestPayload,
+                        RequestUri = new Uri(client.BaseAddress, APIRoutes.CreateIndexStatusRoute)
+                    };
+                    using (var response = await client.SendAsync(request))
+                    {
+                        response.EnsureSuccessStatusCode();
+
+                        var responsePayload = await response.Content.ReadAsStringAsync();
+                        var jobCompletedResponse = JsonConvert.DeserializeObject<CreateIndexStatusResponse>(responsePayload);
+                        if (jobCompletedResponse.IndexingFinished)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

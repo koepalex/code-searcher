@@ -43,8 +43,9 @@ namespace CodeSearcher.App
                 System.Windows.MessageBox.Show("Please check input, directory to index need to exist and files extension can't be empty");
                 return;
             }
-
+            loadIndicator.Visibility = Visibility.Visible;
             await _viewModel.LoadSearchResultAsync();
+            loadIndicator.Visibility = Visibility.Hidden;
             DialogResult = true;
             Close();
         }

@@ -147,7 +147,7 @@ namespace CodeSearcher.App
             }
         }
 
-        private void NewIndexButtonClick(object sender, RoutedEventArgs e)
+        private async void NewIndexButtonClick(object sender, RoutedEventArgs e)
         {
             var window = new AddIndexWindow();
             window.Owner = this;
@@ -155,7 +155,8 @@ namespace CodeSearcher.App
             var dialogResult = window.ShowDialog();
             if (dialogResult.GetValueOrDefault(false))
             {
-                _viewModel.StatusMessage = $"Creation of index started with id {(window.DataContext as AddIndexViewModel)?.JobId}";
+                _viewModel.StatusMessage = $"Index with id created";
+                await InitializeIndexView();
             }
         }
 
@@ -165,6 +166,7 @@ namespace CodeSearcher.App
             if (result == MessageBoxResult.OK)
             {
                 await _viewModel.DeleteIndexAsync();
+                await Task.Delay(500);
                 await InitializeIndexView();
             }
         }

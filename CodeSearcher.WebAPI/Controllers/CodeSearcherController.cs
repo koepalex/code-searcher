@@ -229,7 +229,7 @@ namespace CodeSearcher.WebAPI.Controllers
         /// <remarks>
         /// Sample request:
         ///     
-        ///     GET  /api/CodeSearcher/index/search
+        ///     GET  /api/CodeSearcher/index/status
         ///     {
         ///         "JobId" : "__ID_OF_INDEXING_JOB__"
         ///     }

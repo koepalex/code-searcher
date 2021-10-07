@@ -67,6 +67,7 @@ namespace CodeSearcher.WebAPI.Tests
         public void TearDown()
         {
             m_TestServer.Dispose();
+
             // Cleanup, but not really  needed for the tests to work ...            
             // if the metaPath is created between tests, the second test does not work for some reason ...
             var metaPath = WebTestHelper.GetPathToTestData("Meta");
@@ -82,6 +83,8 @@ namespace CodeSearcher.WebAPI.Tests
         }
 
         [Test]
+        [Order(1)]
+        [NonParallelizable]
         public async Task Test_DeleteIndex_Expect_Success()
         {
             using var client = m_TestServer.CreateClient();
@@ -142,9 +145,19 @@ namespace CodeSearcher.WebAPI.Tests
                 Assert.That(deleteModel, Is.Not.Null);
                 Assert.That(deleteModel.Succeeded, Is.True);
             }
+
+            // Cleanup, but not really  needed for the tests to work ...            
+            // if the metaPath is created between tests, the second test does not work for some reason ...
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (Directory.Exists(metaPath))
+            {
+                Directory.Delete(metaPath, true);
+            }
         }
 
         [Test]
+        [Order(2)]
+        [NonParallelizable]
         public async Task Test_SearchInIndex_Expect_Success()
         {
             using var client = m_TestServer.CreateClient();
@@ -205,6 +218,86 @@ namespace CodeSearcher.WebAPI.Tests
                     settings.Converters.Add(Factory.Get().GetFindingsInFileJsonConverter());
                     var searchIndex = JsonConvert.DeserializeObject<SearchIndexResponse>(responsePayload, settings);
                 }
+            }
+
+            // Cleanup, but not really  needed for the tests to work ...            
+            // if the metaPath is created between tests, the second test does not work for some reason ...
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (Directory.Exists(metaPath))
+            {
+                Directory.Delete(metaPath, true);
+            }
+        }
+
+        [Test]
+        [Order(3)]
+        [NonParallelizable]
+        public async Task Test_CreateIndexStatusApi_Expect_Success()
+        {
+            using var client = m_TestServer.CreateClient();
+            var newPath = WebTestHelper.GetPathToTestData("Meta");
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+            var configureModel = new { managementInformationPath = newPath };
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(configureModel), Encoding.UTF8, "application/json"))
+            using (var response = await client.PutAsync(APIRoutes.ConfigurationRoute, requestPayload))
+            {
+                response.EnsureSuccessStatusCode();
+            }
+
+            var createIndexModel = new CreateIndexRequest()
+            {
+                SourcePath = WebTestHelper.GetPathToTestData("01_ToIndex"),
+                FileExtensions = new[] { ".txt" }
+            };
+            CreateIndexResponse createIndexResponse = null;
+            using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexModel), Encoding.UTF8, "application/json"))
+            using (var response = await client.PostAsync(APIRoutes.CreateIndexRoute, requestPayload))
+            {
+                response.EnsureSuccessStatusCode();
+                var responsePayload = await response.Content.ReadAsStringAsync();
+                var settings = new JsonSerializerSettings();
+                createIndexResponse = JsonConvert.DeserializeObject<CreateIndexResponse>(responsePayload, settings);
+            }
+
+            CreateIndexStatusResponse createIndexStatusResponse = null;
+            do
+            {
+                var createIndexStatusModel = new CreateIndexStatusRequest
+                {
+                    JobId = createIndexResponse.IndexingJobId
+                };
+
+                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexStatusModel), Encoding.UTF8, "application/json"))
+                {
+                    using var request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        Content = requestPayload,
+                        RequestUri = new Uri(client.BaseAddress, APIRoutes.CreateIndexStatusRoute)
+                    };
+
+                    using (var response = await client.SendAsync(request))
+                    {
+                        response.EnsureSuccessStatusCode();
+                        var responsePayload = await response.Content.ReadAsStringAsync();
+                        var settings = new JsonSerializerSettings();
+                        createIndexStatusResponse = JsonConvert.DeserializeObject<CreateIndexStatusResponse>(responsePayload, settings);
+                        Assert.That(createIndexStatusResponse, Is.Not.Null);
+                        Assert.That(createIndexStatusResponse.Exists, Is.True);
+                    }
+                }
+            } while (!createIndexStatusResponse.IndexingFinished);
+            Assert.That(createIndexStatusResponse.IndexId, Is.Not.SameAs(-1));
+
+            // Cleanup, but not really  needed for the tests to work ...            
+            // if the metaPath is created between tests, the second test does not work for some reason ...
+            var metaPath = WebTestHelper.GetPathToTestData("Meta");
+            if (Directory.Exists(metaPath))
+            {
+                Directory.Delete(metaPath, true);
             }
         }
     }

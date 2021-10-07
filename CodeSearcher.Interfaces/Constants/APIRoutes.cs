@@ -36,6 +36,11 @@
         public const string CreateIndexRoute = "/api/CodeSearcher/index";
 
         /// <summary>
+        /// Route to read status of indexing job
+        /// </summary>
+        public const string CreateIndexStatusRoute = "/api/CodeSearcher/index/status";
+
+        /// <summary>
         /// Route to search within existing index
         /// </summary>
         public const string SearchInIndexRoute = "/api/CodeSearcher/search";

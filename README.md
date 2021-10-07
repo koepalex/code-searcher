@@ -74,3 +74,7 @@ CodeSearcher.WebServer.exe
 ## Development
 ### Testing
 See [Test documentation](./_docs/tests.md).
+
+## Resources
+**Icons:**
+* AppIcon from [freeicons.io](https://www.freeicons.io/business-seo-elements/head-magnifying-glass-mind-search-icon-38244) - Creative Commons(Attribution 3.0 unported)

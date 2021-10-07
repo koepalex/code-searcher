@@ -91,9 +91,6 @@ namespace CodeSearcher.WebAPI
                 // serve swagger UI at app root route
                 c.RoutePrefix = string.Empty;
             });
-            
-            
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 

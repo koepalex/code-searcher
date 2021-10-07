@@ -179,13 +179,13 @@ namespace CodeSearcher.WebAPI.Controllers
         ///     }
         ///     
         /// </remarks>
-        /// <returns>JSON object contating indexing job id; requried to cancel the indexing job of get updates</returns>
+        /// <returns>JSON object contating indexing job id; required to cancel the indexing job of get updates</returns>
         /// <response code="400">Path doesn't exist, or file extensions are missformed</response>
         [HttpPost("index")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<CreateIndexResponse> CreateNewIndex([FromBody] CreateIndexRequest model)
         {
-            m_Logger.Info($"[GET] {APIRoutes.CreateIndexRoute}");
+            m_Logger.Info($"[POST] {APIRoutes.CreateIndexRoute}");
 
             #region Request Model Checks
             if (string.IsNullOrWhiteSpace(model.SourcePath))
@@ -231,11 +231,65 @@ namespace CodeSearcher.WebAPI.Controllers
             #endregion
 
             m_Logger.Info($"SourcePath: {model.SourcePath}");
-            var jobId = BackgroundJob.Enqueue(() => CreateIndex(model, null));
             
+            var jobId = BackgroundJob.Enqueue(() => CreateIndex(model, null));
+            m_MemoryCache.Set(jobId, -1);
+            m_MemoryCache.Set($"{jobId}_IsRunning", true);
+
             return new CreateIndexResponse
             { 
                 IndexingJobId = jobId
+            };
+        }
+
+        /// <summary>
+        /// Read the status of indexing job
+        /// </summary>
+        /// <param name="model">JSON object containting required parameter <see cref="CreateIndexStatusRequest"/></param>
+        /// <remarks>
+        /// Sample request:
+        ///     
+        ///     GET  /api/CodeSearcher/index/status
+        ///     {
+        ///         "JobId" : "__ID_OF_INDEXING_JOB__"
+        ///     }
+        ///     
+        /// </remarks>
+        /// <returns>JSON object contating status of indexing job id and maybe the id of created index</returns>
+        /// <response code="400">Empty job id isn't valid</response>
+        [HttpGet("index/status")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<CreateIndexStatusResponse> GetIndexingStatus([FromBody] CreateIndexStatusRequest model)
+        {
+            m_Logger.Info($"[GET] {APIRoutes.CreateIndexStatusRoute}");
+
+            #region Request Model Checks
+            if (string.IsNullOrWhiteSpace(model.JobId))
+            {
+                m_Logger.Debug("Required parameter JobId is null, empty or whitespace");
+                return BadRequest();
+            }
+            #endregion
+
+            bool exists = true;
+
+            if(!m_MemoryCache.TryGetValue<int>(model.JobId, out var indexId))
+            {
+                m_Logger.Debug("Can't read JobId from memory cache");
+                exists = false;
+            }
+
+            if (!m_MemoryCache.TryGetValue<bool>($"{model.JobId}_IsRunning", out var isRunning))
+            {
+                m_Logger.Debug("Can't read running status from memory cache");
+                exists = false; 
+            }
+
+            return new CreateIndexStatusResponse
+            {
+                IndexingFinished = !isRunning,
+                IndexId = indexId,
+                Exists = exists
             };
         }
 
@@ -249,6 +303,12 @@ namespace CodeSearcher.WebAPI.Controllers
         [AutomaticRetry(Attempts = BackgroundJobsConstants.NumberOfRetries)]  //configure hangfire to retry on failure
         public void CreateIndex(CreateIndexRequest model, PerformContext context)
         {
+            if (context == null)
+            {
+                m_Logger.Error($"hangfire.io didn't inject PerformContext instance, didn't save indexId into memory cache ");
+                throw new ArgumentNullException(nameof(context));
+            }
+
             string cachedManagementInformation;
             if (m_MemoryCache.TryGetValue<string>(CacheKeys.ManagementInformationKey, out cachedManagementInformation))
             {
@@ -257,14 +317,8 @@ namespace CodeSearcher.WebAPI.Controllers
 
             var indexId = m_Manager.CreateIndex(model.SourcePath, model.FileExtensions);
 
-            if (context != null)
-            {
-                m_MemoryCache.Set(context.BackgroundJob.Id, indexId);
-            }
-            else
-            {
-                m_Logger.Debug($"hangfire.io didn't inject PerformContext instance, didn't save indexId into memory cache ");
-            }
+            m_MemoryCache.Set(context.BackgroundJob.Id, indexId);
+            m_MemoryCache.Set($"{context.BackgroundJob.Id}_IsRunning", false);
         }
 
         /// <summary>
@@ -324,7 +378,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<SearchIndexResponse> SearchExistingIndex(SearchIndexRequest model)
         {
-            m_Logger.Info($"[GET] {APIRoutes.SearchInIndexRoute}");
+            m_Logger.Info($"[POST] {APIRoutes.SearchInIndexRoute}");
 
             if(string.IsNullOrWhiteSpace(model.SearchWord))
             {
@@ -338,14 +392,21 @@ namespace CodeSearcher.WebAPI.Controllers
                 return BadRequest();
             }
             m_Logger.Info($"looking in index {model.IndexID} for {model.SearchWord}");
-            var searchResults = m_Manager.SearchInIndex(model.IndexID, model.SearchWord);
+            var searchResults = m_Manager.SearchInIndex(model.IndexID, model.SearchWord).ToArray();
+            
+            //indexing using index starting by zero, need to add one for line number
+            foreach(var searchResult in searchResults)
+            {
+                foreach(var finding in searchResult.Findings)
+                {
+                    finding.LineNumber += 1;
+                }
+            }
 
             return new SearchIndexResponse
             {
                 Results = searchResults.ToArray()
             };
         }
-
-        // status: JobStorage.Current.GetMonitoringApi().SucceededJobs()[0].Value.Result
     }
 }

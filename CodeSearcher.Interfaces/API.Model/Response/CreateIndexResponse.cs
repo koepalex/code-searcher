@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CodeSearcher.Interfaces.API.Model.Response
+﻿namespace CodeSearcher.Interfaces.API.Model.Response
 {
     /// <summary>
     /// Model for creating new index Response message

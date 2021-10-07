@@ -93,6 +93,7 @@ namespace CodeSearcher.BusinessLogic.Management
             }
 
             m_Indexes.Remove(index);
+            WriteMetaFilesToDisk();
         }
 
         /// <inheritdoc/>
@@ -147,6 +148,10 @@ namespace CodeSearcher.BusinessLogic.Management
         {
             var path = Path.Combine(ManagementInformationPath, s_OverviewFile);
             Directory.CreateDirectory(ManagementInformationPath);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
             using var stream = File.OpenWrite(path);
             using var sw = new StreamWriter(stream);
             try

@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/github/license/koepalex/code-searcher?style=flat-square)](https://github.com/koepalex/code-searcher/blob/master/LICENSE)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/koepalex/code-searcher)
-![AppVeyor](https://img.shields.io/appveyor/ci/koepalex/code-searcher?style=flat-square)
+![GitHub Build](https://img.shields.io/github/workflow/status/koepalex/code-searcher/buildandtest?style=plastic)
 
 # code-searcher
 -------
@@ -43,7 +43,7 @@ CodeSearcher.exe -m=index --ip=D:\IndexJsonXmlOnly --sp=D:\repository\project --
 ### Use index to search containing word
 After indexing we can use the index to find the files and linenumbers containing the searched word, very fast.
 ```batchfile
-REM CodeSearcher.exe -m==search --ip=PathToStoreIndex --sw=WordToSearch
+REM CodeSearcher.exe -m=search --ip=PathToStoreIndex --sw=WordToSearch
 
 REM search word "class" in index stored under "D:\Index"
 CodeSearcher.exe -m=search --ip=D:\Index --sw="class"

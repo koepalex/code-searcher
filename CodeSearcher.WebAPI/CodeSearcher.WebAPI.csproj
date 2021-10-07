@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>.\bin\Debug\netcoreapp3.1\CodeSearcher.WebAPI.xml</DocumentationFile>
+    <DocumentationFile>.\bin\Debug\net5.0\CodeSearcher.WebAPI.xml</DocumentationFile>
     <OutputPath></OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>.\bin\Release\netcoreapp3.1\CodeSearcher.WebAPI.xml</DocumentationFile>
+    <DocumentationFile>.\bin\Release\net5.0\CodeSearcher.WebAPI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,10 +24,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CodeSearcher.Index\CodeSearcher.BusinessLogic.csproj">
-      <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\CodeSearcher.Interfaces\CodeSearcher.Interfaces.csproj">
-      <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
 

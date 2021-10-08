@@ -49,7 +49,7 @@ namespace CodeSearcher.App
 
             DiagConsole.ProcessInterface.StartProcess("CodeSearcher.WebAPI.exe", string.Empty);//"http://0.0.0.0:44444");
             //_timer = new Timer(_updateInterval);
-            
+
             //_timer.Elapsed += async (sender, args) =>
             //{
             //    InitializeIndexView().Wait();
@@ -180,6 +180,9 @@ namespace CodeSearcher.App
                 {
 
                     var results = await _viewModel.LoadSearchResultAsync(searchPattern);
+
+                    FindingTreeView.Items.Clear();
+
                     foreach (var findingResults in results.Where(r => r.Findings.Any()))
                     {
                         var item = new TreeViewItem

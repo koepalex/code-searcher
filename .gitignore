@@ -10,4 +10,3 @@ gen/
 
 # Packages
 packages/
-/CodeSearcher.Interfaces/IResultExporter.cs

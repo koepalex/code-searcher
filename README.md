@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/github/license/koepalex/code-searcher?style=flat-square)](https://github.com/koepalex/code-searcher/blob/master/LICENSE)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/koepalex/code-searcher)
-![GitHub Build](https://img.shields.io/github/workflow/status/koepalex/code-searcher/buildandtest?style=plastic)
+![GitHub Build](https://img.shields.io/github/workflow/status/koepalex/code-searcher/Ensure%20Build%20success?style=flat-square)
 
 # code-searcher
 -------

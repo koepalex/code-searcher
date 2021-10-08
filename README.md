@@ -1,15 +1,15 @@
 [![License](https://img.shields.io/github/license/koepalex/code-searcher?style=flat-square)](https://github.com/koepalex/code-searcher/blob/master/LICENSE)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/koepalex/code-searcher)
-![GitHub Build](https://img.shields.io/github/workflow/status/koepalex/code-searcher/buildandtest?style=plastic)
+![GitHub Build](https://img.shields.io/github/workflow/status/koepalex/code-searcher/Ensure%20Build%20success?style=flat-square)
 
 # code-searcher
 -------
 A tool to index source code, for faster searches
 
 ## Why ?
-In my daily work I deal with a lot of different artifacts (source code, meta file, domain specific languages) and almost every week I've to search something over all artifacts. With the fastes search tools it took me around **45min** on an average search. So I was looking for a tool to speed up.
+In my daily work I deal with a lot of different artifacts (source code, meta file, domain specific languages) and almost every week I've to search something over all artifacts. With the fastest search tools it took me around **45min** on an average search. So I was looking for a tool to speed up.
 There are some tools available but all have some disadvantages / nogo's, like:
-* only work language dependend like csearch, ctags
+* only work language dependent like csearch, ctags
 * only work on linux/mac (codesearch)
 * don't work on local machine
 * can't handle huge code basis
@@ -41,7 +41,7 @@ CodeSearcher.exe -m=index --ip=D:\IndexJsonXmlOnly --sp=D:\repository\project --
 ```
 
 ### Use index to search containing word
-After indexing we can use the index to find the files and linenumbers containing the searched word, very fast.
+After indexing we can use the index to find the files and line numbers containing the searched word, very fast.
 ```batchfile
 REM CodeSearcher.exe -m=search --ip=PathToStoreIndex --sw=WordToSearch
 
@@ -51,25 +51,9 @@ REM search word "port" in index stored under "D:\IndexJsonXmlOnly" show first 10
 CodeSearcher.exe -m=search --ip="C:\IndexXmlOnly" --sw="port" --hits=100
 ```
 
-## WebServer
-This chapter describes how to use the webserver to look for results.
-
-Before starting the webserver you need to edit the config file [CodeSearcher.WebServer.xml](./CodeSearcher.WebServer/Config/CodeSearcher.WebServer.xml).
-```xml
-<WebServerConfig>
-	<Uri>http://localhost</Uri> <!--URL run the website-->
-	<Port>9090</Port> <!--Port address to be used by webserver-->
-	<IndexPath>D:\Index</IndexPath> <!--Path to the index, used for searching-->
-</WebServerConfig>
-```
-When you are using windows, it is maybe necessary to create an access control list (ACL) for the website, this can be done via consoles started with Administration rights:
-```batchfile
-netsh http add urlacl url="http://+:9090/" user="Everybody"
-```
-You can now start the Webserver
-```
-CodeSearcher.WebServer.exe
-```
+## Web API
+The CodeSearcher.WebAPI provides an REST ful API to use the code searcher. The swagger (OpenAPI) webpage is available under [http://localhost:5000](http://localhost:5000), this also the port to use the interface.
+The [swagger (OpenAPI) definition](_docs/webapi/code-searcher.v1.swagger.json), that can be used to generate access code in different languages (e.g. by using [AutoRest](https://github.com/Azure/AutoRest)), it is also served under [http://localhost:5000/swagger/v1/swagger.json](http://localhost:5000/swagger/v1/swagger.json).
 
 ## Development
 ### Testing

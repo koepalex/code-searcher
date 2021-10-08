@@ -53,11 +53,11 @@ namespace CodeSearcher.WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request:
-        /// 
+        ///
         ///     GET /api/CodeSearcher
         ///     {
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <returns>Enumeration of existing indexes, maybe empty enumeration <see cref="GetIndexesResponse"/></returns>
         [HttpGet("")]
@@ -76,11 +76,11 @@ namespace CodeSearcher.WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request:
-        /// 
+        ///
         ///     GET /api/CodeSearcher/indexList
         ///     {
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <returns>Array of existing indexes, maybe empty Array <see cref="ICodeSearcherIndex"/></returns>
         [HttpGet("indexList")]
@@ -100,12 +100,12 @@ namespace CodeSearcher.WebAPI.Controllers
         /// <returns>StatusCodes only</returns>
         /// <remarks>
         /// Sample request:
-        /// 
+        ///
         ///     PUT /api/CodeSearcher/configure
         ///     {
         ///         "managementInformationPath" : "__PATH__"
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <response code="200">Path successfully changed</response>
         /// <response code="400">Path doesn't exist</response>
@@ -134,16 +134,16 @@ namespace CodeSearcher.WebAPI.Controllers
 
         /// <summary>
         /// Read the current configuration from Code Searcher Manager
-        /// Currently supported: 
+        /// Currently supported:
         /// * Path where the Code Searcher Manager is storing/reading the meta information (Default: %APPDATA%\code-searcher)
         /// </summary>
         /// <remarks>
         /// Sample request:
-        /// 
+        ///
         ///     GET /api/CodeSearcher/configure
         ///     {
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <returns>JSON object containting configuration parameter</returns>
         [HttpGet("configure")]
@@ -171,13 +171,13 @@ namespace CodeSearcher.WebAPI.Controllers
         /// <param name="model">JSON object containting requried parameter <see cref="CreateIndexRequest"/></param>
         /// <remarks>
         /// Sample request:
-        ///     
+        ///
         ///     POST  /api/CodeSearcher/index
         ///     {
         ///         "SourcePath" : "__PATH__",
         ///         "FileExtensions" : [".cs", ".csproj", ".xml"]
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <returns>JSON object contating indexing job id; required to cancel the indexing job of get updates</returns>
         /// <response code="400">Path doesn't exist, or file extensions are missformed</response>
@@ -231,13 +231,13 @@ namespace CodeSearcher.WebAPI.Controllers
             #endregion
 
             m_Logger.Info($"SourcePath: {model.SourcePath}");
-            
+
             var jobId = BackgroundJob.Enqueue(() => CreateIndex(model, null));
             m_MemoryCache.Set(jobId, -1);
             m_MemoryCache.Set($"{jobId}_IsRunning", true);
 
             return new CreateIndexResponse
-            { 
+            {
                 IndexingJobId = jobId
             };
         }
@@ -248,12 +248,12 @@ namespace CodeSearcher.WebAPI.Controllers
         /// <param name="model">JSON object containting required parameter <see cref="CreateIndexStatusRequest"/></param>
         /// <remarks>
         /// Sample request:
-        ///     
+        ///
         ///     GET  /api/CodeSearcher/index/status
         ///     {
         ///         "JobId" : "__ID_OF_INDEXING_JOB__"
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <returns>JSON object contating status of indexing job id and maybe the id of created index</returns>
         /// <response code="400">Empty job id isn't valid</response>
@@ -282,7 +282,7 @@ namespace CodeSearcher.WebAPI.Controllers
             if (!m_MemoryCache.TryGetValue<bool>($"{model.JobId}_IsRunning", out var isRunning))
             {
                 m_Logger.Debug("Can't read running status from memory cache");
-                exists = false; 
+                exists = false;
             }
 
             return new CreateIndexStatusResponse
@@ -326,12 +326,12 @@ namespace CodeSearcher.WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request:
-        ///     
+        ///
         ///     DELETE  /api/CodeSearcher/index
         ///     {
-        ///         "IndexID" : __ID__
+        ///         "IndexID" : "__ID__"
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <param name="model"></param>
         /// <returns>JSON object indicating if delete operation was successfull</returns>
@@ -362,13 +362,13 @@ namespace CodeSearcher.WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request:
-        /// 
+        ///
         ///     GET /api/CodeSearcher/search
         ///     {
-        ///         "IndexID" : __ID__,
+        ///         "IndexID" : "__ID__",
         ///         "SearchWord": "__WORD__"
         ///     }
-        ///     
+        ///
         /// </remarks>
         /// <returns>JSON object contating indexing job id; requried to cancel the indexing job of get updates</returns>
         /// <response code="200">Search was successfull</response>
@@ -393,7 +393,7 @@ namespace CodeSearcher.WebAPI.Controllers
             }
             m_Logger.Info($"looking in index {model.IndexID} for {model.SearchWord}");
             var searchResults = m_Manager.SearchInIndex(model.IndexID, model.SearchWord).ToArray();
-            
+
             //indexing using index starting by zero, need to add one for line number
             foreach(var searchResult in searchResults)
             {

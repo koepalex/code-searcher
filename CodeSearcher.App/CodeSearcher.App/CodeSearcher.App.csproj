@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <None Remove="Assets\magnifying_glass.ico" />
+    <None Remove="magnifying_glass.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +31,9 @@
 
   <ItemGroup>
     <Resource Include="Assets\magnifying_glass.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="magnifying_glass.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

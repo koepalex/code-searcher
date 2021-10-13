@@ -44,7 +44,7 @@ namespace CodeSearcher.App
                 return;
             }
             loadIndicator.Visibility = Visibility.Visible;
-            await _viewModel.LoadSearchResultAsync();
+            await _viewModel.CreateNewIndexAsync();
             loadIndicator.Visibility = Visibility.Hidden;
             DialogResult = true;
             Close();

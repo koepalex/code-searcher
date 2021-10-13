@@ -25,13 +25,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeSearcher.WebAPI.Tests",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6629AF1A-4F3C-4A56-8852-C528549E5697}"
 	ProjectSection(SolutionItems) = preProject
-		appveyor.yml = appveyor.yml
 		lgtm.yml = lgtm.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "App", "App", "{E982BE5B-720F-4003-9F65-C30984B5B229}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeSearcher.App", "CodeSearcher.App\CodeSearcher.App\CodeSearcher.App.csproj", "{5C632537-F8A4-4F84-A5C0-07DA6BEA5BD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeSearcher.App", "CodeSearcher.App\CodeSearcher.App\CodeSearcher.App.csproj", "{5C632537-F8A4-4F84-A5C0-07DA6BEA5BD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

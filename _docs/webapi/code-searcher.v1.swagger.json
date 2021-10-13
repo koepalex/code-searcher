@@ -1,0 +1,593 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Code Searcher API",
+    "description": "REST based WebAPI to access code-searcher functionality",
+    "contact": {
+      "url": "https://github.com/koepalex/code-searcher"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://github.com/koepalex/code-searcher/blob/master/LICENSE"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/api/CodeSearcher": {
+      "get": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Read Read all existing indexes",
+        "description": "Sample request:\r\n            \r\n    GET /api/CodeSearcher\r\n    {\r\n    }",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetIndexesResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetIndexesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetIndexesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CodeSearcher/indexList": {
+      "get": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Read all existing indexes",
+        "description": "Sample request:\r\n            \r\n    GET /api/CodeSearcher/indexList\r\n    {\r\n    }",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ICodeSearcherIndex"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ICodeSearcherIndex"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ICodeSearcherIndex"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CodeSearcher/configure": {
+      "put": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Change the current configuration of Code searcher Manager\r\nCurrently supported:\r\n* Path where the Code Searcher Manager is storing/reading the meta information (Default: %APPDATA%\\code-searcher)",
+        "description": "Sample request:\r\n            \r\n    PUT /api/CodeSearcher/configure\r\n    {\r\n        \"managementInformationPath\" : \"__PATH__\"\r\n    }",
+        "requestBody": {
+          "description": "JSON object containting configuration parameter, CodeSearcher.Interfaces.API.Model.Requests.ConfigureRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Path doesn't exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Path successfully changed"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Read the current configuration from Code Searcher Manager\r\nCurrently supported:\r\n* Path where the Code Searcher Manager is storing/reading the meta information (Default: %APPDATA%\\code-searcher)",
+        "description": "Sample request:\r\n            \r\n    GET /api/CodeSearcher/configure\r\n    {\r\n    }",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigureResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigureResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigureResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CodeSearcher/index": {
+      "post": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Read all files in the given folder with given file extensions and add them to lucene index",
+        "description": "Sample request:\r\n            \r\n    POST  /api/CodeSearcher/index\r\n    {\r\n        \"SourcePath\" : \"__PATH__\",\r\n        \"FileExtensions\" : [\".cs\", \".csproj\", \".xml\"]\r\n    }",
+        "requestBody": {
+          "description": "JSON object containting requried parameter CodeSearcher.Interfaces.API.Model.Requests.CreateIndexRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIndexRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIndexRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIndexRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Path doesn't exist, or file extensions are missformed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Delete existing lucene index",
+        "description": "Sample request:\r\n            \r\n    DELETE  /api/CodeSearcher/index\r\n    {\r\n        \"IndexID\" : \"__ID__\"\r\n    }",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteIndexRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteIndexRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteIndexRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteIndexResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteIndexResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteIndexResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CodeSearcher/index/status": {
+      "get": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Read the status of indexing job",
+        "description": "Sample request:\r\n            \r\n    GET  /api/CodeSearcher/index/status\r\n    {\r\n        \"JobId\" : \"__ID_OF_INDEXING_JOB__\"\r\n    }",
+        "requestBody": {
+          "description": "JSON object containting required parameter CodeSearcher.Interfaces.API.Model.Requests.CreateIndexStatusRequest",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIndexStatusRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIndexStatusRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIndexStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Empty job id isn't valid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CodeSearcher/search": {
+      "post": {
+        "tags": [
+          "CodeSearcher"
+        ],
+        "summary": "Looking for word in existing index",
+        "description": "Sample request:\r\n            \r\n    GET /api/CodeSearcher/search\r\n    {\r\n        \"IndexID\" : \"__ID__\",\r\n        \"SearchWord\": \"__WORD__\"\r\n    }",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchIndexRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchIndexRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchIndexRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search was successfull",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchIndexResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchIndexResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchIndexResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "word to search is null, whitespace or empty",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConfigureRequest": {
+        "type": "object",
+        "properties": {
+          "managementInformationPath": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConfigureResponse": {
+        "type": "object",
+        "properties": {
+          "managementInformationPath": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIndexRequest": {
+        "type": "object",
+        "properties": {
+          "sourcePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileExtensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateIndexStatusRequest": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeleteIndexRequest": {
+        "type": "object",
+        "properties": {
+          "indexID": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeleteIndexResponse": {
+        "type": "object",
+        "properties": {
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetIndexesResponse": {
+        "type": "object",
+        "properties": {
+          "indexes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ICodeSearcherIndex"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ICodeSearcherIndex": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sourcePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "indexPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fileExtensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IDetailedSearchResult": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "nullable": true
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IFindingInFile"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IFindingInFile": {
+        "type": "object",
+        "properties": {
+          "lineNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "length": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "SearchIndexRequest": {
+        "type": "object",
+        "properties": {
+          "indexID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "searchWord": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SearchIndexResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IDetailedSearchResult"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

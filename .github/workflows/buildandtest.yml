@@ -18,6 +18,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore .\CodeSearcher.sln
     - name: Build
-      run: dotnet build --no-restore .\CodeSearcher.sln 
+      run: dotnet build --no-restore .\CodeSearcher.sln /p:ContinuousIntegrationBuild=true
     - name: Test
-      run: dotnet test --no-build --verbosity normal --filter Category=SafeForCI .\CodeSearcher.sln 
+      run: dotnet test --no-build --verbosity normal --filter Category=SafeForCI .\CodeSearcher.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - name: Codecov
+      uses: codecov/codecov-action@v1

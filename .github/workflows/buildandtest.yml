@@ -22,4 +22,4 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal --filter Category=SafeForCI .\CodeSearcher.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
     - name: Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2.1.0

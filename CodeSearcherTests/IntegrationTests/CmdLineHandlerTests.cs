@@ -68,7 +68,7 @@ namespace CodeSearcher.Tests.IntegrationTests
             var extention = ".txt, .doc, .tex";
 
             CmdLineHandler sut = new CmdLineHandler(()=>null);
-            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", $"--fe={extention}", "--sp=SomeSourcePath" });
+            sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", $"--fe={extention}", "--sp=SomeSourcePath" });
             
             Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(extention.Split(',')));
         }
@@ -77,7 +77,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void GetExtention_ParseInputWithoutExtentionParameter_ReturnsDefaultList() 
         {
             CmdLineHandler sut = new CmdLineHandler(()=>null);
-            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
+            sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
             
             Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(".cs,.xml,.csproj".Split(',')));
         }
@@ -86,7 +86,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void GetExtention_ParseNonIndexInput_Null() 
         {
             CmdLineHandler sut = new CmdLineHandler(()=>null);
-            var result = sut.Parse(new string[] {"-m=a" });
+            sut.Parse(new string[] {"-m=a" });
             
             Assert.That(sut.GetFileExtensionsAsList(), Is.Null);
         }
@@ -121,7 +121,7 @@ namespace CodeSearcher.Tests.IntegrationTests
 
             CmdLineHandler sut = new CmdLineHandler(consoleRequest);
 
-            var result = sut.Parse(new string[] { "-m=search", "--ip=SomeIndexPath" });
+            sut.Parse(new string[] { "-m=search", "--ip=SomeIndexPath" });
 
             Assert.True(executed);
         }
@@ -144,7 +144,7 @@ namespace CodeSearcher.Tests.IntegrationTests
 
             CmdLineHandler sut = new CmdLineHandler(consoleRequest);
 
-            var result = sut.Parse(new string[] { "-m=search", "--sw=bla" });
+            sut.Parse(new string[] { "-m=search", "--sw=bla" });
 
             Assert.True(executed);
         }

@@ -64,8 +64,7 @@ namespace CodeSearcher.Tests.IntegrationTests
             Assert.That(sut[FileExtensions], Is.EqualTo(".txt,.tex"));
         }
 
-
-       [Test]
+        [Test]
         public void The_CommandLineHandler_Mode_Index_OptionArgument_FileExtention_HasDefault()
         {
             CmdLineHandler sut = new CmdLineHandler();
@@ -132,7 +131,6 @@ namespace CodeSearcher.Tests.IntegrationTests
             Assert.That(sut[HitsPerPage], Is.EqualTo("-1"));
         }
 
-
         [Test]
         public void The_CommandLineHandler_Throws_Exception_NotANumber_HitsPerPage_Argument()
         {
@@ -193,7 +191,6 @@ namespace CodeSearcher.Tests.IntegrationTests
             Assert.That(sut[ExportToFile], Is.Null);
         }
       
-
         [Test]
         public void The_CommandLineHandler_Recognized_OptionalArgument_WildCard()
         {

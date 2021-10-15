@@ -502,6 +502,5 @@ namespace CodeSearcher.Tests.IntegrationTests
             tuiStub.Verify(tui => tui.WriteLine(It.Is<string>(msg => msg == "[3] Exit")), Times.Once);
             tuiStub.Verify(tui => tui.Clear(), Times.Once);
         }
-
     }
 }

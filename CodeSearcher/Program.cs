@@ -27,10 +27,12 @@ namespace CodeSearcher
 
             Console.WriteLine("Welcome to CodeSearcher");
 
-            var mode = m_CmdHandler[m_CmdHandler.ProgramMode] != null
-                ? m_CmdHandler.GetProgramMode()
-                : ReadProgramMode();
-
+            var mode = m_CmdHandler.GetProgramMode();
+            if(mode == ProgramModes.None) 
+            {
+                mode= ReadProgramMode();
+            }
+            
             ICodeSearcherLogic logic = GetCodeSearcherLogic();
             var manager = Factory.Get().GetCodeSearcherManager(new LoggerAdapter(m_Logger));
             
@@ -68,9 +70,7 @@ namespace CodeSearcher
                 },
                 getFileExtension: () =>
                 {
-                    var fileExtensions = m_CmdHandler[m_CmdHandler.FileExtensions] != null
-                        ? m_CmdHandler.GetFileExtensionsAsList()
-                        : ReadFileExtensions();
+                    var fileExtensions = m_CmdHandler.GetFileExtensionsAsList() ?? ReadFileExtensions();
                     return fileExtensions;
                 });
         }

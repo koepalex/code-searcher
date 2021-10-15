@@ -3,18 +3,19 @@ using NDesk.Options.Extensions;
 using System;
 using System.Collections.Generic;
 using CodeSearcher.Interfaces;
+using System.IO;
 
 namespace CodeSearcher
 {
     internal class CmdLineHandler : ICmdLineHandler
     {
-        private IDictionary<String, String> m_Arguments;
-
+        private readonly IDictionary<String, String> m_Arguments;
+        private readonly Func<TextWriter> m_WriterProvider;
         public String SourcePath => "SourcePath";
         public String IndexPath => "IndexPath";
-        public String FileExtensions => "FileExtensions";
+        internal const  string m_FileExtensions = "FileExtensions";
         public String SearchedWord => "SearchedWord";
-        public String ProgramMode => "ProgramMode";
+        internal const String m_ProgramMode = "ProgramMode";
         public String NumberOfHits => "NumberOfHits";
         public String HitsPerPage => "HitsPerPage";
         public String ExportToFile => "ExportToFile";
@@ -32,20 +33,27 @@ namespace CodeSearcher
             }
         }
 
-        public CmdLineHandler()
+        public CmdLineHandler(Func<TextWriter> writerProvider = null)
         {
+            m_WriterProvider = writerProvider;
+            
+            if(m_WriterProvider == null) 
+            {
+                m_WriterProvider = () => Console.Out;
+            } 
+
             m_Arguments = new Dictionary<String, String>();
         }
 
         public ProgramModes GetProgramMode()
         {
-            if (m_Arguments.ContainsKey(ProgramMode))
+            if (m_Arguments.ContainsKey(m_ProgramMode))
             {
-                if (m_Arguments[ProgramMode] == "index" || m_Arguments[ProgramMode] == "i")
+                if (m_Arguments[m_ProgramMode] == "index" || m_Arguments[m_ProgramMode] == "i")
                     return ProgramModes.Index;
-                if (m_Arguments[ProgramMode] == "search" || m_Arguments[ProgramMode] == "s")
+                if (m_Arguments[m_ProgramMode] == "search" || m_Arguments[m_ProgramMode] == "s")
                     return ProgramModes.Search;
-                if (m_Arguments[ProgramMode] == "auto" || m_Arguments[ProgramMode] == "a")
+                if (m_Arguments[m_ProgramMode] == "auto" || m_Arguments[m_ProgramMode] == "a")
                     return ProgramModes.Auto;
             }
             return ProgramModes.None;
@@ -53,17 +61,20 @@ namespace CodeSearcher
 
         public IList<String> GetFileExtensionsAsList()
         {
+            if (this[m_FileExtensions] == null) 
+            {
+                return null;
+            }
+
             var extensions = new List<String>();
 
-            foreach (var extension in m_Arguments[FileExtensions].Split(new[] { ',' }))
+            foreach (var extension in m_Arguments[m_FileExtensions].Split(new[] { ',' }))
             {
                 extensions.Add(extension);
             }
 
             return extensions;
         }
-
-
 
         public bool Parse(string[] cmdArgs)
         {
@@ -82,7 +93,7 @@ namespace CodeSearcher
 
             try
             {
-                for(int i = 0; i < cmdArgs.Length; i++)
+                for (int i = 0; i < cmdArgs.Length; i++)
                 {
                     cmdArgs[i] = cmdArgs[i].Trim();
                 }
@@ -115,9 +126,9 @@ namespace CodeSearcher
                     {
                         argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage, export, wildcardSearch);
                     }
-                    else if(mode == "auto" || mode == "a")
+                    else if (mode == "auto" || mode == "a")
                     {
-                        m_Arguments[ProgramMode] = mode;
+                        m_Arguments[m_ProgramMode] = mode;
                         argumentsOk = true;
                     }
                     else
@@ -135,7 +146,7 @@ namespace CodeSearcher
         private bool SetArgumentsForIndexing(OptionSet os, Variable<string> idxPath, Variable<string> srcPath, Variable<string> fileExtensions)
         {
             bool argumentsOk = true;
-            m_Arguments[ProgramMode] = "index";
+            m_Arguments[m_ProgramMode] = "index";
             if (!String.IsNullOrWhiteSpace(idxPath))
             {
                 m_Arguments[IndexPath] = idxPath;
@@ -146,11 +157,11 @@ namespace CodeSearcher
 
                     if (!String.IsNullOrWhiteSpace(fileExtensions))
                     {
-                        m_Arguments[FileExtensions] = fileExtensions;
+                        m_Arguments[m_FileExtensions] = fileExtensions;
                     }
                     else
                     {
-                        m_Arguments[FileExtensions] = ".cs,.xml,.csproj";
+                        m_Arguments[m_FileExtensions] = ".cs,.xml,.csproj";
                     }
                 }
                 else
@@ -171,7 +182,7 @@ namespace CodeSearcher
         private bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow, Variable<int> hitsPerPage, Switch export, Switch wildcardSearch)
         {
             bool argumentsOk = true;
-            m_Arguments[ProgramMode] = "search";
+            m_Arguments[m_ProgramMode] = "search";
 
             if (!String.IsNullOrWhiteSpace(idxPath))
             {
@@ -224,8 +235,12 @@ namespace CodeSearcher
 
         private void PrintUsage(OptionSet os)
         {
-            Console.WriteLine("CodeSearcher - Usage");
-            os.WriteOptionDescriptions(Console.Out);
+            var writer = m_WriterProvider();
+            if (writer != null)
+            {
+                writer.WriteLine("CodeSearcher - Usage");
+                os.WriteOptionDescriptions(writer);
+            }
         }
     }
 }

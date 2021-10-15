@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using System.IO;
 
 namespace CodeSearcher.Tests.IntegrationTests
 {
@@ -17,102 +18,167 @@ namespace CodeSearcher.Tests.IntegrationTests
         private static string ExportToFile => "ExportToFile";
         private static string WildcardSearch => "WildcardSearch";
 
-        [Test]
-        public void The_CommandLineHandler_Recognized_Mode_Auto()
+        [TestCase("-m=auto")]
+        [TestCase("-m=a")]
+        public void GetProgramMode_ParameterAuto_ProgramModeAuto(string parameter)
         {
-            CmdLineHandler sut = new CmdLineHandler();
-            var result = sut.Parse(new string[] {"-m=auto" });
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+
+            var result = sut.Parse(new []{parameter});
+            
             Assert.True(result);
-            Assert.That(sut[ProgramMode], Is.EqualTo("auto"));
+            Assert.That(sut.GetProgramMode, Is.EqualTo(ProgramModes.Auto));
         }
 
-        [Test]
-        public void The_CommandLineHandler_Recognized_Mode_Auto_Via_ShortCut()
+        [TestCase("-m=index")]
+        [TestCase("-m=i")]
+        public void GetProgramMode_ParameterIndex_ProgramModeIndex(string parameter) 
         {
-            CmdLineHandler sut = new CmdLineHandler();
-            var result = sut.Parse(new string[] {"-m=a" });
-            Assert.True(result);
-            Assert.That(sut[ProgramMode], Is.EqualTo("a"));
-        }
-
-        [Test]
-        public void The_CommandLineHandler_Recognized_Mode_Index()
-        {
-            CmdLineHandler sut = new CmdLineHandler();
-            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            var result = sut.Parse(new string[] {parameter, "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
             Assert.True(result);
             Assert.That(sut[ProgramMode], Is.EqualTo("index"));
             Assert.That(sut[IndexPath], Is.EqualTo("SomeIndexPath"));
             Assert.That(sut[SourcePath], Is.EqualTo("SomeSourcePath"));
+
+            Assert.That(sut.GetProgramMode, Is.EqualTo(ProgramModes.Index));
         }
 
         [Test]
-        public void The_CommandLineHandler_Mode_Index_Supports_OptionArgument_FileExtention()
+        public void FileExtensions_IndexModeWithOptionalArgument_ReturnsFileExtention()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--fe=txt", "--sp=SomeSourcePath" });
             Assert.True(result);
             Assert.That(sut[FileExtensions], Is.EqualTo("txt"));
         }
 
         [Test]
-        public void The_CommandLineHandler_Mode_Index_Supports_OptionArgument_FileExtention_AsCommaSeparated()
+        public void FileExtensions_IndexModeWithoutOptionalExtentionParemeter_ReturnsDefault()
         {
-            CmdLineHandler sut = new CmdLineHandler();
-            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--fe=.txt,.tex", "--sp=SomeSourcePath" });
-            Assert.True(result);
-            Assert.That(sut[FileExtensions], Is.EqualTo(".txt,.tex"));
-        }
-
-        [Test]
-        public void The_CommandLineHandler_Mode_Index_OptionArgument_FileExtention_HasDefault()
-        {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
             Assert.True(result);
             Assert.That(sut[FileExtensions], Is.EqualTo(".cs,.xml,.csproj"));
         }
 
         [Test]
-        public void The_CommandLineHandler_Recognized_Mode_Search()
+        public void GetExtention_ParseInputWithExtentionParameter_ReturnsSplittedExtentionList() 
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            var extention = ".txt, .doc, .tex";
+
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", $"--fe={extention}", "--sp=SomeSourcePath" });
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath"});
+            Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(extention.Split(',')));
+        }
+
+        
+        [Test]
+        public void GetExtention_ParseInputWithoutExtentionParameter_ReturnsDefaultList() 
+        {
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
+            
+            Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(".cs,.xml,.csproj".Split(',')));
+        }
+
+        [Test]
+        public void GetExtention_ParseNonIndexInput_Null() 
+        {
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            var result = sut.Parse(new string[] {"-m=a" });
+            
+            Assert.That(sut.GetFileExtensionsAsList(), Is.Null);
+        }
+
+        [TestCase("-m=search")]
+        [TestCase("-m=s")]
+        public void GetProgramMode_ParameterSearch_ProgramModeSearch(string mode)
+        {
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            
+            var result = sut.Parse(new string[] {mode , "--sw=bla", "--ip=SomeIndexPath"});
             
             Assert.True(result);
-            Assert.That(sut[ProgramMode], Is.EqualTo("search"));
+            Assert.That(sut.GetProgramMode, Is.EqualTo(ProgramModes.Search));
+        }
+
+        [Test]
+        public void Parse_SearchModeWithoutSearchWord_Failed()
+        {
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            
+            var result = sut.Parse(new string[] {"-m=search" , "--ip=SomeIndexPath"});
+            
+            Assert.False(result);
+        }
+
+        [Test]
+        public void Parse_SearchModeWithoutSearchWord_PrintsHelp()
+        {
+            bool executed = false;
+            Func<TextWriter> consoleRequest = () => { executed = true; return null; };
+
+            CmdLineHandler sut = new CmdLineHandler(consoleRequest);
+
+            var result = sut.Parse(new string[] { "-m=search", "--ip=SomeIndexPath" });
+
+            Assert.True(executed);
+        }
+
+        [Test]
+        public void Parse_SearchModeWithoutIndexPath_Failed()
+        {
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            
+            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla"});
+            
+            Assert.False(result);
+        }
+
+        [Test]
+        public void Parse_SearchModeWithoutIndexPath_PrintsHelp()
+        {
+            bool executed = false;
+            Func<TextWriter> consoleRequest = () => { executed = true; return null; };
+
+            CmdLineHandler sut = new CmdLineHandler(consoleRequest);
+
+            var result = sut.Parse(new string[] { "-m=search", "--sw=bla" });
+
+            Assert.True(executed);
+        }
+        
+        [TestCase("-m=search")]
+        [TestCase("-m=s")]
+        public void IndexPath_SearchModeWithIndexPath_ParsedPath(string mode)
+        {
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            
+            var result = sut.Parse(new string[] {mode , "--sw=bla", "--ip=SomeIndexPath"});
+            
+            Assert.True(result);
+            Assert.That(sut[IndexPath], Is.EqualTo("SomeIndexPath"));
+        }
+
+        [TestCase("-m=search")]
+        [TestCase("-m=s")]
+        public void SearchedWord_SearchModeWithIndexPath_ParsedPath(string mode)
+        {
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
+            
+            var result = sut.Parse(new string[] {mode , "--sw=bla", "--ip=SomeIndexPath"});
+            
+            Assert.True(result);
             Assert.That(sut[SearchedWord], Is.EqualTo("bla"));
-            Assert.That(sut[IndexPath], Is.EqualTo("SomeIndexPath"));
         }
+        
 
         [Test]
-        public void The_CommandLineHandler_Recognized_Mode_Index_Via_Shortcut()
+        public void HitsPerPage_ParseStringWithOptionalArgumentHitsPerPage_GivenArgumentsValue()
         {
-            CmdLineHandler sut = new CmdLineHandler();
-            var result = sut.Parse(new string[] {"-m=i", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
-            
-            Assert.True(result);
-            Assert.That(sut[ProgramMode], Is.EqualTo("index"));
-            Assert.That(sut[IndexPath], Is.EqualTo("SomeIndexPath"));
-            Assert.That(sut[SourcePath], Is.EqualTo("SomeSourcePath"));
-        }
-
-        [Test]
-        public void The_CommandLineHandler_Recognized_Mode_Search_Via_ShortCut()
-        {
-            CmdLineHandler sut = new CmdLineHandler();
-            
-            var result = sut.Parse(new string[] {"-m=s" , "--sw=bla", "--fe=xml", "--ip=."});
-            
-            Assert.True(result);
-            Assert.That(sut[ProgramMode], Is.EqualTo("search"));
-        }
-
-        [Test]
-        public void The_CommandLineHandler_Recognized_Optional_Argument_HitsPerPage()
-        {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--hpp=100"});
             
@@ -121,9 +187,9 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
 
         [Test]
-        public void The_CommandLineHandler_OptionalArgument_HitsPerPage_Default_MinusOne()
+        public void HitsPerPage_ParseStringWithoutOptionalArgumentHitsPerPage_DefaultMinusOne()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath"});
             
@@ -132,17 +198,17 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
 
         [Test]
-        public void The_CommandLineHandler_Throws_Exception_NotANumber_HitsPerPage_Argument()
+        public void Parse_OptionalArgumentHitsPerPageNotANumber_Throws()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             Assert.Throws<FormatException>(()=> sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--hpp=hallo"}));
         }
 
         [Test]
-        public void The_CommandLineHandler_Recognized_Optional_Argument_NumberOfHits()
+        public void NumberOfHits_ParseInputWithoutOptionalArgumentNumberOfHits_GivenArgumentsValue()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--hits=100","--ip=SomeIndexPath"});
             
@@ -151,9 +217,9 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
 
         [Test]
-        public void The_CommandLineHandler_OptionalArgument_NumberOfHits_Default()
+        public void NumberOfHits_ParseInputWithoutOptionalArgumentNumberOfHits_Default()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath"});
             
@@ -162,17 +228,17 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
 
         [Test]
-        public void The_CommandLineHandler_Throws_Exception_NotANumber_NumberOfHits_Argument()
+        public void Parse_NumberOfHitsParameterIsNotANumber_Throws()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             Assert.Throws<FormatException>(()=> sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--hits=hallo"}));
         }
 
         [Test]
-        public void The_CommandLineHandler_Recognized_OptionalArgument_Export()
+        public void ExportToFile_ParseInputWithOptionalArgument_ExportArgument()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--export"});
             
@@ -181,9 +247,9 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
 
         [Test]
-        public void The_CommandLineHandler_OptionalArgument_Export_Default_Null()
+        public void ExportToFile_ParseInputWithExport_Null()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath"});
             
@@ -192,9 +258,9 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
       
         [Test]
-        public void The_CommandLineHandler_Recognized_OptionalArgument_WildCard()
+        public void WildcardSearch_ParseInputOptionalArgumentWildCard_GivenArgument()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--wildcard"});
             
@@ -203,14 +269,40 @@ namespace CodeSearcher.Tests.IntegrationTests
         }
 
         [Test]
-        public void The_CommandLineHandler_OptionalArgument_WildCard_Default_Null()
+        public void WildcardSearch_ParseInputWithOptionalArgumentWildCard_Null()
         {
-            CmdLineHandler sut = new CmdLineHandler();
+            CmdLineHandler sut = new CmdLineHandler(()=>null);
             
             var result = sut.Parse(new string[] {"-m=search", "--sw=bla", "--ip=SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut[ExportToFile], Is.Null);
+        }
+
+        [Test]
+        public void Parse_EmptyInput_PrintsHelp()
+        {
+            bool executed = false;
+            Func<TextWriter> consoleRequest = () => { executed = true; return null; };
+
+            CmdLineHandler sut = new CmdLineHandler(consoleRequest);
+
+            sut.Parse(Array.Empty<string>());
+
+            Assert.True(executed);
+        }
+
+        [Test]
+        public void Parse_QuestionMark_PrintsHelp()
+        {
+            bool executed = false;
+            Func<TextWriter> consoleRequest = () => { executed = true; return null; };
+
+            CmdLineHandler sut = new CmdLineHandler(consoleRequest);
+
+            sut.Parse(new []{ "-?"});
+
+            Assert.True(executed);
         }
     }
 }

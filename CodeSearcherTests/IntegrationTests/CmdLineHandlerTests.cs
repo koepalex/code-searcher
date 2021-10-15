@@ -72,7 +72,6 @@ namespace CodeSearcher.Tests.IntegrationTests
             
             Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(extention.Split(',')));
         }
-
         
         [Test]
         public void GetExtention_ParseInputWithoutExtentionParameter_ReturnsDefaultList() 
@@ -174,7 +173,6 @@ namespace CodeSearcher.Tests.IntegrationTests
             Assert.That(sut[SearchedWord], Is.EqualTo("bla"));
         }
         
-
         [Test]
         public void HitsPerPage_ParseStringWithOptionalArgumentHitsPerPage_GivenArgumentsValue()
         {

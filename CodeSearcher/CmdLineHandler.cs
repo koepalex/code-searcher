@@ -86,10 +86,10 @@ namespace CodeSearcher
             public string SourcePathShort { get; set; }
 
             [Option("fileExtensions", Min = 1, Separator = ',', HelpText = "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')")]
-            public IEnumerable<string> FileExtentionLong {get;set;} 
+            public IEnumerable<string> FileExtentionLong { get; set;} 
 
             [Option("fe", Hidden = true, Min = 1, Separator = ',')]
-            public IEnumerable<string> FileExtentionShort {get;set;} 
+            public IEnumerable<string> FileExtentionShort { get; set;} 
             
             //hpp|hitsPerPage
             [Option("hpp", Hidden = true)]
@@ -106,10 +106,10 @@ namespace CodeSearcher
             public string NumberOfHitsToShowLong { get; set; }
 
             [Option("sw", Hidden = true)]
-            public string SearchWordShort { get;set; }
+            public string SearchWordShort { get; set; }
 
             [Option("searchWord", HelpText = "word to look for into index (mandatory in case of 'mode=search')")]
-            public string SearchWordLong { get;set; }
+            public string SearchWordLong { get; set; }
 
             [Option('e', "export", Default = false, HelpText = "Indicates wheater results should be exported to temp file (optional, default = false)")]
             public bool Export { get; set; }
@@ -134,9 +134,11 @@ namespace CodeSearcher
             (
                 o => result = InternalParse(o)
             );
+
             if(!result) {
                 parser.ParseArguments<Options>(new string[] { "--help" });
             }
+
             return result;
         }
 
@@ -175,7 +177,6 @@ namespace CodeSearcher
             if(!string.IsNullOrEmpty(options.SearchWordLong)) 
             {
                 searchWord = options.SearchWordLong;
-            
             } 
             else if(!string.IsNullOrEmpty(options.SearchWordShort)) 
             {
@@ -242,6 +243,7 @@ namespace CodeSearcher
             }
 
             m_Arguments[IndexPath] = indexPath;
+
             return true;
         }
 

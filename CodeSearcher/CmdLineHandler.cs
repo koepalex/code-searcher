@@ -86,10 +86,10 @@ namespace CodeSearcher
             public string SourcePathShort { get; set; }
 
             [Option("fileExtensions", Min = 1, Separator = ',', HelpText = "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')")]
-            public IEnumerable<string> FileExtentionLong { get; set;} 
+            public IEnumerable<string> FileExtentionLong { get; set; } 
 
             [Option("fe", Hidden = true, Min = 1, Separator = ',')]
-            public IEnumerable<string> FileExtentionShort { get; set;} 
+            public IEnumerable<string> FileExtentionShort { get; set; } 
             
             //hpp|hitsPerPage
             [Option("hpp", Hidden = true)]

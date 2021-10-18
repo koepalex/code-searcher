@@ -1,25 +1,25 @@
-﻿using NDesk.Options;
-using NDesk.Options.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using CodeSearcher.Interfaces;
 using System.IO;
+using System.Linq;
+using CommandLine;
 
 namespace CodeSearcher
 {
     internal class CmdLineHandler : ICmdLineHandler
     {
         private readonly IDictionary<String, String> m_Arguments;
-        private readonly Func<TextWriter> m_WriterProvider;
+        private readonly Func<TextWriter> m_WriteProvider;
+        private const string m_FileExtensions = "FileExtensions";
+        private const string m_ProgramMode = "ProgramMode";
+        private IList<string> m_FileExtentions;
         public String SourcePath => "SourcePath";
         public String IndexPath => "IndexPath";
-        internal const  string m_FileExtensions = "FileExtensions";
         public String SearchedWord => "SearchedWord";
-        internal const String m_ProgramMode = "ProgramMode";
-        public String NumberOfHits => "NumberOfHits";
         public String HitsPerPage => "HitsPerPage";
         public String ExportToFile => "ExportToFile";
         public String WildcardSearch => "WildcardSearch";
+        public String NumberOfHits => "NumberOfHits";
 
         public String this[String name]
         {
@@ -35,14 +35,8 @@ namespace CodeSearcher
 
         public CmdLineHandler(Func<TextWriter> writerProvider = null)
         {
-            m_WriterProvider = writerProvider;
-            
-            if(m_WriterProvider == null) 
-            {
-                m_WriterProvider = () => Console.Out;
-            } 
-
-            m_Arguments = new Dictionary<String, String>();
+            m_Arguments = new Dictionary<string, string>();
+            m_WriteProvider = writerProvider;
         }
 
         public ProgramModes GetProgramMode()
@@ -61,186 +55,239 @@ namespace CodeSearcher
 
         public IList<String> GetFileExtensionsAsList()
         {
-            if (this[m_FileExtensions] == null) 
-            {
-                return null;
-            }
+            return m_FileExtentions;
+        }
 
-            var extensions = new List<String>();
+        /// <summary>
+        /// Option class for parsing purposes
+        /// The options of the command line parser only supports characters 
+        /// as shortnames. A shortcut starts with a single - and a descriptive 
+        /// attribute starts with a double -
+        /// 
+        /// To support a stable interface the shortcuts are modeled by an own option.
+        /// In this setting it is possible to add --ip and --indexPath which is
+        /// an open issue.
+        /// </summary>
+        private class Options
+        {
+            [Option('m', "mode", Required = true, HelpText = "Select the mode of the tool. \n 'index' to index directory \n 'search' to search within already indexed directory \n 'auto' to use CLI")]
+            public string Mode { get; set; }
 
-            foreach (var extension in m_Arguments[m_FileExtensions].Split(new[] { ',' }))
-            {
-                extensions.Add(extension);
-            }
+            [Option("indexPath", HelpText = "Location where the index is or should be stored (mandatory), short --ip")]
+            public string IndexPathLong { get; set; }
 
-            return extensions;
+            [Option("ip", Hidden = true)]
+            public string IndexPathShort { get; set; }
+
+            [Option("sourcePath", HelpText = "Location of files, which should be indexed (mandatory in case of 'mode=index')")]
+            public string SourcePathLong { get; set; }
+
+            [Option("sp", Hidden = true)]
+            public string SourcePathShort { get; set; }
+
+            [Option("fileExtensions", Min = 1, Separator = ',', HelpText = "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')")]
+            public IEnumerable<string> FileExtentionLong { get; set; } 
+
+            [Option("fe", Hidden = true, Min = 1, Separator = ',')]
+            public IEnumerable<string> FileExtentionShort { get; set; } 
+            
+            //hpp|hitsPerPage
+            [Option("hpp", Hidden = true)]
+            public string HitsPerPageShort { get; set; }
+            
+            [Option("hitsPerPage", HelpText = "Amount of findings to show at once (optional, default = -1; -1 means all)")]
+            public string HitsPerPageLong { get; set; }
+
+            [Option("hits", Hidden = true)]
+            public string NumberOfHitsToShowShort { get; set; }
+            
+            [Option("numerOfHits", HelpText = "Amount of files with findings (optional, default is 1000)")]
+            public string NumberOfHitsToShowLong { get; set; }
+
+            [Option("sw", Hidden = true)]
+            public string SearchWordShort { get; set; }
+
+            [Option("searchWord", HelpText = "word to look for into index (mandatory in case of 'mode=search')")]
+            public string SearchWordLong { get; set; }
+
+            [Option('e', "export", Default = false, HelpText = "Indicates wheater results should be exported to temp file (optional, default = false)")]
+            public bool Export { get; set; }
+
+            [Option("wc", Hidden = true)]
+            public bool WildCardSearchShort { get; set; }
+
+            [Option("wildcard", HelpText = "Use wildcard search query, which is possible slower (optional, default = false)" )]
+            public bool WildCardSearchLong { get; set; }
         }
 
         public bool Parse(string[] cmdArgs)
         {
-            bool argumentsOk = true;
-            var os = new OptionSet();
-            var showHelp = os.AddSwitch("h|?|help", "Shows the help");
-            var mode = os.AddVariable<String>("m|mode", "Select the mode of the tool. \n 'index' to index directory \n 'search' to search within already indexed directory \n 'auto' to use CLI");
-            var idxPath = os.AddVariable<String>("ip|indexPath", "Location where the index is or should be stored (mandatory)");
-            var srcPath = os.AddVariable<String>("sp|sourcePath", "Location of files, which should be indexed (mandatory in case of 'mode=index')");
-            var fileExtensions = os.AddVariable<String>("fe|fileExtensions", "Extensions of files to index (optional in case of 'mode=index', default is '.cs,.xml,.csproj')");
-            var searchedWord = os.AddVariable<String>("sw|searchedWord", "word to look for into index (mandatory in case of 'mode=search')");
-            var numberOfHitsToShow = os.AddVariable<Int32>("hits|numerOfHits", "Amount of files with findings (optional, default is 1000)");
-            var hitsPerPage = os.AddVariable<Int32>("hpp|hitsPerPage", "Amount of findings to show at once (optional, default = -1; -1 means all)");
-            var export = os.AddSwitch("e|export", "Indicates wheater results should be exported to temp file (optional, default = false)");
-            var wildcardSearch = os.AddSwitch("wc|wildcard", "Use wildcard search query, which is possible slower (optional, default = false)");
+            bool result = false;
 
-            try
+            var parser = new Parser(settings =>
             {
-                for (int i = 0; i < cmdArgs.Length; i++)
-                {
-                    cmdArgs[i] = cmdArgs[i].Trim();
-                }
-                os.Parse(cmdArgs);
-            }
-            catch (OptionException)
-            {
-                PrintUsage(os);
-                argumentsOk = false;
+                settings.HelpWriter = m_WriteProvider();
+            });
+
+            var parserOut = parser.ParseArguments<Options>(cmdArgs).WithParsed
+            (
+                o => result = InternalParse(o)
+            );
+
+            if(!result) {
+                parser.ParseArguments<Options>(new string[] { "--help" });
             }
 
-            if (showHelp)
-            {
-                PrintUsage(os);
-            }
-            else if (argumentsOk)
-            {
-                if (String.IsNullOrWhiteSpace(mode))
-                {
-                    PrintUsage(os);
-                    argumentsOk = false;
-                }
-                else
-                {
-                    if (mode == "index" || mode == "i")
-                    {
-                        argumentsOk = SetArgumentsForIndexing(os, idxPath, srcPath, fileExtensions);
-                    }
-                    else if (mode == "search" || mode == "s")
-                    {
-                        argumentsOk = SetArgumentsForSearching(os, idxPath, searchedWord, numberOfHitsToShow, hitsPerPage, export, wildcardSearch);
-                    }
-                    else if (mode == "auto" || mode == "a")
-                    {
-                        m_Arguments[m_ProgramMode] = mode;
-                        argumentsOk = true;
-                    }
-                    else
-                    {
-                        PrintUsage(os);
-                        argumentsOk = false;
-                    }
-                }
-            }
-
-            return argumentsOk;
-
+            return result;
         }
 
-        private bool SetArgumentsForIndexing(OptionSet os, Variable<string> idxPath, Variable<string> srcPath, Variable<string> fileExtensions)
+        private bool InternalParse(Options options) 
         {
-            bool argumentsOk = true;
-            m_Arguments[m_ProgramMode] = "index";
-            if (!String.IsNullOrWhiteSpace(idxPath))
+            var mode = options.Mode.TrimStart('=');
+            if(mode == "i" || mode == "index") 
             {
-                m_Arguments[IndexPath] = idxPath;
-
-                if (!String.IsNullOrWhiteSpace(srcPath))
-                {
-                    m_Arguments[SourcePath] = srcPath;
-
-                    if (!String.IsNullOrWhiteSpace(fileExtensions))
-                    {
-                        m_Arguments[m_FileExtensions] = fileExtensions;
-                    }
-                    else
-                    {
-                        m_Arguments[m_FileExtensions] = ".cs,.xml,.csproj";
-                    }
-                }
-                else
-                {
-                    PrintUsage(os);
-                    argumentsOk = false;
-                }
+                return InternalParseIndex(options);
             }
-            else
+            else if(mode == "s" || mode == "search") 
             {
-                PrintUsage(os);
-                argumentsOk = false;
+                return InternalParseSearch(options);
             }
-
-            return argumentsOk;
+            else if(mode == "a" || mode == "auto") 
+            {
+                m_Arguments[m_ProgramMode] = mode;
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
         }
 
-        private bool SetArgumentsForSearching(OptionSet os, Variable<string> idxPath, Variable<string> searchedWord, Variable<int> numberOfHitsToShow, Variable<int> hitsPerPage, Switch export, Switch wildcardSearch)
+        private bool InternalParseSearch(Options options)
         {
-            bool argumentsOk = true;
             m_Arguments[m_ProgramMode] = "search";
 
-            if (!String.IsNullOrWhiteSpace(idxPath))
+            if(!ParseIndexPath(options))
             {
-                m_Arguments[IndexPath] = idxPath;
-                if (!String.IsNullOrWhiteSpace(searchedWord))
-                {
-                    m_Arguments[SearchedWord] = searchedWord;
-                }
-                else
-                {
-                    PrintUsage(os);
-                    argumentsOk = false;
-                }
-                if (numberOfHitsToShow > 0)
-                {
-                    m_Arguments[NumberOfHits] = numberOfHitsToShow.Value.ToString();
-                }
-                else
-                {
-                    m_Arguments[NumberOfHits] = 1000.ToString();
-                }
+                return false;
+            }
 
-                if (hitsPerPage == -1 || hitsPerPage > 0)
-                {
-                    m_Arguments[HitsPerPage] = hitsPerPage.Value.ToString();
-                }
-                else
-                {
-                    m_Arguments[HitsPerPage] = "-1";
-                }
+            string searchWord;
+            if(!string.IsNullOrEmpty(options.SearchWordLong)) 
+            {
+                searchWord = options.SearchWordLong;
+            } 
+            else if(!string.IsNullOrEmpty(options.SearchWordShort)) 
+            {
+                searchWord = options.SearchWordShort;
+            }
+            else 
+            {
+                return false;
+            }
+            m_Arguments[SearchedWord] = searchWord;
 
-                if (export.Enabled)
-                {
-                    m_Arguments[ExportToFile] = true.ToString();
-                }
+            string numberOfHits = (1000).ToString();
+            if(!string.IsNullOrEmpty(options.NumberOfHitsToShowLong)) 
+            {
+                numberOfHits = options.NumberOfHitsToShowLong;
+            }
+            else if(!string.IsNullOrEmpty(options.NumberOfHitsToShowShort)) 
+            {
+                numberOfHits = options.NumberOfHitsToShowShort;
+            }
+            //really hard but needed to fulfil the interface
+            m_Arguments[NumberOfHits] = Int32.Parse(numberOfHits).ToString();
+            
+            if(options.Export) 
+            {
+                m_Arguments[ExportToFile] = options.Export.ToString();
+            }
+            
+            string hitsPerPage = (-1).ToString();
+            if(!string.IsNullOrEmpty(options.HitsPerPageLong)) 
+            {
+                hitsPerPage = options.HitsPerPageLong;
+            }
+            else if(!string.IsNullOrEmpty(options.HitsPerPageShort)) 
+            {
+                hitsPerPage = options.HitsPerPageShort;
+            }
+            //really hard but needed to fulfil the interface
+            m_Arguments[HitsPerPage] = Int32.Parse(hitsPerPage).ToString();
+            
+            // ugly but needed to support a bool flag with to names.
+            if(options.WildCardSearchLong||options.WildCardSearchShort) 
+            {
+                m_Arguments[WildcardSearch] = true.ToString();
+            }
 
-                if (wildcardSearch.Enabled)
-                {
-                    m_Arguments[WildcardSearch] = true.ToString();
-                }
+            return true;
+        }
+
+        private bool ParseIndexPath(Options options)
+        {
+            string indexPath;
+            if (!string.IsNullOrWhiteSpace(options.IndexPathLong))
+            {
+                indexPath = options.IndexPathLong;
+            }
+            else if(!string.IsNullOrWhiteSpace(options.IndexPathShort)) 
+            {
+                indexPath = options.IndexPathShort;
             }
             else
             {
-                PrintUsage(os);
-                argumentsOk = false;
+                return false;
             }
 
-            return argumentsOk;
+            m_Arguments[IndexPath] = indexPath;
+
+            return true;
         }
 
-        private void PrintUsage(OptionSet os)
+        private bool InternalParseIndex(Options options)
         {
-            var writer = m_WriterProvider();
-            if (writer != null)
+            m_Arguments[m_ProgramMode] = "index";
+
+            if(!ParseIndexPath(options)) 
             {
-                writer.WriteLine("CodeSearcher - Usage");
-                os.WriteOptionDescriptions(writer);
+                return false;
             }
+
+            string sourcePath;
+            if (!string.IsNullOrWhiteSpace(options.SourcePathLong)) 
+            {
+                sourcePath = options.SourcePathLong;
+            }
+            else if(!string.IsNullOrWhiteSpace(options.SourcePathShort))             
+            {
+                sourcePath = options.SourcePathShort;
+            }
+            else 
+            {
+                return false; 
+            }
+            
+            m_Arguments[SourcePath] = sourcePath;
+
+            if(options.FileExtentionLong.Any())
+            {
+                m_FileExtentions = options.FileExtentionLong.ToList();
+            } 
+            else if(options.FileExtentionShort.Any()) 
+            {
+                m_FileExtentions = options.FileExtentionShort.ToList();
+            }
+            else
+            {
+                m_FileExtentions = new string[] { ".cs", ".xml", ".csproj" };
+            }
+            
+            //for the interface stability to the tests
+            m_Arguments[m_FileExtensions] = string.Join(',', m_FileExtentions);
+            
+            return true; 
         }
     }
 }

@@ -98,7 +98,6 @@ namespace CodeSearcher
             [Option("hitsPerPage", HelpText = "Amount of findings to show at once (optional, default = -1; -1 means all)")]
             public string HitsPerPageLong { get; set; }
 
-
             [Option("hits", Hidden = true)]
             public string NumberOfHitsToShowShort { get; set; }
             

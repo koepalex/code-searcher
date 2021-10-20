@@ -109,7 +109,6 @@ namespace CodeSearcher
                 settings.CaseSensitive = false;
             });
             
-
             var parserOutput = parser.ParseArguments<Options>(cmdArgs);
 
             parserOutput.WithParsed
@@ -118,7 +117,6 @@ namespace CodeSearcher
             );
             bool parserError = false;
             parserOutput.WithNotParsed(e => parserError = e.Any());
-
 
             if(!result && !parserError)
             {
@@ -156,7 +154,6 @@ namespace CodeSearcher
 
             if(!ParseIndexPath(options))
             {
-
                 return false;
             }
 

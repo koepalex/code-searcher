@@ -19,18 +19,18 @@ namespace CodeSearcher
 
         static void Main(string[] args)
         {
-            m_CmdHandler = new CmdLineHandler();
-            if (!m_CmdHandler.Parse(args)) return;
-
             AttachGlobalExceptionHandler();
             SetUpLogger();
 
             Console.WriteLine("Welcome to CodeSearcher");
+            
+            m_CmdHandler = new CmdLineHandler(m_Logger, ()=> Console.Out);
+            if (!m_CmdHandler.Parse(args)) return;
 
             var mode = m_CmdHandler.GetProgramMode();
             if(mode == ProgramModes.None) 
             {
-                mode= ReadProgramMode();
+                mode = ReadProgramMode();
             }
             
             ICodeSearcherLogic logic = GetCodeSearcherLogic();
@@ -49,7 +49,7 @@ namespace CodeSearcher
                     break;
             }
 
-            Console.WriteLine("Programm finished");
+            Console.WriteLine("Program finished");
             Console.ReadKey();
         }
 
@@ -60,12 +60,24 @@ namespace CodeSearcher
                 new LoggerAdapter(m_Logger),
                 getIndexPath: () =>
                 {
-                    var idxPath = m_CmdHandler[m_CmdHandler.IndexPath] ?? ReadIndexPath();
+                    string idxPath = m_CmdHandler.IndexPath;
+                    
+                    if(string.IsNullOrEmpty(idxPath)) 
+                    {
+                        idxPath= ReadIndexPath();
+                    }
+                    
                     return idxPath;
                 },
                 getSourcePath: () =>
                 {
-                    var srcPath = m_CmdHandler[m_CmdHandler.SourcePath] ?? ReadSourcePath();
+                    var srcPath = m_CmdHandler.SourcePath;
+                    
+                    if (string.IsNullOrEmpty(srcPath))
+                    {
+                        ReadSourcePath();
+                    }
+                    
                     return srcPath;
                 },
                 getFileExtension: () =>
@@ -105,17 +117,16 @@ namespace CodeSearcher
         {
             string exportFileName = string.Empty;
             IResultExporter exporter = null;
-            if (bool.TryParse(m_CmdHandler[m_CmdHandler.WildcardSearch], out bool wildcardSearch))
+            bool wildcardSearch = m_CmdHandler.WildCardSearch;
+            if(wildcardSearch) 
             {
                 m_Logger.Info("Using Wildcard Searcher");
-                wildcardSearch = true;
             }
             else
             {
                 m_Logger.Info("Using Default Searcher");
-                wildcardSearch = false;
             }
-
+            
             logic.SearchWithinExistingIndex(
             startCallback: () =>
             {
@@ -123,16 +134,16 @@ namespace CodeSearcher
             },
             getSearchWord: () =>
             {
-                string word;
+                string word = m_CmdHandler.SearchWord;
                 bool exit;
-                if (m_CmdHandler[m_CmdHandler.SearchedWord] != null)
+                
+                if (string.IsNullOrEmpty(word))
                 {
-                    word = m_CmdHandler[m_CmdHandler.SearchedWord];
-                    exit = true;
+                    exit = ReadWordToSearch(out word);
                 }
                 else
                 {
-                    exit = ReadWordToSearch(out word);
+                    exit = true;
                 }
 
                 word?.Trim();
@@ -141,31 +152,16 @@ namespace CodeSearcher
             },
             getMaximumNumberOfHits: () =>
             {
-                if (!int.TryParse(m_CmdHandler[m_CmdHandler.NumberOfHits], out int numberOfHits))
-                {
-                    m_Logger.Info("Maximum hits to show will be 1000");
-                    numberOfHits = 1000;
-                }
-                return numberOfHits;
+                return m_CmdHandler.NumberOfHits;
             },
             getHitsPerPage: () =>
             {
-                if (!int.TryParse(m_CmdHandler[m_CmdHandler.HitsPerPage], out int hitsPerPage))
-                {
-                    m_Logger.Info("Maximum hits per page will be shown");
-                    hitsPerPage = -1;
-                }
-
-                return hitsPerPage;
+                return m_CmdHandler.HitsPerPage;
             },
             getExporter: () =>
             {
-                if (!bool.TryParse(m_CmdHandler[m_CmdHandler.ExportToFile], out bool export))
-                {
-                    m_Logger.Info("Results will not be exported");
-                    export = false;
-                }
-
+                bool export = m_CmdHandler.ExportToFile;
+                
                 if (export)
                 {
                     exportFileName = Path.GetTempFileName();
@@ -173,6 +169,10 @@ namespace CodeSearcher
                     exporter = wildcardSearch
                         ? Factory.Get().GetWildcardResultExporter(exportStreamWriter)
                         : Factory.Get().GetDefaultResultExporter(exportStreamWriter);
+                }
+                else
+                {
+                    m_Logger.Info("Results will not be exported");
                 }
 
                 return (export, exporter);

@@ -4,15 +4,13 @@ namespace CodeSearcher
 {
     internal interface ICmdLineHandler
     {
-        string this[string name] { get; }
-
-        string ExportToFile { get; }
-        string HitsPerPage { get; }
+        bool WildCardSearch { get; }
+        bool ExportToFile { get; }
+        string SearchWord { get; }
+        int NumberOfHits { get; }
+        int HitsPerPage { get; }
         string IndexPath { get; }
-        string NumberOfHits { get; }
-        string SearchedWord { get; }
         string SourcePath { get; }
-        string WildcardSearch { get; }
 
         IList<string> GetFileExtensionsAsList();
         ProgramModes GetProgramMode();

@@ -3,54 +3,32 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CommandLine;
-
+using NLog;
 namespace CodeSearcher
 {
     internal class CmdLineHandler : ICmdLineHandler
     {
-        private readonly IDictionary<String, String> m_Arguments;
         private readonly Func<TextWriter> m_WriteProvider;
-        private const string m_FileExtensions = "FileExtensions";
-        private const string m_ProgramMode = "ProgramMode";
+        private readonly ILogger m_Logger;
+        private ProgramModes m_ProgramMode = ProgramModes.None;
         private IList<string> m_FileExtentions;
-        public String SourcePath => "SourcePath";
-        public String IndexPath => "IndexPath";
-        public String SearchedWord => "SearchedWord";
-        public String HitsPerPage => "HitsPerPage";
-        public String ExportToFile => "ExportToFile";
-        public String WildcardSearch => "WildcardSearch";
-        public String NumberOfHits => "NumberOfHits";
+        public string SourcePath { get; private set; }
+        public string IndexPath { get; private set; }
+        public bool WildCardSearch { get; private set; }
+        public bool ExportToFile { get; private set; }
+        public string SearchWord { get; private set; }
+        public int NumberOfHits { get; private set; }
+        public int HitsPerPage { get; private set; }
 
-        public String this[String name]
+        public CmdLineHandler(ILogger logger, Func<TextWriter> writerProvider)
         {
-            get
-            {
-                if (m_Arguments.ContainsKey(name))
-                {
-                    return m_Arguments[name];
-                }
-                return null;
-            }
-        }
-
-        public CmdLineHandler(Func<TextWriter> writerProvider = null)
-        {
-            m_Arguments = new Dictionary<string, string>();
             m_WriteProvider = writerProvider;
+            m_Logger = logger;
         }
 
         public ProgramModes GetProgramMode()
         {
-            if (m_Arguments.ContainsKey(m_ProgramMode))
-            {
-                if (m_Arguments[m_ProgramMode] == "index" || m_Arguments[m_ProgramMode] == "i")
-                    return ProgramModes.Index;
-                if (m_Arguments[m_ProgramMode] == "search" || m_Arguments[m_ProgramMode] == "s")
-                    return ProgramModes.Search;
-                if (m_Arguments[m_ProgramMode] == "auto" || m_Arguments[m_ProgramMode] == "a")
-                    return ProgramModes.Auto;
-            }
-            return ProgramModes.None;
+            return m_ProgramMode;
         }
 
         public IList<String> GetFileExtensionsAsList()
@@ -70,7 +48,7 @@ namespace CodeSearcher
         /// </summary>
         private class Options
         {
-            [Option('m', "mode", Required = true, HelpText = "Select the mode of the tool. \n 'index' to index directory \n 'search' to search within already indexed directory \n 'auto' to use CLI")]
+            [Option('m', "mode", HelpText = "Select the mode of the tool. \n 'index' to index directory \n 'search' to search within already indexed directory \n 'auto' to use CLI")]
             public string Mode { get; set; }
 
             [Option("indexPath", HelpText = "Location where the index is or should be stored (mandatory), short --ip")]
@@ -92,17 +70,17 @@ namespace CodeSearcher
             public IEnumerable<string> FileExtentionShort { get; set; } 
             
             //hpp|hitsPerPage
-            [Option("hpp", Hidden = true)]
-            public string HitsPerPageShort { get; set; }
+            [Option("hpp", Default = -1, Hidden = true)]
+            public int HitsPerPageShort { get; set; }
             
-            [Option("hitsPerPage", HelpText = "Amount of findings to show at once (optional, default = -1; -1 means all)")]
-            public string HitsPerPageLong { get; set; }
+            [Option("hitsPerPage", Default = -1, HelpText = "Amount of findings to show at once (optional, default = -1; -1 means all)")]
+            public int HitsPerPageLong { get; set; }
 
-            [Option("hits", Hidden = true)]
-            public string NumberOfHitsToShowShort { get; set; }
+            [Option("hits", Default = -1, Hidden = true)]
+            public int NumberOfHitsToShowShort { get; set; }
             
-            [Option("numerOfHits", HelpText = "Amount of files with findings (optional, default is 1000)")]
-            public string NumberOfHitsToShowLong { get; set; }
+            [Option("numerOfHits", Default = -1, HelpText = "Amount of files with findings (optional, default is 1000)")]
+            public int NumberOfHitsToShowLong { get; set; }
 
             [Option("sw", Hidden = true)]
             public string SearchWordShort { get; set; }
@@ -127,14 +105,23 @@ namespace CodeSearcher
             var parser = new Parser(settings =>
             {
                 settings.HelpWriter = m_WriteProvider();
+                settings.AutoHelp = false;
+                settings.CaseSensitive = false;
             });
+            
 
-            var parserOut = parser.ParseArguments<Options>(cmdArgs).WithParsed
+            var parserOutput = parser.ParseArguments<Options>(cmdArgs);
+
+            parserOutput.WithParsed
             (
                 o => result = InternalParse(o)
             );
+            bool parserError = false;
+            parserOutput.WithNotParsed(e => parserError = e.Any());
 
-            if(!result) {
+
+            if(!result && !parserError)
+            {
                 parser.ParseArguments<Options>(new string[] { "--help" });
             }
 
@@ -143,7 +130,7 @@ namespace CodeSearcher
 
         private bool InternalParse(Options options) 
         {
-            var mode = options.Mode.TrimStart('=');
+            var mode = options.Mode?.TrimStart('=');
             if(mode == "i" || mode == "index") 
             {
                 return InternalParseIndex(options);
@@ -154,7 +141,7 @@ namespace CodeSearcher
             }
             else if(mode == "a" || mode == "auto") 
             {
-                m_Arguments[m_ProgramMode] = mode;
+                m_ProgramMode = ProgramModes.Auto;
                 return true;
             }
             else 
@@ -162,18 +149,19 @@ namespace CodeSearcher
                 return false;
             }
         }
-
+        
         private bool InternalParseSearch(Options options)
         {
-            m_Arguments[m_ProgramMode] = "search";
+            m_ProgramMode = ProgramModes.Search;
 
             if(!ParseIndexPath(options))
             {
+
                 return false;
             }
 
             string searchWord;
-            if(!string.IsNullOrEmpty(options.SearchWordLong)) 
+            if (!string.IsNullOrEmpty(options.SearchWordLong)) 
             {
                 searchWord = options.SearchWordLong;
             } 
@@ -185,92 +173,85 @@ namespace CodeSearcher
             {
                 return false;
             }
-            m_Arguments[SearchedWord] = searchWord;
 
-            string numberOfHits = (1000).ToString();
-            if(!string.IsNullOrEmpty(options.NumberOfHitsToShowLong)) 
-            {
-                numberOfHits = options.NumberOfHitsToShowLong;
-            }
-            else if(!string.IsNullOrEmpty(options.NumberOfHitsToShowShort)) 
-            {
-                numberOfHits = options.NumberOfHitsToShowShort;
-            }
-            //really hard but needed to fulfil the interface
-            m_Arguments[NumberOfHits] = Int32.Parse(numberOfHits).ToString();
+            SearchWord = searchWord;
             
-            if(options.Export) 
+            if(options.NumberOfHitsToShowLong != -1) 
             {
-                m_Arguments[ExportToFile] = options.Export.ToString();
+                NumberOfHits = options.NumberOfHitsToShowLong;
             }
-            
-            string hitsPerPage = (-1).ToString();
-            if(!string.IsNullOrEmpty(options.HitsPerPageLong)) 
+            else if(options.NumberOfHitsToShowShort != -1)
             {
-                hitsPerPage = options.HitsPerPageLong;
+                NumberOfHits = options.NumberOfHitsToShowShort;
             }
-            else if(!string.IsNullOrEmpty(options.HitsPerPageShort)) 
+            else
             {
-                hitsPerPage = options.HitsPerPageShort;
+                NumberOfHits = 1000;
+                m_Logger.Info("Maximum hits to show will be 1000");
             }
-            //really hard but needed to fulfil the interface
-            m_Arguments[HitsPerPage] = Int32.Parse(hitsPerPage).ToString();
+
+            ExportToFile = options.Export;
+                 
+            if(options.HitsPerPageLong != -1) 
+            {
+                HitsPerPage = options.HitsPerPageLong;
+            }
+            else if(options.HitsPerPageShort != -1) 
+            {
+                HitsPerPage = options.HitsPerPageShort;
+            }
+            else
+            {
+                m_Logger.Info("Maximum hits per page will be shown");
+                HitsPerPage = -1;
+            }
             
             // ugly but needed to support a bool flag with to names.
-            if(options.WildCardSearchLong||options.WildCardSearchShort) 
-            {
-                m_Arguments[WildcardSearch] = true.ToString();
-            }
-
+            WildCardSearch = options.WildCardSearchLong||options.WildCardSearchShort;
+            
             return true;
         }
 
         private bool ParseIndexPath(Options options)
         {
-            string indexPath;
             if (!string.IsNullOrWhiteSpace(options.IndexPathLong))
             {
-                indexPath = options.IndexPathLong;
+                IndexPath = options.IndexPathLong;
             }
             else if(!string.IsNullOrWhiteSpace(options.IndexPathShort)) 
             {
-                indexPath = options.IndexPathShort;
+                IndexPath = options.IndexPathShort;
             }
             else
             {
                 return false;
             }
 
-            m_Arguments[IndexPath] = indexPath;
-
             return true;
         }
 
         private bool InternalParseIndex(Options options)
         {
-            m_Arguments[m_ProgramMode] = "index";
+            m_ProgramMode = ProgramModes.Index;
 
             if(!ParseIndexPath(options)) 
             {
                 return false;
             }
-
-            string sourcePath;
+            
             if (!string.IsNullOrWhiteSpace(options.SourcePathLong)) 
             {
-                sourcePath = options.SourcePathLong;
+                SourcePath = options.SourcePathLong;
             }
             else if(!string.IsNullOrWhiteSpace(options.SourcePathShort))             
             {
-                sourcePath = options.SourcePathShort;
+                SourcePath = options.SourcePathShort;
             }
             else 
             {
                 return false; 
             }
             
-            m_Arguments[SourcePath] = sourcePath;
-
             if(options.FileExtentionLong.Any())
             {
                 m_FileExtentions = options.FileExtentionLong.ToList();
@@ -283,9 +264,6 @@ namespace CodeSearcher
             {
                 m_FileExtentions = new string[] { ".cs", ".xml", ".csproj" };
             }
-            
-            //for the interface stability to the tests
-            m_Arguments[m_FileExtensions] = string.Join(',', m_FileExtentions);
             
             return true; 
         }

@@ -10,24 +10,23 @@ namespace CodeSearcher.Tests.IntegrationTests
     [Category("SafeForCI")]
     public class CmdLineHandlerTests 
     {
-        [TestCase("-m=auto")]
-        [TestCase("-m=a")]
-        public void GetProgramMode_ParameterAuto_ProgramModeAuto(string parameter)
+        [Test]
+        public void GetProgramMode_ParameterAuto_ProgramModeAuto()
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
 
-            var result = sut.Parse(new []{parameter});
+            var result = sut.Parse(new []{"auto"});
             
             Assert.True(result);
             Assert.That(sut.GetProgramMode, Is.EqualTo(ProgramModes.Auto));
         }
 
-        [TestCase("-m=index")]
-        [TestCase("-m=i")]
-        public void GetProgramMode_ParameterIndex_ProgramModeIndex(string parameter) 
+        [TestCase("-i")]
+        [TestCase("--indexPath")]
+        public void GetProgramMode_ParameterIndex_ProgramModeIndex(string indexPath) 
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
-            var result = sut.Parse(new string[] {parameter, "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
+            var result = sut.Parse(new string[] {"index", $"{indexPath}", "SomeIndexPath", "-s", "SomeSourcePath" });
             Assert.True(result);
             Assert.That(sut.GetProgramMode, Is.EqualTo(ProgramModes.Index));
             Assert.That(sut.IndexPath, Is.EqualTo("SomeIndexPath"));
@@ -40,7 +39,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void FileExtensions_IndexModeWithOptionalArgument_ReturnsFileExtention()
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
-            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--fe=txt", "--sp=SomeSourcePath" });
+            var result = sut.Parse(new string[] {"index", "--indexPath", "SomeIndexPath", "-f", "txt", "--SourcePath", "SomeSourcePath" });
             Assert.True(result);
             Assert.That(sut.GetFileExtensionsAsList, Is.EquivalentTo(new [] {"txt"}));
         }
@@ -49,7 +48,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void FileExtensions_IndexModeWithoutOptionalExtentionParemeter_ReturnsDefault()
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
-            var result = sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
+            var result = sut.Parse(new string[] {"index", "-i", "SomeIndexPath", "-s", "SomeSourcePath" });
             Assert.True(result);
             Assert.That(sut.GetFileExtensionsAsList, Is.EquivalentTo(new [] {".cs", ".xml", ".csproj"}));
         }
@@ -58,18 +57,18 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void GetExtention_ParseInputWithExtentionParameter_ReturnsSplittedExtentionList() 
         {
             var extention = ".txt, .doc, .tex";
-
-            CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
-            sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", $"--fe={extention}", "--sp=SomeSourcePath" });
             
-            Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(extention.Split(',')));
+            CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
+            sut.Parse(new string[] {"index", "-i", "SomeIndexPath", "--fileExtensions", $"{extention}", "--sourcePath", "SomeSourcePath" });
+            
+            Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(new []{".txt", ".doc", ".tex"}));
         }
         
         [Test]
         public void GetExtention_ParseInputWithoutExtentionParameter_ReturnsDefaultList() 
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
-            sut.Parse(new string[] {"-m=index", "--ip=SomeIndexPath", "--sp=SomeSourcePath" });
+            sut.Parse(new string[] {"index", "--indexpath", "SomeIndexPath", "-s", "SomeSourcePath" });
             
             Assert.That(sut.GetFileExtensionsAsList(), Is.EquivalentTo(".cs,.xml,.csproj".Split(',')));
         }
@@ -78,18 +77,17 @@ namespace CodeSearcher.Tests.IntegrationTests
         public void GetExtention_ParseNonIndexInput_Null() 
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
-            sut.Parse(new string[] {"-m=a" });
+            sut.Parse(new string[] {"auto" });
             
             Assert.That(sut.GetFileExtensionsAsList(), Is.Null);
         }
 
-        [TestCase("-m=search")]
-        [TestCase("-m=s")]
-        public void GetProgramMode_ParameterSearch_ProgramModeSearch(string mode)
+        [Test]
+        public void GetProgramMode_ParameterSearch_ProgramModeSearch()
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {mode , "--sw=bla", "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla", "-i", "SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut.GetProgramMode, Is.EqualTo(ProgramModes.Search));
@@ -100,7 +98,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search" , "-i", "SomeIndexPath"});
             
             Assert.False(result);
         }
@@ -113,7 +111,7 @@ namespace CodeSearcher.Tests.IntegrationTests
 
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), consoleRequest);
 
-            sut.Parse(new string[] { "-m=search", "--ip=SomeIndexPath" });
+            sut.Parse(new string[] { "search", "--indexpath", "SomeIndexPath" });
 
             Assert.True(executed);
         }
@@ -123,7 +121,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla"});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla"});
             
             Assert.False(result);
         }
@@ -136,30 +134,28 @@ namespace CodeSearcher.Tests.IntegrationTests
 
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), consoleRequest);
 
-            sut.Parse(new string[] { "-m=search", "--sw=bla" });
+            sut.Parse(new string[] { "search", "--searchwOrd", "bla" });
 
             Assert.True(executed);
         }
         
-        [TestCase("-m=search")]
-        [TestCase("-m=s")]
-        public void IndexPath_SearchModeWithIndexPath_ParsedPath(string mode)
+        [Test]
+        public void IndexPath_SearchModeWithIndexPath_ParsedPath()
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {mode , "--sw=bla", "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search", "-s", "bla", "-i", "SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut.IndexPath, Is.EqualTo("SomeIndexPath"));
         }
 
-        [TestCase("-m=search")]
-        [TestCase("-m=s")]
-        public void SearchedWord_SearchModeWithIndexPath_ParsedPath(string mode)
+        [Test]
+        public void SearchedWord_SearchModeWithIndexPath_ParsedPath()
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {mode , "--sw=bla", "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search", "-s", "bla", "-i", "SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut.SearchWord, Is.EqualTo("bla"));
@@ -170,21 +166,20 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--hpp=100"});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla", "--IndexPath", "SomeIndexPath", "-p", "100"});
             
             Assert.True(result);
             Assert.That(sut.HitsPerPage, Is.EqualTo(100));
         }
 
         [Test]
-        public void HitsPerPage_ParseStringWithoutOptionalArgumentHitsPerPage_DefaultMinusOne()
+        public void HitsPerPage_ParseStringWithoutOptionalArgumentHitsPerPage_Fails()
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla", "-i", "index", "-p", "SomeIndexPath"});
             
-            Assert.True(result);
-            Assert.That(sut.HitsPerPage, Is.EqualTo(-1));
+            Assert.False(result);
         }
 
         [Test]
@@ -202,7 +197,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--hits=100","--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla", "-n", "100", "-i", "SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut.NumberOfHits, Is.EqualTo(100));
@@ -213,7 +208,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla", "-i", "SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut.NumberOfHits, Is.EqualTo(1000));
@@ -234,7 +229,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--export"});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla", "--indexPath", "SomeIndexPath", "--export"});
             
             Assert.True(result);
             Assert.That(sut.ExportToFile, Is.True);
@@ -245,7 +240,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search" , "--searchWord", "bla", "-i", "SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut.ExportToFile, Is.False);
@@ -256,7 +251,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", "--wildcard"});
+            var result = sut.Parse(new string[] {"search" , "--searchword", "bla", "--indexPath", "SomeIndexPath", "--wildcard"});
             
             Assert.True(result);
             Assert.That(sut.WildCardSearch, Is.True);
@@ -267,7 +262,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search", "--sw=bla", "--ip=SomeIndexPath"});
+            var result = sut.Parse(new string[] {"search", "-s", "bla", "-i", "SomeIndexPath"});
             
             Assert.True(result);
             Assert.That(sut.ExportToFile, Is.False);
@@ -308,7 +303,7 @@ namespace CodeSearcher.Tests.IntegrationTests
         {
             CmdLineHandler sut = new CmdLineHandler(Mock.Of<ILogger>(), ()=>null);
             
-            var result = sut.Parse(new string[] {"-m=search" , "--sw=bla", "--ip=SomeIndexPath", wildCard});
+            var result = sut.Parse(new string[] {"search" , "-s", "bla", "-i", "SomeIndexPath", wildCard});
             
             Assert.True(result);
             Assert.That(sut.WildCardSearch, Is.True);

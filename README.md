@@ -25,32 +25,33 @@ This chapter describes how to use the command line version of the tool.
 To improve the usability code-searcher provides an interactive menu within console. You should Start with this option if you are a new user.
 
 ```powershell
-CodeSearcher.exe -m=auto
+CodeSearcher.exe auto
 ```
 
 ### Index a new source code folder
 First we have to analyse all the files we want to have searchable. To create a lucene index out of the files you can use the following commands: 
 ```batchfile
-REM CodeSearcher.exe -m=index --ip=PathToStoreIndex --sp=PathOfSourceCode
+REM CodeSearcher.exe index --indexPath PathToStoreIndex --sourcePath PathOfSourceCode
 
 REM Index files of type (cs, csproj, xml) of folder "D:\repository\project" 
 REM and store resulting index in folder "D:\Index"
-CodeSearcher.exe -m=index --ip=D:\Index --sp=D:\repository\project
+CodeSearcher.exe index --indexPath D:\Index --sourcePath D:\repository\project
 REM Index files of Type (json and xml) of folder "D:\repository\project"
 REM and store resulting index in folder "D:\IndexJsonOnly"
-CodeSearcher.exe -m=index --ip=D:\IndexJsonXmlOnly --sp=D:\repository\project --fe=".json,.xml"
+CodeSearcher.exe index --indexPath D:\IndexJsonXmlOnly --sourcePath D:\repository\project --fileExtensions .json,.xml
 ```
 
 ### Use index to search containing word
 After indexing we can use the index to find the files and line numbers containing the searched word, very fast.
 ```batchfile
-REM CodeSearcher.exe -m=search --ip=PathToStoreIndex --sw=WordToSearch
+REM CodeSearcher.exe search --indexPath PathToStoreIndex --searchWord WordToSearch
 
 REM search word "class" in index stored under "D:\Index"
-CodeSearcher.exe -m=search --ip=D:\Index --sw="class"
+CodeSearcher.exe search --indexPath D:\Index --searchWord class
 REM search word "port" in index stored under "D:\IndexJsonXmlOnly" show first 100 hits
-CodeSearcher.exe -m=search --ip="C:\IndexXmlOnly" --sw="port" --hits=100
+CodeSearcher.exe search --indexPath C:\IndexXmlOnly --searchWord port --numberOfHits 100
 ```
+To see all options use CodeSearcher.exe search --help
 
 ## Web API
 The CodeSearcher.WebAPI provides an REST ful API to use the code searcher. The swagger (OpenAPI) webpage is available under [http://localhost:5000](http://localhost:5000), this also the port to use the interface.

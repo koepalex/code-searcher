@@ -12,7 +12,7 @@ namespace CodeSearcher
         private class IndexOptions
         {
             [Option('s', "sourcePath", Required = true, HelpText = "Location of files, which should be indexed")]
-            public string SourcePath { get;set; }
+            public string SourcePath { get; set; }
 
             [Option('i', "indexPath", Required = true, HelpText = "Location where the index should be stored")]
             public string IndexPath { get; set; }
@@ -44,10 +44,7 @@ namespace CodeSearcher
         }
 
         [Verb("auto", HelpText = "Auto mode to use the tool interactive")]
-        private class AutoOptions 
-        {
-
-        }
+        private class AutoOptions { }
 
         private readonly Func<TextWriter> m_WriteProvider;
         private readonly ILogger m_Logger;

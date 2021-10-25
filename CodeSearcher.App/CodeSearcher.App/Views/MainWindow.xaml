@@ -13,7 +13,7 @@
         Icon="../Assets/magnifying_glass.ico">
 
     <DockPanel>
-        
+
         <StatusBar DockPanel.Dock="Bottom" MinHeight="23">
             <StatusBarItem>
                 <TextBlock Name="StatusBarTextBox" Text="{Binding StatusMessage}"/>

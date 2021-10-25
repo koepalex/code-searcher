@@ -64,7 +64,7 @@ namespace CodeSearcher.App.ViewModels
             return valid;
         }
 
-        public async Task LoadSearchResultAsync()
+        public async Task CreateNewIndexAsync()
         {
             CreateIndexResponse createIndexResponse;
 

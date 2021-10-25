@@ -34,7 +34,7 @@ namespace CodeSearcher.Tests.SystemTests
                 _stream = new MemoryStream();
                 var writer = new StreamWriter(_stream);
                 _exporter = Factory.Get().GetDefaultResultExporter(writer);
-                
+
             }
             public void Dispose()
             {
@@ -107,7 +107,7 @@ namespace CodeSearcher.Tests.SystemTests
                 }
             }
         }
-    
+
 
         [Test]
         [Order(2)]

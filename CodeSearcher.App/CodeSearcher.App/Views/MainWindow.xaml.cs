@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,8 +20,6 @@ namespace CodeSearcher.App
     public partial class MainWindow : Window
     {
         private readonly AppViewModel _viewModel;
-        private readonly Timer _timer;
-        private const int _updateInterval = 2500;
 
         public MainWindow()
         {
@@ -48,18 +45,11 @@ namespace CodeSearcher.App
             DataContext = _viewModel;
 
             DiagConsole.ProcessInterface.StartProcess("CodeSearcher.WebAPI.exe", string.Empty);//"http://0.0.0.0:44444");
-            //_timer = new Timer(_updateInterval);
-            
-            //_timer.Elapsed += async (sender, args) =>
-            //{
-            //    InitializeIndexView().Wait();
-            //};
         }
 
         private async void OnMainWindowLoaded(object sender, RoutedEventArgs e)
         {
             await InitializeIndexView();
-            //_timer.Start();
         }
 
         private async Task InitializeIndexView()
@@ -180,6 +170,9 @@ namespace CodeSearcher.App
                 {
 
                     var results = await _viewModel.LoadSearchResultAsync(searchPattern);
+
+                    FindingTreeView.Items.Clear();
+
                     foreach (var findingResults in results.Where(r => r.Findings.Any()))
                     {
                         var item = new TreeViewItem

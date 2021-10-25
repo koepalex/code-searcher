@@ -10,3 +10,6 @@ gen/
 
 # Packages
 packages/
+
+# Code Coverage Results
+coverage.opencover.xml

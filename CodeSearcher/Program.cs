@@ -17,7 +17,7 @@ namespace CodeSearcher
         private static ICmdLineHandler m_CmdHandler;
         private static ILogger m_Logger;
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             AttachGlobalExceptionHandler();
             SetUpLogger();

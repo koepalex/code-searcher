@@ -54,5 +54,11 @@
   <ItemGroup>
     <Content Include="AddThisToPostBuildEvent.txt" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="SystemTests/DownloadedTestData/**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>

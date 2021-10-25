@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="NDesk.Options" Version="0.2.1" />
     <PackageReference Include="NDesk.Options.Extensions" Version="1.4.1" />
-    <PackageReference Include="NLog" Version="4.7.11" />
+    <PackageReference Include="NLog" Version="4.7.12" />
   </ItemGroup>
 
   <ItemGroup>

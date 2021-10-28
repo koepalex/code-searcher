@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HangFire" Version="1.7.25" />
+    <PackageReference Include="HangFire" Version="1.7.26" />
     <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />

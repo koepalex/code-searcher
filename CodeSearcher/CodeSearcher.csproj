@@ -6,6 +6,7 @@
     <LangVersion>8.0</LangVersion>
     <OutputType>Exe</OutputType>
     <Version>2.0.0</Version>
+    <RuntimeFrameworkVersion>5.0.11</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CodeSearcher.App"
+        xmlns:cmd="clr-namespace:CodeSearcher.App.Commands"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:wpf="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
         mc:Ignorable="d"
@@ -11,7 +12,9 @@
         Loaded="OnMainWindowLoaded"
         Closing="OnMainWindowClosing"
         Icon="../Assets/magnifying_glass.ico">
-
+    <Window.CommandBindings>
+        <CommandBinding Command="cmd:CustomCommands.SearchInTextArea" CanExecute="SearchInTextArea_CanExecute" Executed="SearchInTextArea_Executed" />
+    </Window.CommandBindings>
     <DockPanel>
 
         <StatusBar DockPanel.Dock="Bottom" MinHeight="23">

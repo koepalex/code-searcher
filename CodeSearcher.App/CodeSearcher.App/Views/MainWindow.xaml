@@ -51,6 +51,18 @@
 
             <DockPanel Grid.Column="0" Grid.Row="3" LastChildFill="True">
                 <Label DockPanel.Dock="Top">Files with findings:</Label>
+                <ComboBox DockPanel.Dock="Top"  
+                            x:Name="extFilterCombo" 
+                            ItemsSource="{Binding Extensions}" >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox Margin="5" IsChecked="{Binding Show}"/>
+                                <TextBlock Margin="5" Text="{Binding Extension}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <TreeView Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged" />
             </DockPanel>
 

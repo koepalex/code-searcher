@@ -44,6 +44,7 @@ namespace CodeSearcher.App.ViewModels
         }
 
         public ObservableCollection<ICodeSearcherIndex> Indexes { get; set; }
+        public ObservableCollection<ExtensionInfo> Extensions { get; set; }
 
         /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
@@ -51,6 +52,7 @@ namespace CodeSearcher.App.ViewModels
         public AppViewModel()
         {
             Indexes = new ObservableCollection<ICodeSearcherIndex>();
+            Extensions = new ObservableCollection<ExtensionInfo>();
         }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
@@ -91,6 +93,11 @@ namespace CodeSearcher.App.ViewModels
                 IndexID = SelectedIndex.ID,
                 SearchWord = searchPattern
             };
+
+            foreach(var extension in SelectedIndex.FileExtensions)
+            {
+                Extensions.Add(new ExtensionInfo { Show = true, Extension = extension });
+            }
 
             using (var requestPayload = new StringContent(JsonConvert.SerializeObject(searchRequest), Encoding.UTF8, "application/json"))
             {

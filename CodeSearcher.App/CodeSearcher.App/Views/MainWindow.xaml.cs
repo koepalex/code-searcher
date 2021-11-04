@@ -11,6 +11,8 @@ using System.Windows.Input;
 using CodeSearcher.App.ViewModels;
 using ICSharpCode.AvalonEdit.Document;
 using Path = System.IO.Path;
+using ICSharpCode.AvalonEdit.Search;
+using System.Windows.Threading;
 
 namespace CodeSearcher.App
 {
@@ -20,6 +22,7 @@ namespace CodeSearcher.App
     public partial class MainWindow : Window
     {
         private readonly AppViewModel _viewModel;
+        private SearchPanel _searchPanel;
 
         public MainWindow()
         {
@@ -198,6 +201,16 @@ namespace CodeSearcher.App
                     }
                 }
             }
+        }
+
+        private void SearchInTextArea_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = TextEditor.IsEnabled && TextEditor.Document != null;
+        }
+
+        private void SearchInTextArea_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            _searchPanel = SearchPanel.Install(TextEditor);
         }
     }
 }

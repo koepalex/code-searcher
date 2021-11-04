@@ -47,7 +47,29 @@ namespace CodeSearcher.App
             _viewModel = new AppViewModel();
             DataContext = _viewModel;
 
+            _viewModel.Extensions.CollectionChanged += (sender, args) =>
+            {
+                foreach(var info in _viewModel.Extensions)
+                {
+                    info.PropertyChanged -= ExtensionInfoPropertyChanged;
+                    info.PropertyChanged += ExtensionInfoPropertyChanged;
+                }
+            };
+
             DiagConsole.ProcessInterface.StartProcess("CodeSearcher.WebAPI.exe", string.Empty);//"http://0.0.0.0:44444");
+        }
+
+        private void ExtensionInfoPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var ext = (ExtensionInfo)sender;
+            foreach(TreeViewItem item in FindingTreeView.Items)
+            {
+                var result = (IDetailedSearchResult)item.Tag;
+                if (result.Filename.EndsWith(ext.Extension, StringComparison.OrdinalIgnoreCase))
+                {
+                    item.Visibility = ext.Show ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
         }
 
         private async void OnMainWindowLoaded(object sender, RoutedEventArgs e)

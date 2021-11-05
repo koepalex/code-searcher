@@ -234,5 +234,16 @@ namespace CodeSearcher.App
         {
             _searchPanel = SearchPanel.Install(TextEditor);
         }
+
+        private void SearchInIndex_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = _viewModel.SelectedIndex != null;
+        }
+
+        private void SearchInIndex_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            SearchTextBox.Clear();
+            SearchTextBox.Focus();
+        }
     }
 }

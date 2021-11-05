@@ -14,6 +14,7 @@
         Icon="../Assets/magnifying_glass.ico">
     <Window.CommandBindings>
         <CommandBinding Command="cmd:CustomCommands.SearchInTextArea" CanExecute="SearchInTextArea_CanExecute" Executed="SearchInTextArea_Executed" />
+        <CommandBinding Command="cmd:CustomCommands.SearchInIndex" CanExecute="SearchInIndex_CanExecute" Executed="SearchInIndex_Executed" />
     </Window.CommandBindings>
     <DockPanel>
 
@@ -51,8 +52,8 @@
 
             <DockPanel Grid.Column="0" Grid.Row="3" LastChildFill="True">
                 <Label DockPanel.Dock="Top">Files with findings:</Label>
-                <ComboBox DockPanel.Dock="Top"  
-                            x:Name="extFilterCombo" 
+                <ComboBox DockPanel.Dock="Top"
+                            x:Name="extFilterCombo"
                             ItemsSource="{Binding Extensions}" >
                     <ComboBox.ItemTemplate>
                         <DataTemplate>

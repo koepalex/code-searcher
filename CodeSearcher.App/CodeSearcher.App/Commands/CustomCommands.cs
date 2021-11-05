@@ -14,5 +14,16 @@
 				new KeyGesture(Key.F, ModifierKeys.Control)
 			}
 		);
+
+		public static readonly RoutedUICommand SearchInIndex = new RoutedUICommand
+		(
+			"Search In Index",
+			"Search In Index",
+			typeof(CustomCommands),
+			new InputGestureCollection()
+			{
+				new KeyGesture(Key.F2)
+			}
+		);
 	}
 }

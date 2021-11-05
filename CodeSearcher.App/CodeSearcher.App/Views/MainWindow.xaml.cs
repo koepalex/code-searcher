@@ -197,7 +197,8 @@ namespace CodeSearcher.App
                     var results = await _viewModel.LoadSearchResultAsync(searchPattern);
 
                     FindingTreeView.Items.Clear();
-
+                    bool first = true;
+                    TreeViewItem firstSubItem = null;
                     foreach (var findingResults in results.Where(r => r.Findings.Any()))
                     {
                         var item = new TreeViewItem
@@ -206,6 +207,11 @@ namespace CodeSearcher.App
                             Tag = findingResults,
                             IsEnabled = true,
                         };
+
+                        if (first)
+                        {
+                            item.ExpandSubtree();
+                        }
 
                         foreach (var lineFinding in findingResults.Findings)
                         {
@@ -217,9 +223,20 @@ namespace CodeSearcher.App
                                 IsEnabled = true,
                             };
                             item.Items.Add(subItem);
+
+                            if (first)
+                            {
+                                firstSubItem = subItem;
+                                first = false;
+                            }
                         }
 
                         FindingTreeView.Items.Add(item);
+                    }
+                    if (firstSubItem != null)
+                    {
+                        firstSubItem.IsSelected = true;
+                        firstSubItem.Focus();
                     }
                 }
             }

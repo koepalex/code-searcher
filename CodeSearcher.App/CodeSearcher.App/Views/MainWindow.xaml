@@ -8,10 +8,12 @@
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:wpf="clr-namespace:ConsoleControl.WPF;assembly=ConsoleControl.WPF"
         mc:Ignorable="d"
-        Title="Code Searcher App" Height="450" Width="800"
+        Title="Code Searcher App" Height="800" Width="1280"
         Loaded="OnMainWindowLoaded"
         Closing="OnMainWindowClosing"
-        Icon="../Assets/magnifying_glass.ico">
+        Icon="../Assets/magnifying_glass.ico"
+        ResizeMode="NoResize"
+        WindowState="Maximized">
     <Window.CommandBindings>
         <CommandBinding Command="cmd:CustomCommands.SearchInTextArea" CanExecute="SearchInTextArea_CanExecute" Executed="SearchInTextArea_Executed" />
         <CommandBinding Command="cmd:CustomCommands.SearchInIndex" CanExecute="SearchInIndex_CanExecute" Executed="SearchInIndex_Executed" />
@@ -64,7 +66,30 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <TreeView Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged" />
+                <TreeView Name="FindingTreeView" SelectedItemChanged="FindingTreeViewSelectionItemChanged" >
+                    <TreeView.Resources>
+                        <Style x:Key="{x:Type TreeViewItem}" TargetType="TreeViewItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Grid Margin="2">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <StackPanel Grid.Row="0"  Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Path=Path}"  />
+                                                <TextBlock Text="{Binding Path=FileName}" FontWeight="Bold"/>
+                                            </StackPanel>
+                                            <ItemsPresenter Grid.Row="1"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+
+                    </TreeView.Resources>
+                </TreeView>
             </DockPanel>
 
             <GridSplitter Grid.Column="1" Grid.Row="0"  Grid.RowSpan="4" Width="4" HorizontalAlignment="Stretch" Background="DarkGray"></GridSplitter>

@@ -193,7 +193,6 @@ namespace CodeSearcher.App
                 var searchPattern = (sender as TextBox)?.Text;
                 if (!string.IsNullOrWhiteSpace(searchPattern))
                 {
-
                     var results = await _viewModel.LoadSearchResultAsync(searchPattern);
 
                     FindingTreeView.Items.Clear();
@@ -201,23 +200,27 @@ namespace CodeSearcher.App
                     TreeViewItem firstSubItem = null;
                     foreach (var findingResults in results.Where(r => r.Findings.Any()))
                     {
+                        var content = new
+                        {
+                            Path = Path.GetDirectoryName(findingResults.Filename) + "\\",
+                            FileName = Path.GetFileName(findingResults.Filename)
+                        };
                         var item = new TreeViewItem
                         {
-                            Header = Path.GetFileName(findingResults.Filename),
+                            DataContext = content,
                             Tag = findingResults,
                             IsEnabled = true,
                         };
 
-                        if (first)
-                        {
-                            item.ExpandSubtree();
-                        }
-
                         foreach (var lineFinding in findingResults.Findings)
                         {
+                            var subitemContent = new
+                            {
+                                Path = $"LineNumber: {lineFinding.LineNumber} Position: {lineFinding.Position} Length: {lineFinding.Length}"
+                            };
                             var subItem = new TreeViewItem
                             {
-                                Header = $"LineNumber: {lineFinding.LineNumber} Position: {lineFinding.Position} Length: {lineFinding.Length}",
+                                DataContext = subitemContent,
                                 Tag = lineFinding,
                                 Name = $"Line{lineFinding.LineNumber}Pos{lineFinding.Position}Len{lineFinding.Length}",
                                 IsEnabled = true,

@@ -262,15 +262,16 @@ namespace CodeSearcher.WebAPI.Tests
                 createIndexResponse = JsonConvert.DeserializeObject<CreateIndexResponse>(responsePayload, settings);
             }
 
-            CreateIndexStatusResponse createIndexStatusResponse = null;
-            do
+            int indexId = -1;
+            while (true)
             {
-                var createIndexStatusModel = new CreateIndexStatusRequest
+                await Task.Delay(250);
+
+                var jobCompletedRequest = new CreateIndexStatusRequest
                 {
                     JobId = createIndexResponse.IndexingJobId
                 };
-
-                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(createIndexStatusModel), Encoding.UTF8, "application/json"))
+                using (var requestPayload = new StringContent(JsonConvert.SerializeObject(jobCompletedRequest), Encoding.UTF8, "application/json"))
                 {
                     using var request = new HttpRequestMessage
                     {
@@ -278,19 +279,21 @@ namespace CodeSearcher.WebAPI.Tests
                         Content = requestPayload,
                         RequestUri = new Uri(client.BaseAddress, APIRoutes.CreateIndexStatusRoute)
                     };
-
                     using (var response = await client.SendAsync(request))
                     {
                         response.EnsureSuccessStatusCode();
+
                         var responsePayload = await response.Content.ReadAsStringAsync();
-                        var settings = new JsonSerializerSettings();
-                        createIndexStatusResponse = JsonConvert.DeserializeObject<CreateIndexStatusResponse>(responsePayload, settings);
-                        Assert.That(createIndexStatusResponse, Is.Not.Null);
-                        Assert.That(createIndexStatusResponse.Exists, Is.True);
+                        var jobCompletedResponse = JsonConvert.DeserializeObject<CreateIndexStatusResponse>(responsePayload);
+                        if (jobCompletedResponse.IndexingFinished)
+                        {
+                            indexId = jobCompletedResponse.IndexId;
+                            break;
+                        }
                     }
                 }
-            } while (!createIndexStatusResponse.IndexingFinished);
-            Assert.That(createIndexStatusResponse.IndexId, Is.Not.SameAs(-1));
+            }
+            Assert.That(indexId, Is.Not.SameAs(-1));
 
             // Cleanup, but not really  needed for the tests to work ...            
             // if the metaPath is created between tests, the second test does not work for some reason ...

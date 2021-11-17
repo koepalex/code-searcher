@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,16 +26,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CodeSearcher\CodeSearcher.csproj">
-      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\CodeSearcher.Index\CodeSearcher.BusinessLogic.csproj">
-      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\CodeSearcher.Interfaces\CodeSearcher.Interfaces.csproj">
-      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\CodeSearcher.WebAPI\CodeSearcher.WebAPI.csproj">
-      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
 
@@ -56,7 +56,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Content Include="SystemTests/DownloadedTestData/**">
+    <Content Include="SystemTests\DownloadedTestData\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

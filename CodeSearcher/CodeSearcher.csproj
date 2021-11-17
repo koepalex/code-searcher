@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>latest</LangVersion>
     <OutputType>Exe</OutputType>
     <Version>2.0.0</Version>
-    <RuntimeFrameworkVersion>5.0.11</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,10 +15,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CodeSearcher.Index\CodeSearcher.BusinessLogic.csproj">
-      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\CodeSearcher.Interfaces\CodeSearcher.Interfaces.csproj">
-      <SetTargetFramework>TargetFramework=net5.0</SetTargetFramework>
+      <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
 

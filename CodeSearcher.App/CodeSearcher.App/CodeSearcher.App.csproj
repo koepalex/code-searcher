@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
-    <RuntimeFrameworkVersion>5.0.11</RuntimeFrameworkVersion>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+	<LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

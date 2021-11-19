@@ -2,6 +2,7 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/koepalex/code-searcher)
 ![GitHub Build](https://img.shields.io/github/workflow/status/koepalex/code-searcher/Ensure%20Build%20success?style=flat-square)
 ![CodeFactor](https://img.shields.io/codefactor/grade/github/koepalex/code-searcher?style=flat-square)
+![Github Lines Code](https://img.shields.io/tokei/lines/github/koepalex/code-searcher?style=flat-square)
 
 # code-searcher
 -------

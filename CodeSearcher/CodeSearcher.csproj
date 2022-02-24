@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.12" />
+    <PackageReference Include="NLog" Version="4.7.14" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
   </ItemGroup>
 

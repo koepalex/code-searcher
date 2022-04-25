@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Lucene.Net" Version="3.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Ninject" Version="3.3.4" />
+    <PackageReference Include="Ninject" Version="3.3.5" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
